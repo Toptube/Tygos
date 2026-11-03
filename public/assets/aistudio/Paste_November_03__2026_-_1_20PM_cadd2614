@@ -1,0 +1,1681 @@
+TYGOS HOSPITALITY MANAGEMENT PLATFORM
+
+PHASE 3 — CORE BUSINESS ARCHITECTURE, COST INTELLIGENCE, RECIPE ENGINE, AI ASSISTANT & SECURITY FOUNDATION
+
+You are continuing development of the existing Tygos Hospitality Management SaaS application.
+
+PHASE 1 and PHASE 2 have already been implemented.
+
+DO NOT restart the project.
+DO NOT redesign the application from scratch.
+DO NOT remove existing functionality.
+DO NOT break the existing Arabic-first localization, RTL/LTR system, theme system, Tygos branding, responsive design, or existing modules.
+
+The objective of this phase is to transform the existing UI foundation into a professionally connected business-system architecture.
+
+Tygos must no longer behave like a collection of separate screens.
+
+It must be architected as ONE CONNECTED HOSPITALITY MANAGEMENT ECOSYSTEM.
+
+============================================================
+
+1. PHASE 3 CORE OBJECTIVE
+
+============================================================
+
+Build the foundation of the Tygos business engine.
+
+The most important principle of this phase is:
+
+EVERY BUSINESS TRANSACTION MUST HAVE A TRACEABLE RELATIONSHIP WITH THE OTHER BUSINESS TRANSACTIONS.
+
+The system must conceptually connect:
+
+Sales
+→ Orders
+→ Products
+→ Recipes
+→ Ingredients
+→ Units
+→ Unit Conversions
+→ Inventory
+→ Purchasing
+→ Receiving
+→ Supplier Prices
+→ Production
+→ Waste
+→ Yield
+→ Labor
+→ Overhead
+→ Cost Centers
+→ Cost
+→ Theoretical Consumption
+→ Actual Consumption
+→ Variance
+→ Accounting
+→ Revenue
+→ Gross Profit
+→ Net Profit
+→ Forecast
+→ Actual Results
+→ Management Analysis
+→ Recommendations
+
+This relationship is the HEART of Tygos.
+
+Do not build isolated CRUD screens.
+
+Build interconnected domain architecture.
+
+============================================================
+
+2. IMPORTANT PHASE BOUNDARY
+
+============================================================
+
+This phase is an ARCHITECTURE + BUSINESS LOGIC FOUNDATION phase.
+
+DO NOT create production cloud infrastructure.
+
+DO NOT expose API keys.
+
+DO NOT connect external services.
+
+DO NOT create production authentication.
+
+DO NOT deploy a production backend.
+
+DO NOT make irreversible technology decisions.
+
+If a persistent database is not yet approved, use:
+
+- Domain models
+- Interfaces
+- Repository contracts
+- Mock repositories
+- In-memory implementations
+- Seed data
+- Service abstractions
+- Business-rule engines
+
+The architecture MUST be ready for a real database later without rewriting the application.
+
+DO NOT hard-code business logic inside UI components.
+
+============================================================
+
+3. SINGLE SOURCE OF TRUTH
+
+============================================================
+
+Create a clear domain architecture.
+
+Every major entity must have a unique identity and relationships.
+
+Core entities include:
+
+Tenant
+Establishment
+Branch
+Warehouse
+User
+Role
+Permission
+Customer
+Supplier
+Employee
+Product
+Category
+Ingredient
+Recipe
+Recipe Version
+Recipe Ingredient
+Modifier
+Unit
+Unit Conversion
+Production Department
+Cost Center
+Purchase Request
+Purchase Order
+Goods Receipt
+Supplier Invoice
+Stock Transaction
+Stock Balance
+Waste Record
+Production Batch
+Sales Order
+Sales Order Line
+Payment
+Cash Register
+Bank Account
+Wallet
+Expense
+Revenue
+Journal Entry
+Account
+Tax Rule
+Employee Cost
+Overhead
+Forecast
+Budget
+Actual Result
+Variance
+Alert
+Recommendation
+AI Knowledge Item
+Audit Event
+
+Do not create meaningless duplicate models.
+
+Every entity must have a clear relationship to other entities.
+
+============================================================
+
+4. THE RECIPE ENGINE IS A CORE ENGINE
+
+============================================================
+
+The Recipe system is NOT simply a screen for entering ingredients.
+
+It is one of the central engines of Tygos.
+
+A Recipe must support:
+
+Recipe ID
+Recipe Name
+Product
+Version
+Status
+Yield
+Yield Unit
+Portion Size
+Portion Unit
+Production Department
+Preparation Method
+Ingredients
+Ingredient Quantity
+Ingredient Unit
+Unit Conversion
+Ingredient Cost
+Labor
+Overhead
+Packaging
+Waste
+Yield Loss
+Total Recipe Cost
+Cost Per Portion
+Selling Price
+Gross Margin
+Food Cost %
+Target Food Cost %
+Variance
+Effective Date
+Version History
+Notes
+
+A recipe may contain:
+
+Ingredients.
+
+Sub-recipes.
+
+Prepared components.
+
+Production batches.
+
+Modifiers.
+
+Packaging components.
+
+Labor.
+
+Overhead allocations.
+
+The system must support recipe versioning.
+
+Example:
+
+Recipe V1
+Recipe V2
+Recipe V3
+
+Historical transactions must continue referring to the recipe version that was actually used.
+
+Do not silently modify historical costs.
+
+============================================================
+
+5. RECIPE → COST ENGINE
+
+============================================================
+
+The cost engine must calculate the complete cost of a product.
+
+Do NOT limit cost to ingredient purchase price.
+
+The conceptual formula must support:
+
+Ingredient Cost
++
+Packaging Cost
++
+Direct Labor
++
+Indirect Labor Allocation
++
+Production Overhead
++
+Utilities
++
+Water
++
+Energy
++
+Gas
++
+Consumables
++
+Waste/Loss
++
+Other Allocated Costs
+
+TRUE PRODUCT COST
+
+The architecture must allow each establishment to decide which cost components are active.
+
+The system must distinguish:
+
+Direct Cost
+Indirect Cost
+Variable Cost
+Fixed Cost
+Production Cost
+Operating Cost
+Administrative Cost
+Selling Cost
+
+============================================================
+
+6. "FROM ONE DROP OF WATER TO PROFIT"
+
+============================================================
+
+Tygos must be capable of tracing costs from the smallest operational input to final profitability.
+
+Example:
+
+Water
+
+→ Water Purchase / Utility Cost
+
+→ Production
+
+→ Recipe
+
+→ Product
+
+→ Sales
+
+→ Revenue
+
+→ Gross Profit
+
+→ Operating Expenses
+
+→ Net Profit
+
+The same principle applies to:
+
+Electricity
+Gas
+Packaging
+Cleaning materials
+Kitchen consumables
+Labor
+Rent
+Maintenance
+Transportation
+Delivery
+Marketing
+Administrative expenses
+Bank/payment fees
+Waste
+
+The architecture must support allocation rules.
+
+For example:
+
+Electricity may be allocated by:
+
+Branch
+Department
+Production volume
+Machine hours
+Revenue percentage
+Square meter
+Custom allocation rule
+
+The system must not hard-code one allocation method.
+
+============================================================
+
+7. PURCHASE PRICE INTELLIGENCE
+
+============================================================
+
+Ingredient cost must not simply use the latest purchase price.
+
+Support:
+
+Last Purchase Price
+Average Purchase Price
+Weighted Average Cost
+Supplier-specific Price
+Purchase History
+Price Effective Date
+Price Variance
+Price Trend
+
+The architecture must support configurable costing methods.
+
+Historical transactions must preserve the cost applicable at the time of the transaction.
+
+============================================================
+
+8. INVENTORY COST FLOW
+
+============================================================
+
+Create a clear conceptual inventory flow:
+
+Purchase Request
+→ Purchase Order
+→ Goods Receipt
+→ Stock Increase
+→ Supplier Invoice
+→ Supplier Payment
+
+Operational consumption:
+
+Recipe Production / Sales
+→ Ingredient Consumption
+→ Stock Decrease
+→ Cost Recognition
+
+Other stock movements:
+
+Transfer
+Adjustment
+Waste
+Return
+Production
+Breakage
+Expiration
+Manual Issue
+
+Every stock movement must be traceable.
+
+No invisible inventory changes.
+
+============================================================
+
+9. THEORETICAL VS ACTUAL CONSUMPTION
+
+============================================================
+
+Tygos must calculate:
+
+Theoretical Consumption
+
+based on:
+
+Sales
+×
+Recipe Quantity
+
+Then compare with:
+
+Actual Consumption
+
+from inventory transactions.
+
+Calculate:
+
+Variance Quantity
+Variance Value
+Variance %
+Possible Causes
+
+Possible causes may include:
+
+Waste
+Over-portioning
+Incorrect Recipe
+Incorrect Stock Count
+Theft/Shrinkage
+Incorrect Unit Conversion
+Production Loss
+Expired Material
+Wrong Sales Entry
+Unrecorded Consumption
+Supplier Quantity Error
+Inventory Adjustment
+
+The system must never automatically accuse a person.
+
+It should identify:
+
+"Potential Cause"
+
+and recommend investigation.
+
+============================================================
+
+10. PROFITABILITY ENGINE
+
+============================================================
+
+Tygos must support profitability at multiple levels:
+
+Product
+Recipe
+Category
+Department
+Branch
+Warehouse
+Sales Channel
+Employee/Team where appropriate
+Customer Segment
+Day
+Week
+Month
+Quarter
+Year
+
+Calculate:
+
+Revenue
+COGS
+Gross Profit
+Gross Margin %
+Labor Cost
+Overhead
+Operating Expenses
+Net Profit
+Net Margin %
+
+Support:
+
+Actual
+Budget
+Forecast
+Previous Period
+Target
+
+============================================================
+
+11. FORECAST VS ACTUAL
+
+============================================================
+
+Create a management intelligence foundation capable of comparing:
+
+Expected Revenue
+vs
+Actual Revenue
+
+Expected Cost
+vs
+Actual Cost
+
+Expected Gross Profit
+vs
+Actual Gross Profit
+
+Expected Net Profit
+vs
+Actual Net Profit
+
+Expected Food Cost
+vs
+Actual Food Cost
+
+Expected Labor Cost
+vs
+Actual Labor Cost
+
+Expected Waste
+vs
+Actual Waste
+
+Expected Inventory
+vs
+Actual Inventory
+
+The system must identify significant deviations.
+
+============================================================
+
+12. "WHY DID PROFIT INCREASE OR DECREASE?"
+
+============================================================
+
+This is a critical Tygos feature.
+
+The system must be architected to answer questions such as:
+
+Why did profit increase this month?
+
+Why did profit decrease?
+
+Why did food cost increase?
+
+Why did beverage cost increase?
+
+Why did waste increase?
+
+Why did sales increase but profit decrease?
+
+Why did revenue decrease?
+
+Why did gross margin improve?
+
+Why did inventory variance increase?
+
+The answer must not be a generic AI paragraph.
+
+It must be based on measurable business factors.
+
+Example:
+
+Profit decreased by 8.4%.
+
+Possible contributing factors:
+
+Ingredient prices increased by 6.2%
+Waste increased by 11.5%
+Labor cost increased by 4.8%
+Average selling price decreased by 2.1%
+Sales volume increased by 3.7%
+
+Then identify contribution impact where data allows.
+
+============================================================
+
+13. RECOMMENDATION ENGINE
+
+============================================================
+
+Tygos must eventually provide actionable recommendations.
+
+Examples:
+
+"Ingredient X increased in price by 14%. Consider supplier comparison."
+
+"Product Y has food cost of 39%, above target 30%."
+
+"Recipe Z has actual consumption 8% above theoretical."
+
+"Department A generated 27% of total waste."
+
+"Product B sells well but contributes low margin."
+
+"Product C has high margin but low sales volume."
+
+Recommendations must include:
+
+Issue
+Evidence
+Possible Cause
+Recommended Action
+Expected Impact
+Priority
+
+Use:
+
+Low
+Medium
+High
+Critical
+
+Do not present recommendations as unquestionable facts.
+
+Use confidence indicators when appropriate.
+
+============================================================
+
+14. MANAGEMENT DASHBOARD
+
+============================================================
+
+Upgrade the existing Tenant Dashboard conceptually into a true management cockpit.
+
+It should eventually provide:
+
+Revenue
+Orders
+Average Ticket
+Gross Profit
+Net Profit
+Gross Margin
+Food Cost
+Beverage Cost
+Labor Cost
+Prime Cost
+Waste
+Inventory Value
+Inventory Variance
+Cash
+Bank
+Wallets
+Receivables
+Payables
+
+Plus:
+
+Forecast
+Budget
+Actual
+Variance
+
+Plus:
+
+Top Profit Drivers
+Top Loss Drivers
+Cost Anomalies
+Waste Alerts
+Price Alerts
+Inventory Alerts
+Operational Alerts
+
+============================================================
+
+15. TYGOS AI MANAGEMENT ASSISTANT
+
+============================================================
+
+Create the foundation for a Tygos AI assistant FROM THE BEGINNING.
+
+The assistant name is:
+
+TYGOS
+
+Use the Tygos brand identity.
+
+For the assistant avatar/icon:
+
+USE ONLY THE TYGOS TIGER/CIRCUIT "T" SYMBOL.
+
+Do NOT redesign the symbol.
+
+Do NOT create another mascot.
+
+Do NOT create a generic robot.
+
+Do NOT replace the Tygos identity.
+
+If the standalone transparent T-shaped tiger/circuit icon is already available in the project assets, use it.
+
+If it is NOT available as a standalone asset, use the approved Tygos logo mark already present in the project.
+
+DO NOT invent a new logo.
+
+============================================================
+
+16. AI ASSISTANT MUST GROW WITH THE SYSTEM
+
+============================================================
+
+The Tygos assistant must be architected as an evolving knowledge system.
+
+It must eventually understand:
+
+Navigation
+Modules
+Screens
+Fields
+Buttons
+Settings
+Permissions
+Products
+Ingredients
+Recipes
+Suppliers
+Customers
+Employees
+Warehouses
+Cash Registers
+Banks
+Wallets
+Invoices
+Orders
+Transactions
+Reports
+Accounting concepts
+Cost concepts
+Business terminology
+User-entered business data
+System events
+Notifications
+Help documentation
+
+Whenever a new module or feature is added in future phases, its terminology and documentation must become available to the assistant automatically through a structured knowledge layer.
+
+DO NOT manually rebuild the chatbot every time a new screen is added.
+
+============================================================
+
+17. AI KNOWLEDGE INDEX
+
+============================================================
+
+Create an architecture for structured knowledge items.
+
+Each knowledge item may contain:
+
+Entity Type
+Entity ID
+Module
+Screen
+Keyword
+Arabic Keyword
+English Keyword
+Synonyms
+Common Misspellings
+Description
+Action
+Required Permission
+Related Screens
+Related Entities
+Help Article
+Created Date
+Updated Date
+Version
+
+The system must support relationships between knowledge items.
+
+============================================================
+
+18. TYPO AND MISSPELLING TOLERANCE
+
+============================================================
+
+The assistant must eventually understand user intent even when users make spelling mistakes.
+
+Support:
+
+Arabic spelling variations
+English spelling variations
+Arabic/English mixed language
+Common abbreviations
+Common hospitality terminology
+Phonetic variations
+Common keyboard mistakes
+Misspelled module names
+Misspelled product names
+
+Example:
+
+"المخزن"
+"المخازن"
+"مخازن"
+"inventory"
+"inventry"
+
+should be recognized as related concepts where appropriate.
+
+Do NOT require exact keyword matching.
+
+============================================================
+
+19. BILINGUAL AI INPUT
+
+============================================================
+
+If application language is Arabic:
+
+The assistant must understand:
+
+Arabic
+English
+Mixed Arabic + English
+
+Example:
+
+"عاوز تقرير food cost بتاع الشهر ده"
+
+must be understood.
+
+If application language is English:
+
+The assistant must understand:
+
+English
+Arabic
+Mixed English + Arabic
+
+The language of the interface determines:
+
+Button labels
+Suggested actions
+Menu labels
+System responses
+
+NOT the language of what the user is allowed to ask.
+
+============================================================
+
+20. CONTEXTUAL ACTION BUTTONS
+
+============================================================
+
+The assistant should provide contextual buttons/actions based on the user's question.
+
+Example:
+
+User:
+"ليه الـ food cost زاد؟"
+
+Possible actions:
+
+[تحليل أسباب الزيادة]
+[عرض المنتجات الأعلى تكلفة]
+[مقارنة الشهر السابق]
+[مراجعة الوصفات]
+[مراجعة أسعار الموردين]
+
+If interface language is English:
+
+[Analyze Increase]
+[Top Cost Products]
+[Compare Previous Month]
+[Review Recipes]
+[Review Supplier Prices]
+
+The button language follows the application language.
+
+============================================================
+
+21. PERMISSION-AWARE AI
+
+============================================================
+
+The AI assistant MUST respect the same permission architecture as the application.
+
+The AI must never reveal information that the current user is not authorized to access.
+
+Example:
+
+A waiter asking:
+
+"ما هو راتب مدير الحسابات؟"
+
+The assistant must NOT reveal it.
+
+It should respond with a localized message such as:
+
+"هذه المعلومات خارج نطاق صلاحياتك. يمكنك الرجوع إلى مسؤول الموارد البشرية."
+
+OR provide an approved access request action.
+
+============================================================
+
+22. PRIVILEGED ACCESS REQUEST
+
+============================================================
+
+IMPORTANT SECURITY RULE:
+
+NEVER ask a user to enter another user's password.
+
+NEVER store another user's password.
+
+NEVER display another user's password.
+
+NEVER implement a workflow that requires sharing credentials.
+
+Instead create a secure conceptual workflow:
+
+User requests privileged access.
+
+→ System identifies protected resource.
+
+→ System identifies responsible authorized user/administrator.
+
+→ Approval request is generated.
+
+→ Authorized user receives notification.
+
+→ Authorized user explicitly approves or rejects.
+
+→ If approved:
+
+Create a temporary, limited-scope access session.
+
+The session must include:
+
+Requester
+Approver
+Target User/Resource
+Reason
+Scope
+Start Time
+Expiration Time
+Device
+Session ID
+Audit Event
+
+The requester must not receive permanent access.
+
+============================================================
+
+23. SECURITY NOTIFICATION
+
+============================================================
+
+If a privileged access request occurs, notify the responsible authorized user.
+
+Notification should include:
+
+Who requested access
+From which device
+When
+What resource
+Why
+Requested duration
+Approve
+Reject
+
+If rejected:
+
+Ask the authorized user for a rejection reason.
+
+Store:
+
+Requester
+Approver
+Reason
+Decision
+Date
+Time
+Device
+Resource
+Session ID
+Audit Event
+
+============================================================
+
+24. SECURITY AUDIT REPORT
+
+============================================================
+
+When a suspicious or rejected privileged access attempt occurs:
+
+Generate an audit record.
+
+The architecture must support generating a PDF report later containing:
+
+Tygos Establishment
+Requester
+Affected User/Resource
+Device
+Date
+Time
+Reason
+Approval/Rejection
+Rejection Reason
+Session ID
+Audit ID
+Relevant actions
+
+The event must also be available to:
+
+Super Admin
+Authorized Tenant Administrator
+HR where appropriate
+
+depending on permissions.
+
+============================================================
+
+25. HR INTEGRATION
+
+============================================================
+
+Security and disciplinary records must never be automatically treated as proof of misconduct.
+
+Instead:
+
+Security Event
+→ Review
+→ Authorized decision
+→ HR Case / Incident
+
+Only authorized HR personnel can attach an approved security incident to an employee record.
+
+Maintain full audit history.
+
+============================================================
+
+26. COMPLETE AUDIT TRAIL
+
+============================================================
+
+Architect an AuditEvent system.
+
+Every sensitive operation should eventually record:
+
+User
+Role
+Action
+Entity
+Entity ID
+Before
+After
+Date
+Time
+Device
+IP when available later
+Session ID
+Reason
+Result
+
+Examples:
+
+Login
+Logout
+Create
+Edit
+Delete
+Approve
+Reject
+Export
+Print
+View Sensitive Data
+Access Escalation
+Permission Change
+Recipe Change
+Cost Change
+Price Change
+Inventory Adjustment
+Financial Adjustment
+
+============================================================
+
+27. LIVE USER GUIDE / KNOWLEDGE CENTER
+
+============================================================
+
+Build a complete Tygos Help & User Guide foundation.
+
+The guide must be available from inside the application.
+
+It must support:
+
+Arabic
+English
+
+The displayed guide language must automatically follow the selected application language.
+
+If application language is Arabic:
+
+Show Arabic documentation.
+
+If application language is English:
+
+Show English documentation.
+
+============================================================
+
+28. USER GUIDE MUST GROW AUTOMATICALLY
+
+============================================================
+
+Every new feature added to Tygos must be capable of registering its documentation.
+
+Each help article should support:
+
+Title
+Module
+Description
+Purpose
+Prerequisites
+Step-by-step instructions
+Field explanations
+Examples
+Common mistakes
+Troubleshooting
+Related articles
+Last Updated
+Version
+Language
+
+The AI assistant must be able to search the help center.
+
+============================================================
+
+29. CONTEXTUAL HELP
+
+============================================================
+
+Every important screen should eventually have:
+
+Help
+What's this?
+How to use
+Related articles
+
+The assistant should understand the current screen context.
+
+Example:
+
+If user is inside Recipe Cost:
+
+"ازاي أحسب تكلفة الوصفة؟"
+
+The assistant should understand the current screen and provide the relevant guide.
+
+============================================================
+
+30. DOCUMENTATION + AI MUST SHARE ONE KNOWLEDGE FOUNDATION
+
+============================================================
+
+Do NOT create one isolated knowledge base for Help and another isolated knowledge base for AI.
+
+Create a shared structured knowledge architecture.
+
+Help Articles
++
+System Terminology
++
+Entity Metadata
++
+Permissions
++
+Module Relationships
++
+Business Rules
+
+must eventually feed the Tygos Assistant.
+
+============================================================
+
+31. GLOBAL SEARCH + AI
+
+============================================================
+
+Global Search and Tygos AI should be architected to complement each other.
+
+Global Search:
+Exact/entity-oriented retrieval.
+
+AI Assistant:
+Intent-oriented retrieval and reasoning.
+
+Example:
+
+Search:
+"Chicken Breast"
+
+AI:
+"اعرض لي المنتجات اللي بتستخدم Chicken Breast وأعلى نسبة food cost بينهم."
+
+The assistant should be able to navigate relationships between entities.
+
+============================================================
+
+32. BUSINESS RELATIONSHIP GRAPH
+
+============================================================
+
+Create a conceptual relationship layer.
+
+Example:
+
+Product
+↔ Recipe
+↔ Ingredient
+↔ Supplier
+↔ Purchase
+↔ Warehouse
+↔ Stock Transaction
+↔ Sale
+↔ Customer
+↔ Revenue
+↔ Cost
+↔ Profit
+
+This relationship graph is essential for future AI analysis.
+
+Do not implement a heavy graph database yet.
+
+Create interfaces/models that can support this later.
+
+============================================================
+
+33. DASHBOARD TRACEABILITY
+
+============================================================
+
+The existing traceability diagram must be expanded.
+
+The system should be able to visually demonstrate:
+
+Sale
+↓
+Product
+↓
+Recipe
+↓
+Ingredients
+↓
+Inventory
+↓
+Purchasing
+↓
+Cost
+↓
+Accounting
+↓
+Profitability
+↓
+Forecast
+↓
+Actual
+↓
+Variance
+↓
+Management Recommendation
+
+The UI must make this relationship understandable.
+
+============================================================
+
+34. COST SIMULATION
+
+============================================================
+
+Create a mock Cost Simulation workspace.
+
+Allow the user to simulate:
+
+Ingredient price change
+Recipe quantity change
+Selling price change
+Labor cost change
+Waste percentage
+Yield change
+Overhead change
+
+Then show:
+
+Old Cost
+New Cost
+Old Margin
+New Margin
+Old Food Cost %
+New Food Cost %
+Expected Profit Impact
+
+This is extremely important for future decision-making.
+
+============================================================
+
+35. WHAT-IF ANALYSIS
+
+============================================================
+
+Create architecture for:
+
+"What happens if?"
+
+Examples:
+
+What if supplier price increases 10%?
+
+What if selling price increases 5%?
+
+What if waste decreases 3%?
+
+What if labor cost increases 8%?
+
+What if sales volume increases 15%?
+
+The system should calculate mock scenarios using the business engine.
+
+Clearly label them as:
+
+Simulation
+Not Actual
+
+============================================================
+
+36. NO FAKE INTELLIGENCE
+
+============================================================
+
+Do not create fake AI responses pretending to be intelligent.
+
+If AI functionality is currently mocked, clearly separate:
+
+AI Mock Response
+from
+Actual Business Calculation
+
+Business calculations must come from deterministic business services.
+
+AI may explain the calculated results.
+
+It must NOT invent financial numbers.
+
+============================================================
+
+37. DATA PRIVACY
+
+============================================================
+
+The AI knowledge system must respect:
+
+Tenant isolation
+Role permissions
+Sensitive data boundaries
+Financial privacy
+HR privacy
+Customer privacy
+Employee privacy
+
+Never index or expose:
+
+Passwords
+Authentication secrets
+API keys
+Private credentials
+Security tokens
+
+Sensitive fields must have explicit permission requirements.
+
+============================================================
+
+38. PERFORMANCE
+
+============================================================
+
+The architecture must support a growing Tygos platform.
+
+Do not scan the entire application on every AI question.
+
+Use:
+
+Indexed knowledge
+Entity metadata
+Search indexes
+Module scopes
+Permission filtering
+Lazy loading
+Caching where appropriate
+
+The future AI knowledge layer must scale as the system grows.
+
+============================================================
+
+39. ARABIC-FIRST REQUIREMENT
+
+============================================================
+
+Arabic remains the official primary language.
+
+All new Phase 3 features must support:
+
+Arabic
+English
+
+Minimum requirement:
+
+Arabic
+RTL
+Dark
+
+must be fully functional first.
+
+English
+LTR
+
+must also be fully functional.
+
+Every new visible string must use the existing translation architecture.
+
+No hard-coded visible text.
+
+============================================================
+
+40. TYGOS BRAND REQUIREMENT
+
+============================================================
+
+Use the existing approved Tygos visual identity.
+
+Do not redesign:
+
+Logo
+Tiger/Circuit T symbol
+Color identity
+Brand typography
+
+The AI assistant must use the Tygos T-shaped tiger/circuit symbol.
+
+If the project already contains the correct transparent icon, use it.
+
+If the standalone icon is missing, STOP and clearly report:
+
+"Standalone Tygos assistant icon asset is required."
+
+Do not generate a replacement.
+
+============================================================
+
+41. TESTING REQUIREMENTS
+
+============================================================
+
+Before declaring Phase 3 complete, test:
+
+1. Arabic + Dark
+2. Arabic + Light
+3. English + Dark
+4. English + Light
+
+Test:
+
+Recipe creation
+Recipe versioning
+Ingredient costing
+Purchase price changes
+Inventory consumption
+Theoretical consumption
+Actual consumption
+Variance
+Waste
+Yield
+Gross profit
+Net profit
+Forecast
+Actual
+Cost simulation
+What-if analysis
+AI assistant context
+Permission restrictions
+Access request
+Approval
+Rejection
+Audit event
+Help Center
+Arabic documentation
+English documentation
+
+============================================================
+
+42. ARCHITECTURAL QUALITY CHECK
+
+============================================================
+
+Before completion, inspect the existing codebase and verify:
+
+No business calculations are buried inside UI components.
+
+No duplicated costing formulas exist.
+
+No hard-coded financial values exist.
+
+No hard-coded English strings exist.
+
+No AI component bypasses permissions.
+
+No sensitive credentials are stored.
+
+No module is completely isolated from the domain architecture.
+
+No new feature breaks Phase 1 or Phase 2.
+
+============================================================
+
+43. REQUIRED DELIVERABLES
+
+============================================================
+
+At the end of Phase 3, deliver:
+
+1. Connected domain architecture
+2. Recipe Engine foundation
+3. Recipe versioning
+4. Comprehensive Cost Engine foundation
+5. Ingredient costing
+6. Purchase price intelligence
+7. Inventory cost flow
+8. Theoretical vs Actual Consumption
+9. Waste and Yield engine foundation
+10. Direct/Indirect Labor costing foundation
+11. Overhead allocation foundation
+12. Profitability engine
+13. Forecast vs Actual foundation
+14. Variance analysis
+15. Cost Simulation
+16. What-if analysis
+17. Management Recommendation foundation
+18. Business Relationship Graph foundation
+19. Tygos AI Assistant foundation
+20. Tygos AI knowledge architecture
+21. Typo/misspelling tolerant search architecture
+22. Arabic/English mixed-language AI input
+23. Contextual AI action buttons
+24. Permission-aware AI
+25. Secure Privileged Access Request architecture
+26. Audit Event architecture
+27. Security notification architecture
+28. PDF audit-report architecture
+29. HR incident integration foundation
+30. Complete bilingual Help Center foundation
+31. Shared AI + Documentation knowledge architecture
+32. Contextual Help
+33. Global Search + AI relationship
+34. Arabic-first UI
+35. English LTR UI
+36. Existing Tygos Dark/Light themes preserved
+37. Existing RTL/LTR localization preserved
+38. Responsive behavior preserved
+39. Mock data and deterministic calculations
+40. Clean replaceable service/repository architecture
+
+============================================================
+
+44. STRICT STOP CONDITION
+
+============================================================
+
+STOP AFTER PHASE 3.
+
+DO NOT:
+
+Create production database infrastructure
+Connect Firebase
+Connect Firestore
+Connect Supabase
+Connect PostgreSQL
+Connect MySQL
+Create production authentication
+Create real cloud infrastructure
+Expose API keys
+Store passwords
+Create credential-sharing workflows
+Create fake financial calculations
+Allow AI to bypass permissions
+Allow AI to expose unauthorized information
+Proceed to Phase 4
+
+unless explicitly instructed.
+
+============================================================
+
+45. FINAL REPORT
+
+============================================================
+
+After implementation, provide a clear report containing:
+
+WHAT WAS BUILT
+
+WHAT IS MOCK
+
+WHAT IS DETERMINISTIC BUSINESS LOGIC
+
+WHAT IS READY FOR FUTURE DATABASE IMPLEMENTATION
+
+WHAT IS READY FOR FUTURE REAL AI INTEGRATION
+
+WHAT SECURITY CONTROLS ARE ARCHITECTURAL ONLY
+
+WHAT WAS TESTED
+
+WHAT REMAINS
+
+ANY ERRORS OR LIMITATIONS
+
+Also provide a concise architecture map showing:
+
+POS
+↓
+Recipes
+↓
+Inventory
+↓
+Purchasing
+↓
+Cost
+↓
+Accounting
+↓
+Profitability
+↓
+Forecast
+↓
+Variance
+↓
+Recommendations
+↓
+Tygos AI
+
+And:
+
+Users
+↓
+Permissions
+↓
+AI Access Control
+↓
+Audit
+↓
+HR Incident
+
+Then STOP and WAIT for explicit approval.
+
+DO NOT automatically continue to another phase.

@@ -1,0 +1,1522 @@
+TYgos — PHASE 3
+
+MOBILE-FIRST EXPERIENCE + DYNAMIC MARKETING LANDING PAGE + INTELLIGENT AI ASSISTANT + DOCUMENTATION + SYSTEM INTEGRATION
+
+You are continuing development of the existing Tygos Hospitality Management SaaS.
+
+This is NOT a new project.
+
+The existing Phase 1 and Phase 2 implementation is already present in this project and must be preserved.
+
+The current project has also been exported/imported through GitHub.
+
+Your job in this phase is to audit, correct, improve, connect, and complete the existing system without destroying working functionality.
+
+---
+
+0. CRITICAL RULE — DO NOT START BY REBUILDING EVERYTHING
+
+Before changing anything:
+
+1. Inspect the entire existing project.
+2. Understand the current architecture.
+3. Identify what Phase 1 and Phase 2 already implemented.
+4. Preserve working components and business logic.
+5. Do NOT replace working modules with simplified mock versions.
+6. Do NOT delete functionality simply because it is incomplete.
+7. Refactor only where necessary.
+8. Do NOT create duplicate systems for translation, theme, authentication, navigation, chatbot, documentation, or permissions.
+9. There must be ONE canonical implementation for each core service.
+10. If something already exists but is weak, improve it instead of creating a second parallel implementation.
+
+First perform an internal architecture audit.
+
+Then implement the requirements below.
+
+---
+
+1. MOBILE-FIRST IS NOW A HARD REQUIREMENT
+
+The current UI is NOT sufficiently responsive.
+
+Some elements extend outside the mobile viewport and require horizontal scrolling.
+
+THIS MUST BE FIXED COMPLETELY.
+
+Absolute rule
+
+At no point in the application may the user need to scroll horizontally to see the interface.
+
+Every screen must fit the available viewport width.
+
+This includes:
+
+- Login
+- Registration
+- Dashboard
+- Landing page
+- POS
+- Tables
+- Orders
+- Menu
+- Products
+- Ingredients
+- Recipes
+- Cost Control
+- Inventory
+- Purchasing
+- Finance
+- Accounting
+- Tax
+- HR
+- CRM
+- Chat
+- Reports
+- Settings
+- Admin
+- Help
+- Documentation
+- Notifications
+- Search
+- Modals
+- Drawers
+- Tables
+- Forms
+- Dialogs
+- AI Assistant
+
+Responsive behavior
+
+Use true responsive design, NOT simply shrinking desktop UI.
+
+On mobile:
+
+- Navigation must adapt.
+- Tables must transform intelligently into cards, expandable rows, or horizontally contained internal components only where absolutely necessary.
+- Forms must become single-column where appropriate.
+- Buttons must remain usable.
+- Text must remain readable.
+- Cards must fit the viewport.
+- Charts must resize correctly.
+- Dialogs must fit the viewport.
+- Sidebars must become mobile drawers.
+- Header elements must collapse intelligently.
+- Long labels must wrap.
+- Icons must not push text outside the screen.
+- No fixed-width desktop containers.
+- No hardcoded widths that break mobile.
+- No accidental overflow.
+
+Use CSS logical properties and responsive breakpoints.
+
+Test at minimum:
+
+- 320px
+- 360px
+- 375px
+- 390px
+- 412px
+- 768px
+- 1024px
+- Desktop wide screens
+
+The application must look intentionally designed at each size.
+
+---
+
+2. MOBILE HEADER / BRAND SIMPLIFICATION
+
+The current header contains unnecessary elements that consume mobile width.
+
+On mobile:
+
+- Use the Tygos logo mark/icon instead of always displaying the full logo + brand name.
+- The logo mark itself must be clickable.
+- Clicking the Tygos logo from anywhere should return to the appropriate Dashboard/Home screen.
+- Do not duplicate unnecessary branding.
+- Preserve the full Tygos brand presentation on larger screens.
+
+The mobile header should prioritize:
+
+1. Menu
+2. Tygos logo mark
+3. Current page/context
+4. Essential actions
+5. Assistant / notifications where appropriate
+
+Do not allow the header to overflow.
+
+---
+
+3. CREATE A NEW PUBLIC MARKETING LANDING PAGE
+
+Create a completely new public-facing landing page that appears BEFORE the application login/home experience.
+
+This is not an ordinary dashboard.
+
+It is a dynamic SaaS marketing landing page designed to continuously encourage visitors to register.
+
+The page should feel like a premium international hospitality technology platform.
+
+Use the existing approved Tygos visual identity.
+
+DO NOT redesign the Tygos logo.
+
+DO NOT invent another logo.
+
+---
+
+4. LANDING PAGE VISUAL STRUCTURE
+
+The landing page should contain:
+
+Hero Section
+
+Use the supplied Tygos cover visual as a background/visual asset.
+
+The provided cover image is designed at:
+
+1920 × 1080 px — 16:9
+
+Use it responsively.
+
+Do not hard-code text into the image.
+
+Marketing text must remain HTML/UI text so it can be translated.
+
+Hero should include:
+
+- Tygos logo
+- Strong headline
+- Short professional description
+- Primary CTA: Register Now
+- Secondary CTA: Explore Tygos / Login
+- Subtle premium motion
+- Animated visual accents
+- Brand-consistent glow effects
+- Professional hospitality technology atmosphere
+
+Avoid excessive animation.
+
+The page must feel premium, not like a gaming website.
+
+---
+
+5. DYNAMIC MARKETING CONTENT
+
+The landing page must not be a static one-time page.
+
+Create a structured marketing-content architecture.
+
+The page should be capable of continuously adding new features and announcements.
+
+Examples:
+
+- New module
+- New feature
+- New report
+- New AI capability
+- New integration
+- New management tool
+- New hospitality workflow
+- New automation
+- New update
+
+Each feature can appear as a marketing card containing:
+
+- Icon
+- Title
+- Short description
+- Benefit
+- CTA button
+
+Example CTA:
+
+"Register Now"
+
+Every major feature section should provide a registration CTA.
+
+The content architecture must allow future updates without rewriting the entire landing page.
+
+---
+
+6. LANDING PAGE SECTIONS
+
+Create a professional structure such as:
+
+1. Hero
+2. Why Tygos?
+3. Complete Hospitality Management
+4. POS
+5. Menu & Recipes
+6. Cost Control
+7. Inventory
+8. Purchasing
+9. Finance & Accounting
+10. HR
+11. CRM & Loyalty
+12. Reports & Business Intelligence
+13. AI Assistant
+14. Multi-Branch Management
+15. Security & Permissions
+16. Documentation & Guided Workflows
+17. Continuous Updates
+18. Final Registration CTA
+19. Footer
+
+The exact presentation may evolve based on the existing brand design.
+
+Do not make it unnecessarily long or repetitive.
+
+---
+
+7. INTERACTIVE MARKETING UI
+
+Buttons and interactive elements should feel alive.
+
+Examples:
+
+- Hover animation
+- Press animation
+- Controlled glow
+- Color transition
+- Smooth entrance
+- Card elevation
+- Micro-interactions
+
+When a button is pressed:
+
+- Visual feedback should occur.
+- The state should be obvious.
+- The animation must be fast and professional.
+
+Do NOT overuse animation.
+
+Performance must remain excellent on mobile.
+
+---
+
+8. LANDING PAGE LANGUAGE
+
+The landing page must support:
+
+1. Arabic — primary
+2. English — primary secondary language
+3. Existing additional supported languages
+
+The same language architecture used by the application must be used here.
+
+DO NOT create a separate translation system.
+
+When Arabic is selected:
+
+EVERY visible text must be Arabic.
+
+When English is selected:
+
+EVERY visible text must be English.
+
+This includes:
+
+- Marketing content
+- Buttons
+- Navigation
+- Footer
+- Tooltips
+- Notifications
+- Validation
+- Empty states
+- Previously stored UI-generated content where translation metadata exists
+
+No mixed Arabic/English interface unless the actual user data itself contains another language.
+
+---
+
+9. TRANSLATION QUALITY AUDIT
+
+The current translation implementation is incomplete.
+
+Perform a COMPLETE localization audit.
+
+Search the entire project for:
+
+- Hardcoded English
+- Hardcoded Arabic
+- Labels
+- Buttons
+- Titles
+- Navigation
+- Tables
+- Statuses
+- Forms
+- Validation
+- Errors
+- Notifications
+- Tooltips
+- Dialogs
+- Empty states
+- Loading messages
+- Reports
+- Chatbot UI
+- Help
+- Documentation
+- Marketing content
+- Mock data visible to users
+
+Every UI string must come through the centralized translation system.
+
+Do not leave even one accidental English word in Arabic mode.
+
+Do not leave accidental Arabic UI text in English mode.
+
+Use translation keys.
+
+---
+
+10. EXISTING USER-GENERATED DATA AND TRANSLATION
+
+Do not blindly translate actual business data.
+
+There is an important distinction:
+
+UI/system-generated text
+
+Must follow the selected language.
+
+User-created business data
+
+Examples:
+
+- Customer name
+- Product name
+- Supplier name
+- Ingredient name
+- Employee name
+- Branch name
+
+Must remain exactly as entered by the user.
+
+However, metadata, labels, fields, statuses, actions, and surrounding UI must always follow the selected language.
+
+The architecture must support future multilingual aliases for business entities.
+
+---
+
+11. DARK MODE AND LIGHT MODE
+
+Dark mode remains the default Tygos experience.
+
+Light mode must be a complete professional theme.
+
+The current transparent sidebar is TOO transparent.
+
+This is a usability problem.
+
+The sidebar must have sufficient visual separation from the background.
+
+Do NOT make transparency so strong that text becomes difficult to read.
+
+Use:
+
+- Proper contrast
+- Appropriate surface opacity
+- Clear active state
+- Clear hover state
+- Readable icons
+- Readable labels
+- Proper borders/shadows where necessary
+
+Accessibility and readability have priority over visual effects.
+
+---
+
+12. TYGOS AI ASSISTANT — MAJOR REBUILD
+
+The current chatbot is too weak.
+
+It sometimes:
+
+- Misunderstands the question.
+- Answers a different question.
+- Does not open the requested screen.
+- Does not understand the application's terminology.
+- Does not appear to know the current system state.
+- Does not sufficiently understand user-created entities.
+
+This is NOT acceptable.
+
+The assistant must be redesigned as a system-aware application assistant, not a generic chatbot.
+
+---
+
+13. TYGOS ASSISTANT MUST UNDERSTAND THE ENTIRE APPLICATION
+
+Create a central Tygos Knowledge & Intent Registry.
+
+The assistant must automatically know:
+
+- Modules
+- Screens
+- Routes
+- Navigation
+- Features
+- Actions
+- Fields
+- Statuses
+- Reports
+- Products
+- Menu items
+- Ingredients
+- Recipes
+- Suppliers
+- Customers
+- Employees
+- Branches
+- Warehouses
+- Cash registers
+- Banks
+- Assets
+- Custody items
+- Departments
+- Cost centers
+- Users
+- Roles
+- Permissions
+- Accounting terminology
+- Inventory terminology
+- Purchasing terminology
+- Hospitality terminology
+
+The assistant must NOT depend on a manually written keyword list only.
+
+Every new module, screen, entity, field, feature, or action added to Tygos must be capable of registering itself in the assistant knowledge registry.
+
+This is essential for future scalability.
+
+---
+
+14. CONTINUOUS KNOWLEDGE UPDATE
+
+The assistant must have a structured architecture for continuously updating its knowledge.
+
+When the system gains:
+
+- New module
+- New screen
+- New feature
+- New field
+- New product
+- New ingredient
+- New recipe
+- New customer
+- New supplier
+- New employee
+- New branch
+- New asset
+- New cashbox
+- New report
+
+the assistant's searchable registry should be updated automatically.
+
+Do NOT rebuild the chatbot manually every time new data is entered.
+
+The system should have:
+
+Application Metadata → Knowledge Registry → Intent Resolver → Search/Action Engine → Response
+
+---
+
+15. SMART SEARCH AND TYPO TOLERANCE
+
+The assistant must understand imperfect human input.
+
+Support:
+
+- Arabic spelling variations
+- English spelling variations
+- Arabic transliteration
+- English transliteration
+- Common hospitality abbreviations
+- Singular/plural
+- Common synonyms
+- Common typing mistakes
+- Mixed Arabic/English sentences
+- User-defined terminology
+
+Examples:
+
+If the user types a misspelled product name, the assistant should identify the closest matching entity.
+
+If the user says:
+
+"هات تكلفة البرجر"
+
+It should understand the intent.
+
+If they say:
+
+"show burger cost"
+
+It should understand the same intent.
+
+If they type a misspelling, it should still attempt semantic matching.
+
+---
+
+16. ASSISTANT MUST PERFORM NAVIGATION
+
+This is critical.
+
+When the user asks:
+
+"افتح المخزون"
+
+the assistant should actually provide an action:
+
+فتح المخزون
+
+Clicking it should navigate to the Inventory screen.
+
+When the user asks:
+
+"هات تكلفة وصفة البرجر"
+
+the assistant should:
+
+1. Identify the recipe.
+2. Open or present the relevant recipe.
+3. Show its cost.
+4. Offer contextual actions.
+
+Examples:
+
+- Open Recipe
+- View Cost
+- Compare Theoretical vs Actual
+- View Ingredients
+- View Consumption
+- View Supplier Prices
+
+The assistant must not simply answer with text if an actual application action exists.
+
+---
+
+17. CONTEXTUAL ACTION BUTTONS
+
+Every meaningful assistant response should be capable of generating relevant actions.
+
+Examples:
+
+User asks about inventory:
+
+- Open Inventory
+- Search Item
+- View Variance
+- Record Adjustment
+
+User asks about recipe:
+
+- Open Recipe
+- Calculate Cost
+- Compare Cost
+- View Ingredients
+
+User asks about customer:
+
+- Open Customer
+- View Orders
+- View Balance
+- View Loyalty
+
+User asks about profit:
+
+- Open P&L
+- Analyze Variance
+- Compare Periods
+- Show Recommendations
+
+Actions must depend on permissions.
+
+---
+
+18. ASSISTANT LANGUAGE BEHAVIOR
+
+If application language is Arabic:
+
+- Assistant accepts Arabic.
+- Assistant accepts English.
+- Assistant accepts mixed Arabic/English.
+- Assistant buttons are Arabic.
+
+If application language is English:
+
+- Assistant accepts English.
+- Assistant accepts Arabic.
+- Assistant accepts mixed Arabic/English.
+- Assistant buttons are English.
+
+The assistant should understand both languages regardless of interface language.
+
+---
+
+19. MOVABLE CHATBOT
+
+The Tygos Assistant launcher must be draggable.
+
+The user should be able to:
+
+- Grab it.
+- Move it.
+- Position it anywhere on screen.
+- Move it vertically or horizontally.
+- Move it away if it covers an important button or data.
+
+On mobile:
+
+- It must stay inside the viewport.
+- It must not block navigation.
+- It must snap intelligently to a safe edge after dragging.
+- It must remain accessible.
+
+Do not allow it to disappear outside the screen.
+
+Use ONLY the approved standalone Tygos tiger-shaped T icon.
+
+Do not invent a different chatbot logo.
+
+---
+
+20. PERMISSION-AWARE ASSISTANT
+
+The assistant must understand permissions.
+
+If the user asks for something outside their permission:
+
+DO NOT reveal the data.
+
+DO NOT bypass authorization.
+
+DO NOT ask for another employee's password.
+
+NEVER request, store, display, or process another user's password.
+
+Instead:
+
+"Your current authorization does not allow access to this information."
+
+Then offer:
+
+Request Authorization
+
+---
+
+21. SECURE TEMPORARY AUTHORIZATION FLOW
+
+Implement the architecture for a secure authorization request.
+
+The request must contain:
+
+- Requester
+- Target resource
+- Target user/owner or responsible administrator
+- Requested action
+- Reason
+- Requested duration
+- Requested scope
+- Date/time
+- Session/device metadata
+- Status
+- Approval/denial
+- Approver
+- Audit trail
+
+If approved:
+
+- Create a temporary scoped authorization.
+- Automatically expire it.
+- Record all actions performed under it.
+- Never expose the target user's password.
+
+If denied:
+
+- Record the denial.
+- Record reason where provided.
+- Notify appropriate administrator/security.
+- Generate an audit report architecture.
+
+If the organization later wants to attach the incident to HR records, this must happen ONLY through the authorized HR workflow.
+
+Never automatically create disciplinary action from a chatbot decision.
+
+---
+
+22. SUPER ADMIN SUPPORT ACCESS
+
+The same secure temporary authorization architecture must be used for controlled Super Admin/support access.
+
+Every support session should have:
+
+- Reason
+- Target establishment
+- Scope
+- Start time
+- Expiration
+- Approver where required
+- Audit log
+
+No permanent unrestricted hidden access.
+
+No password sharing.
+
+---
+
+23. RECIPE ENGINE — CORE OF TYgos
+
+The Recipe system must become one of the central foundations of the application.
+
+Recipes are not merely menu descriptions.
+
+They are the foundation of:
+
+- Costing
+- Inventory consumption
+- Production
+- Waste
+- Yield
+- Profitability
+- Purchasing analysis
+- P&L analysis
+
+Support:
+
+- Recipe versions
+- Ingredient quantities
+- Units
+- Unit conversions
+- Yield
+- Portions
+- Sub-recipes
+- Production batches
+- Waste
+- Shrinkage
+- Packaging
+- Labor
+- Overhead
+- Utilities
+- Cost centers
+
+Recipes may contain other recipes/sub-recipes.
+
+---
+
+24. COMPLETE COST ENGINE
+
+Build the architecture for a comprehensive hospitality cost engine.
+
+The objective is:
+
+From the first cost input to expected and actual Profit & Loss.
+
+Track and connect:
+
+- Raw materials
+- Ingredients
+- Packaging
+- Water
+- Gas
+- Electricity
+- Cleaning consumables
+- Direct labor
+- Indirect labor
+- Rent
+- Maintenance
+- Equipment
+- Depreciation
+- Waste
+- Shrinkage
+- Delivery
+- Commissions
+- Payment fees
+- Taxes
+- Other operating overhead
+
+Not every cost must be directly allocated to every product.
+
+The system must support configurable allocation methods.
+
+---
+
+25. EXPECTED VS ACTUAL
+
+The system must distinguish:
+
+Theoretical / Expected
+
+What SHOULD have happened.
+
+Actual
+
+What ACTUALLY happened.
+
+Compare:
+
+- Expected consumption
+- Actual consumption
+- Expected cost
+- Actual cost
+- Expected revenue
+- Actual revenue
+- Expected margin
+- Actual margin
+- Expected P&L
+- Actual P&L
+
+---
+
+26. VARIANCE ANALYSIS
+
+When profit decreases, Tygos should not simply say:
+
+"Profit decreased."
+
+It should be able to explain:
+
+- Ingredient prices increased.
+- Waste increased.
+- Portion yield decreased.
+- Sales mix changed.
+- Labor cost increased.
+- Utilities increased.
+- Discounts increased.
+- Delivery commissions increased.
+- Supplier price changed.
+- Purchase price variance occurred.
+- Actual consumption exceeded theoretical consumption.
+- Recipe cost changed.
+- Selling price is no longer sufficient.
+
+Then offer:
+
+Recommended Actions
+
+Examples:
+
+- Review recipe
+- Review supplier
+- Adjust selling price
+- Reduce waste
+- Review portion size
+- Compare branches
+- Review labor allocation
+
+---
+
+27. TRACEABILITY CHAIN
+
+The system must be architected around this traceability:
+
+Purchase
+→ Supplier
+→ Receiving
+→ Inventory
+→ Ingredient Cost
+→ Recipe
+→ Production
+→ Sale
+→ Consumption
+→ Actual Cost
+→ Variance
+→ Revenue
+→ Gross Profit
+→ Operating Costs
+→ P&L
+→ Analysis
+→ Recommendation
+
+Every stage should be traceable.
+
+The user should eventually be able to drill from a P&L number all the way back to the source transactions.
+
+---
+
+28. DOMAIN MODEL AND SYSTEM CONNECTIONS
+
+Create a canonical domain model connecting:
+
+Tenant
+→ Branches
+→ Departments
+→ Warehouses
+→ Users
+→ Roles
+→ Permissions
+
+Products/Menu Items
+→ Recipes
+→ Ingredients
+→ Units
+→ Suppliers
+→ Purchasing
+→ Receiving
+→ Inventory
+
+Sales
+→ Orders
+→ Payments
+→ Consumption
+→ Cost
+→ Accounting
+
+Labor
+→ Departments
+→ Cost Centers
+→ Allocation
+
+Costs
+→ Revenue
+→ Profitability
+→ P&L
+
+Do not create isolated modules.
+
+Tygos must behave like ONE system.
+
+---
+
+29. ACCOUNTING FOUNDATION
+
+Maintain the architecture for:
+
+- Chart of Accounts
+- Journals
+- General Ledger
+- Accounts Payable
+- Accounts Receivable
+- Cash Registers
+- Banks
+- Wallets
+- Transfers
+- Trial Balance
+- P&L
+- Balance Sheet
+- Cash Flow
+
+Transactions must eventually be traceable back to their operational source.
+
+---
+
+30. DOCUMENTATION CENTER
+
+The Documentation / User Manual is currently missing.
+
+Build it.
+
+Create a dedicated:
+
+Tygos Help & Documentation Center
+
+It must support at minimum:
+
+- Arabic
+- English
+
+and remain architecturally ready for the other supported languages.
+
+The documentation language follows the selected application language.
+
+---
+
+31. DOCUMENTATION CONTENT
+
+Include:
+
+- Getting Started
+- Dashboard
+- POS
+- Tables
+- Orders
+- Menu
+- Products
+- Ingredients
+- Recipes
+- Cost Control
+- Inventory
+- Purchasing
+- Finance
+- Accounting
+- Tax
+- HR
+- CRM
+- Reports
+- AI Assistant
+- Permissions
+- Security
+- Settings
+- Troubleshooting
+- Frequently Asked Questions
+
+Each screen should have:
+
+What is this?
+Why is it important?
+How do I use it?
+What does each field mean?
+What happens after I save?
+What permissions are required?
+
+---
+
+32. CONTEXTUAL HELP
+
+Every major screen should have a Help button.
+
+Clicking Help should open the relevant documentation section.
+
+Do NOT open a generic help page when a specific contextual article exists.
+
+---
+
+33. SMART DOCUMENTATION SEARCH
+
+The Documentation Center must have intelligent search.
+
+Support:
+
+- Arabic
+- English
+- Misspellings
+- Synonyms
+- Module names
+- Field names
+- Common user questions
+
+Examples:
+
+"ازاي اعمل وصفة؟"
+
+should find Recipe documentation.
+
+"how to calculate food cost"
+
+should find Cost Control documentation.
+
+Search results should show:
+
+- Article title
+- Short explanation
+- Module
+- Relevant section
+- Open Article button
+
+---
+
+34. CONTINUOUS DOCUMENTATION UPDATE
+
+Documentation must have a structured registry.
+
+When a new feature is added:
+
+- Feature metadata
+- Help content
+- Translation keys
+- Documentation article
+- Contextual help
+
+should be capable of being registered together.
+
+The architecture must make future documentation updates easy.
+
+Do not create a documentation system that requires rewriting unrelated code every time a feature is added.
+
+---
+
+35. GUIDED TOUR / WORKFLOW
+
+Build the missing guided tour system.
+
+New users should be able to launch:
+
+Tygos Guided Tour
+
+It should explain the application step by step.
+
+Examples:
+
+1. Dashboard
+2. Branches
+3. Menu
+4. Ingredients
+5. Recipes
+6. Cost Control
+7. Inventory
+8. Purchasing
+9. POS
+10. Finance
+11. Reports
+12. AI Assistant
+
+The tour must be:
+
+- Skip-able
+- Resumable
+- Restartable
+- Language-aware
+- Responsive
+- Context-aware
+
+Future updates should allow new tour steps to be added without rewriting the tour engine.
+
+---
+
+36. SYSTEM ACTIVITY / AUDIT LOG
+
+Create the architecture for an immutable audit/event system.
+
+Track critical events such as:
+
+- Login
+- Failed login
+- Permission changes
+- Authorization requests
+- Approvals
+- Denials
+- Recipe changes
+- Cost changes
+- Price changes
+- Inventory adjustments
+- Waste
+- Refunds
+- Deletions
+- User changes
+- AI actions
+- Support sessions
+
+Each event should contain:
+
+- Timestamp
+- User
+- Role
+- Action
+- Resource
+- Previous value where applicable
+- New value where applicable
+- Reason where applicable
+- Session/device metadata
+
+Mock implementation is acceptable at this stage.
+
+---
+
+37. SECURITY RULE
+
+Never store:
+
+- Passwords
+- API keys
+- Authentication secrets
+- Private tokens
+
+inside:
+
+- Chatbot knowledge
+- Search index
+- Public GitHub files
+- Client-side business metadata
+
+Do not expose secrets in frontend code.
+
+---
+
+38. AI ARCHITECTURE
+
+Do not hard-wire the application to one AI provider.
+
+Create a clean provider abstraction:
+
+Application
+→ AI Assistant Service
+→ Intent / Context / Permission Layer
+→ AI Provider Adapter
+
+This will allow future integration with Gemini or another AI provider without rewriting the application.
+
+For the current phase, mock/local/rule-based intelligence is acceptable where real AI infrastructure is not available.
+
+The architecture must be ready for a real AI model later.
+
+---
+
+39. SYSTEM INTEGRITY TEST
+
+Create a developer/admin test scenario demonstrating the complete business chain.
+
+Example:
+
+1. Create ingredient.
+2. Create supplier.
+3. Create purchase.
+4. Receive ingredient.
+5. Update inventory.
+6. Create recipe.
+7. Calculate recipe cost.
+8. Sell menu item.
+9. Consume ingredients.
+10. Calculate actual cost.
+11. Compare theoretical vs actual.
+12. Calculate revenue.
+13. Calculate gross profit.
+14. Apply operating costs.
+15. Produce expected P&L.
+16. Produce actual P&L.
+17. Detect variance.
+18. Explain variance.
+19. Generate recommendation.
+20. Ask Tygos Assistant about the result.
+21. Assistant must understand the data.
+22. Assistant must provide relevant navigation/actions.
+
+This test must demonstrate that Tygos behaves as ONE connected system.
+
+---
+
+40. CHATBOT TEST SCENARIOS
+
+Test at minimum:
+
+Arabic
+
+"افتح المخزون"
+
+English
+
+"Open inventory"
+
+Mixed
+
+"عايز cost بتاع burger"
+
+Typo
+
+Use intentionally misspelled entity names.
+
+Unauthorized request
+
+Ask for another user's restricted information.
+
+Business question
+
+"ليه تكلفة البرجر زادت؟"
+
+The assistant should identify possible cost drivers.
+
+Navigation
+
+"افتح الوصفة"
+
+The assistant must provide the correct navigation action.
+
+Entity lookup
+
+Search for a user-created ingredient/product/customer.
+
+---
+
+41. NO DEAD BUTTONS
+
+Audit every visible button.
+
+No button may:
+
+- Do nothing
+- Navigate nowhere
+- Display fake success
+- Produce an unrelated screen
+- Have a broken route
+
+If a feature is not yet connected to a real backend, it should still have a clearly defined mock behavior rather than an apparently broken button.
+
+---
+
+42. NO FAKE AI CLAIMS
+
+Do not claim that the assistant is "AI-powered" if the current implementation is only rule-based/mock.
+
+The architecture may be AI-ready, but behavior must accurately reflect what is currently implemented.
+
+---
+
+43. PERFORMANCE
+
+Do not sacrifice performance for animations.
+
+Especially on mobile:
+
+- Avoid excessive re-rendering.
+- Avoid huge DOM structures.
+- Lazy-load heavy modules where appropriate.
+- Optimize images.
+- Avoid unnecessary animation loops.
+- Keep chatbot lightweight.
+
+---
+
+44. BRAND CONSISTENCY
+
+Use the existing approved Tygos identity.
+
+Brand language:
+
+- Premium
+- Modern
+- International
+- Hospitality-focused
+- Technology-driven
+- Professional
+
+Do not turn the application into a generic admin dashboard.
+
+---
+
+45. FINAL QUALITY GATE
+
+Before declaring this phase complete, perform a complete audit.
+
+The phase is NOT complete if:
+
+- Any screen requires horizontal scrolling on mobile.
+- Any visible UI text is untranslated.
+- Arabic mode contains unexplained English UI.
+- English mode contains unexplained Arabic UI.
+- Sidebar text is difficult to read.
+- Chatbot cannot navigate.
+- Chatbot does not understand application terminology.
+- Chatbot cannot search user-created entities.
+- Chatbot ignores permissions.
+- Chatbot asks for passwords.
+- Documentation is missing.
+- Guided tour is missing.
+- Documentation search is missing.
+- Landing page is missing.
+- Landing page is not responsive.
+- Logo/navigation is broken.
+- Buttons are dead.
+- Existing Phase 1/2 functionality has been lost.
+- Modules remain isolated from each other.
+- Recipe → Inventory → Sales → Cost → Accounting → P&L traceability is missing.
+- Expected vs Actual analysis is missing.
+- Variance explanation is missing.
+- Recommendation architecture is missing.
+
+---
+
+46. IMPORTANT DEVELOPMENT BOUNDARY
+
+For this phase:
+
+DO NOT introduce a production database unless it already exists and is required by the current project.
+
+DO NOT require paid external APIs.
+
+DO NOT require external AI API keys.
+
+DO NOT expose secrets.
+
+Use mock/local/in-memory implementations where necessary.
+
+However, design clean interfaces so that:
+
+Mock Repository
+can later become
+Real Database Repository.
+
+Mock AI Provider
+can later become
+Real AI Provider.
+
+Mock Audit Store
+can later become
+Real Audit Store.
+
+Mock Authorization
+can later become
+Production Authorization.
+
+Do not build temporary code in a way that makes future migration difficult.
+
+---
+
+47. REQUIRED FINAL REPORT
+
+When implementation is finished, do NOT simply say:
+
+"Phase completed."
+
+Provide a concise engineering report containing:
+
+1. Files changed.
+2. Major components created.
+3. Existing components improved.
+4. Mobile responsiveness fixes.
+5. Landing page implementation.
+6. Translation fixes.
+7. Theme/accessibility fixes.
+8. AI Assistant improvements.
+9. Knowledge Registry architecture.
+10. Permission/authorization architecture.
+11. Documentation Center.
+12. Guided Tour.
+13. Audit architecture.
+14. Recipe/Cost architecture.
+15. Traceability implementation.
+16. Tests performed.
+17. Build result.
+18. Any remaining limitations.
+
+Most importantly:
+
+Do not claim a feature is complete unless it actually works in the current project.
+
+If something remains mock-only, explicitly identify it as mock-only.
+
+---
+
+FINAL OBJECTIVE
+
+Tygos must now begin behaving like a real integrated hospitality management platform rather than a collection of separate screens.
+
+The user should be able to move naturally through:
+
+Landing Page
+→ Registration/Login
+→ Dashboard
+→ Operations
+→ Recipes
+→ Inventory
+→ Purchasing
+→ POS
+→ Cost Control
+→ Finance
+→ Reports
+→ AI Assistant
+→ Help & Documentation
+
+while all components share the same:
+
+- Language system
+- Theme system
+- Navigation
+- Permissions
+- Business terminology
+- Entity registry
+- Audit architecture
+- Documentation architecture
+- Cost architecture
+- Traceability model
+
+The most important principle is:
+
+ONE SYSTEM — ONE BUSINESS LOGIC — ONE SOURCE OF TRUTH
+
+Do not optimize for the appearance of completion.
+
+Optimize for correct architecture, real connections between modules, excellent mobile usability, reliable navigation, accurate localization, and a Tygos Assistant that actually understands and operates the application.

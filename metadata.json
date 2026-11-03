@@ -1,0 +1,8 @@
+{
+  "name": "Tygos - Hospitality Management SaaS",
+  "description": "Multi-tenant Hospitality ERP and Management Intelligence platform combining POS, Inventory, Recipe Cost Control, Finance, Tax, HR, CRM, and Super Admin.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
