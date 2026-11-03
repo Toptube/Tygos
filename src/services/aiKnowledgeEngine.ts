@@ -20,10 +20,10 @@ export const HELP_ARTICLES: HelpArticle[] = [
     summaryAr: 'نظرة شاملة حول مفهوم المنشأة السحابية المستقلة، كود الهوية، والأدوار التشغيلية.',
     summaryEn: 'Executive overview of multi-tenant partitioning, establishment codes, and RBAC roles.',
     contentAr: `منظومة Tygos هي منصة ERP وتشغيل ضيافة متطورة تعمل بنظام العزل متعدد المنشآت (Multi-Tenant Isolation).
-تعتمد المنظومة رمز هوية مخصص لكل منشأة يتكون من بادئة نوع النشاط (مثل R للمطعم وC للمقهى) ورقم تسلسلي مكون من 4 أرقام.
+تعتمد المنظومة رقم منشأة فريداً لكل منشأة يتكون من اختصار نوع النشاط (مثل R للمطعم وC للمقهى) ورقم تسلسلي مكون من 4 أرقام.
 تترابط كافة العمليات من لحظة استلام المواد الخام في المستودع حتى صدور الفاتورة وقيد اليومية المحاسبي.`,
     contentEn: `Tygos is a sovereign hospitality ERP built on multi-tenant partition isolation.
-Every establishment possesses an identity code comprising a business prefix (e.g., R for Restaurant, C for Café) and a 4-digit serial.
+Every establishment possesses an identity number comprising a business type abbreviation (e.g., R for Restaurant, C for Café) and a 4-digit serial.
 All workflows flow seamlessly from warehouse goods receipt to POS invoice issuance and double-entry general ledger postings.`,
     stepsAr: [
       'سجل منشأتك الجديدة من معالج التسجيل أو ادخل بحساب المالك المعين.',

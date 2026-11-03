@@ -4,7 +4,7 @@
  */
 
 import React, { useState } from 'react';
-import { Eye, EyeOff, ShieldCheck, ArrowRight, UserPlus, Sparkles } from 'lucide-react';
+import { Eye, EyeOff, ArrowRight, UserPlus, Sparkles, Building2, HelpCircle, X, Check } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.tsx';
 import { useI18n } from '../../i18n/I18nContext.tsx';
 import { TygosLogo } from '../brand/TygosLogo.tsx';
@@ -17,72 +17,79 @@ export const LoginView: React.FC<{
 }> = ({ onOpenRegister, onBackToLanding }) => {
   const { login, switchRole, establishments } = useAuth();
   const { t, dir, language } = useI18n();
+  const isAr = language === 'ar';
 
-  const [prefix, setPrefix] = useState('R');
+  const [typeCode, setTypeCode] = useState('R');
   const [number, setNumber] = useState('0001');
   const [identifier, setIdentifier] = useState('alex_owner');
   const [password, setPassword] = useState('••••••••••');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isForgotModalOpen, setIsForgotModalOpen] = useState(false);
+
+  // Business types with name and abbreviation only - absolutely NO "prefix/بادئة" word
+  const facilityTypes = [
+    { code: 'R', label: isAr ? 'مطعم (R:)' : 'Restaurant (R:)' },
+    { code: 'C', label: isAr ? 'كافيه (C:)' : 'Cafe (C:)' },
+    { code: 'H', label: isAr ? 'فندق (H:)' : 'Hotel (H:)' },
+    { code: 'T', label: isAr ? 'منشأة سياحية (T:)' : 'Tourist Venue (T:)' },
+    { code: 'SYS', label: isAr ? 'إدارة النظام (SYS:)' : 'System Admin (SYS:)' },
+  ];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    login(prefix, number, identifier, password);
+    setErrorMessage(null);
+    const success = login(typeCode, number, identifier, password);
+    if (!success) {
+      setErrorMessage(
+        isAr
+          ? 'تأكد من رقم المنشأة واسم المستخدم وكلمة المرور للمتابعة'
+          : 'Please check your establishment number, username, and password to proceed'
+      );
+    }
   };
-
-  const prefixes = [
-    { code: 'R', label: language === 'ar' ? 'R (مطعم)' : 'R (Restaurant)' },
-    { code: 'C', label: language === 'ar' ? 'C (مقهى)' : 'C (Café)' },
-    { code: 'RC', label: language === 'ar' ? 'RC (مطعم ومقهى)' : 'RC (Restaurant & Café)' },
-    { code: 'T', label: language === 'ar' ? 'T (وجبات سريعة)' : 'T (Take Away & Fast Food)' },
-    { code: 'H', label: language === 'ar' ? 'H (فندق)' : 'H (Hotel)' },
-    { code: 'V', label: language === 'ar' ? 'V (منتجع وقرية سياحية)' : 'V (Resort & Village)' },
-    { code: 'FB', label: language === 'ar' ? 'FB (منفذ مأكولات ومشروبات)' : 'FB (F&B Outlet)' },
-    { code: 'BK', label: language === 'ar' ? 'BK (مخبز)' : 'BK (Bakery)' },
-    { code: 'PS', label: language === 'ar' ? 'PS (حلويات)' : 'PS (Pastry)' },
-    { code: 'SYS', label: language === 'ar' ? 'SYS (مدير عام المنظومة)' : 'SYS (Tygos Super Admin)' },
-  ];
 
   const quickRoles: { role: UserRole; title: string; hint: string }[] = [
     {
       role: 'super_admin',
-      title: language === 'ar' ? 'المدير العام' : 'Super Admin',
-      hint: language === 'ar' ? 'مالك المنظومة السحابية' : 'Platform Owner',
+      title: isAr ? 'المدير العام' : 'Super Admin',
+      hint: isAr ? 'مالك المنظومة السحابية' : 'Platform Owner',
     },
     {
       role: 'tenant_admin',
-      title: language === 'ar' ? 'مدير المنشأة' : 'Tenant Admin',
-      hint: language === 'ar' ? 'ألكسندر (المالك والمشرف)' : 'Alexander (Owner)',
+      title: isAr ? 'مالك / مدير المنشأة' : 'Tenant Admin',
+      hint: isAr ? 'ألكسندر (المالك والمشرف)' : 'Alexander (Owner)',
     },
     {
       role: 'general_manager',
-      title: language === 'ar' ? 'المدير العام' : 'General Manager',
-      hint: language === 'ar' ? 'صوفيا (إدارة العمليات)' : 'Sophia (Operations)',
+      title: isAr ? 'المدير العام' : 'General Manager',
+      hint: isAr ? 'صوفيا (إدارة العمليات)' : 'Sophia (Operations)',
     },
     {
       role: 'cashier',
-      title: language === 'ar' ? 'كاشير نقطة البيع' : 'POS Cashier',
-      hint: language === 'ar' ? 'مايا (نقطة البيع السريعة)' : 'Maya (Fast Register)',
+      title: isAr ? 'كاشير نقطة البيع' : 'POS Cashier',
+      hint: isAr ? 'مايا (نقطة البيع السريعة)' : 'Maya (Fast Register)',
     },
     {
       role: 'kitchen_manager',
-      title: language === 'ar' ? 'رئيس المطبخ' : 'Kitchen Head',
-      hint: language === 'ar' ? 'الشيف غابرييل (الوصفات)' : 'Chef Gabriel (Recipes)',
+      title: isAr ? 'رئيس المطبخ' : 'Kitchen Head',
+      hint: isAr ? 'الشيف غابرييل (الوصفات)' : 'Chef Gabriel (Recipes)',
     },
     {
       role: 'cost_accountant',
-      title: language === 'ar' ? 'محاسب التكاليف' : 'Cost Controller',
-      hint: language === 'ar' ? 'نادية (مراقبة الهالك والانحراف)' : 'Nadia (Variance & Food Cost)',
+      title: isAr ? 'محاسب التكاليف' : 'Cost Controller',
+      hint: isAr ? 'نادية (مراقبة الهالك والانحراف)' : 'Nadia (Variance & Food Cost)',
     },
     {
       role: 'financial_manager',
-      title: language === 'ar' ? 'المدير المالي' : 'CFO / Finance',
-      hint: language === 'ar' ? 'جوليان (الأستاذ والضرائب)' : 'Julian (Ledger & Tax)',
+      title: isAr ? 'المدير المالي' : 'CFO / Finance',
+      hint: isAr ? 'جوليان (الأستاذ والضرائب)' : 'Julian (Ledger & Tax)',
     },
     {
       role: 'waiter',
-      title: language === 'ar' ? 'مضيف الطاولات' : 'Floor Waiter',
-      hint: language === 'ar' ? 'زياد (طلبات الصالة)' : 'Ziad (Table Orders)',
+      title: isAr ? 'مقدم الخدمة' : 'Floor Waiter',
+      hint: isAr ? 'زياد (طلبات الصالة)' : 'Ziad (Table Orders)',
     },
   ];
 
@@ -91,7 +98,7 @@ export const LoginView: React.FC<{
       dir={dir}
       className="min-h-screen bg-[#070b14] text-slate-100 flex flex-col items-center justify-center p-4 sm:p-6 relative overflow-hidden"
     >
-      {/* Subtle brand glow effects */}
+      {/* Background glow effects */}
       <div className="absolute top-1/4 start-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-10 end-10 w-72 h-72 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
 
@@ -104,7 +111,7 @@ export const LoginView: React.FC<{
             className="text-xs text-slate-400 hover:text-cyan-300 flex items-center gap-1.5 transition-colors cursor-pointer"
           >
             <ArrowRight className="w-3.5 h-3.5 ltr:rotate-180" />
-            <span>{language === 'ar' ? 'الرئيسية التعريفية' : 'Platform Overview'}</span>
+            <span>{isAr ? 'الرئيسية التعريفية' : 'Platform Overview'}</span>
           </button>
         ) : (
           <div />
@@ -118,55 +125,76 @@ export const LoginView: React.FC<{
           <TygosLogo variant="login" />
         </div>
 
+        {/* Error notification banner if any */}
+        {errorMessage && (
+          <div className="mb-4 p-3 rounded-xl bg-rose-500/15 border border-rose-500/40 text-xs text-rose-300 flex items-center gap-2 animate-fade-in">
+            <span className="w-1.5 h-1.5 rounded-full bg-rose-400 shrink-0" />
+            <span>{errorMessage}</span>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Establishment Selection helper */}
+          {/* Facility Type and Number */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-400">
-                {t('auth.establishmentCode', 'Establishment Identity Code')}
+                {t('auth.establishmentCode', 'Establishment Number')}
               </label>
+              <button
+                type="button"
+                onClick={() => setIsForgotModalOpen(true)}
+                className="text-[11px] text-cyan-400 hover:text-cyan-300 transition-colors cursor-pointer flex items-center gap-1"
+              >
+                <HelpCircle className="w-3 h-3" />
+                <span>{t('auth.forgotEstablishment', 'Forgot my establishment number?')}</span>
+              </button>
             </div>
 
-            {/* Quick establishment chips */}
+            {/* Quick establishment chips saved on device */}
             {establishments && establishments.length > 0 && (
               <div className="flex flex-wrap gap-1.5 mb-2.5">
-                {establishments.slice(0, 4).map((est) => (
-                  <button
-                    key={est.id}
-                    type="button"
-                    onClick={() => {
-                      setPrefix(est.prefix);
-                      setNumber(est.number);
-                    }}
-                    className={`text-[11px] px-2.5 py-1 rounded-lg border transition-all cursor-pointer ${
-                      prefix === est.prefix && number === est.number
-                        ? 'bg-cyan-500/20 border-cyan-500 text-cyan-300 font-bold'
-                        : 'bg-slate-950/80 border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700'
-                    }`}
-                  >
-                    <span className="font-mono text-cyan-400" dir="ltr">{est.code}</span>
-                    <span className="ms-1.5 opacity-80">{est.name.split(' ')[0]}</span>
-                  </button>
-                ))}
+                {establishments.slice(0, 4).map((est) => {
+                  const [p, n] = est.code.split('.');
+                  const isSelected = typeCode === (p || est.prefix) && number === (n || est.number);
+                  return (
+                    <button
+                      key={est.id}
+                      type="button"
+                      onClick={() => {
+                        setTypeCode(p || est.prefix);
+                        setNumber(n || est.number);
+                      }}
+                      className={`text-[11px] px-2.5 py-1 rounded-lg border transition-all cursor-pointer ${
+                        isSelected
+                          ? 'bg-cyan-500/20 border-cyan-500 text-cyan-300 font-bold'
+                          : 'bg-slate-950/80 border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700'
+                      }`}
+                    >
+                      <span className="font-mono text-cyan-400" dir="ltr">{est.code}</span>
+                      <span className="ms-1.5 opacity-80">{est.name.split(' ')[0]}</span>
+                    </button>
+                  );
+                })}
               </div>
             )}
 
             <div className="flex items-center gap-2">
-              <div className="relative w-36 shrink-0">
+              <div className="relative w-44 shrink-0">
                 <select
-                  value={prefix}
+                  value={typeCode}
                   onChange={(e) => {
-                    setPrefix(e.target.value);
-                    if (e.target.value === 'SYS') {
+                    const val = e.target.value;
+                    setTypeCode(val);
+                    if (val === 'SYS') {
                       setNumber('0000');
                       setIdentifier('tygos_super');
                     }
                   }}
-                  className="w-full appearance-none px-3 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm font-bold text-cyan-400 focus:border-cyan-500 focus:outline-none cursor-pointer"
+                  className="w-full appearance-none px-3 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-xs sm:text-sm font-bold text-cyan-400 focus:border-cyan-500 focus:outline-none cursor-pointer"
                 >
-                  {prefixes.map((p) => (
+                  {facilityTypes.map((p) => (
                     <option key={p.code} value={p.code}>
-                      {p.code} ▼
+                      {p.label}
                     </option>
                   ))}
                 </select>
@@ -177,17 +205,21 @@ export const LoginView: React.FC<{
                   type="text"
                   maxLength={6}
                   value={number}
-                  onChange={(e) => setNumber(e.target.value)}
+                  onChange={(e) => setNumber(e.target.value.replace(/[^0-9]/g, ''))}
                   placeholder="0001"
                   dir="ltr"
+                  aria-label={t('auth.establishmentNumber', 'Establishment Number')}
                   className="w-full px-3 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm font-mono tracking-widest text-slate-100 focus:border-cyan-500 focus:outline-none"
                 />
               </div>
             </div>
-            <p className="text-[11px] text-slate-500 mt-1">
-              {t('auth.activePartition', 'Active partition')}:{' '}
-              <span className="font-mono text-cyan-400" dir="ltr">
-                {prefix}.{number}
+
+            <p className="text-[11px] text-slate-500 mt-1 flex items-center justify-between">
+              <span>
+                {t('auth.activePartition', 'Active Establishment Number')}:{' '}
+                <span className="font-mono text-cyan-400 font-bold" dir="ltr">
+                  {typeCode}.{number}
+                </span>
               </span>
             </p>
           </div>
@@ -206,7 +238,7 @@ export const LoginView: React.FC<{
             />
           </div>
 
-          {/* Password with Eye */}
+          {/* Password with Eye toggle */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
               <label className="text-xs font-bold uppercase tracking-wider text-slate-400">
@@ -228,61 +260,59 @@ export const LoginView: React.FC<{
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                aria-label={showPassword ? t('auth.hidePassword', 'Hide Password') : t('auth.showPassword', 'Show Password')}
-                className="absolute end-3 top-2.5 text-slate-400 hover:text-white p-0.5 rounded cursor-pointer"
+                className="absolute end-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200"
+                tabIndex={-1}
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
           </div>
 
-          {/* Remember Me */}
-          <div className="flex items-center justify-between text-xs text-slate-400 pt-1">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
-                className="rounded border-slate-700 bg-slate-950 text-cyan-500 focus:ring-0"
-              />
-              <span>{t('auth.remember', 'Remember establishment')}</span>
+          {/* Remember check */}
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              id="remember"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+              className="w-4 h-4 rounded bg-slate-950 border-slate-700 text-cyan-500 focus:ring-0 focus:ring-offset-0"
+            />
+            <label htmlFor="remember" className="ms-2 text-xs text-slate-400 cursor-pointer">
+              {t('auth.remember', 'Remember establishment number on this device')}
             </label>
-            <div className="flex items-center gap-1 text-[11px] text-emerald-400">
-              <ShieldCheck className="w-3.5 h-3.5" />
-              <span>{t('auth.tlsSecured', 'TLS Secured')}</span>
-            </div>
           </div>
 
-          {/* Login Submit Button */}
+          {/* Submit */}
           <button
             type="submit"
-            className="w-full py-3 px-4 rounded-xl font-bold text-sm text-slate-950 bg-gradient-to-r from-cyan-400 via-cyan-300 to-emerald-400 hover:from-cyan-300 hover:to-emerald-300 transition-all shadow-lg shadow-cyan-900/30 flex items-center justify-center gap-2 cursor-pointer mt-2"
+            className="w-full py-3 px-4 rounded-xl font-bold text-sm bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 shadow-lg shadow-cyan-500/20 transition-all cursor-pointer"
           >
-            <span>{t('auth.enterWorkspace', 'Log In to Workspace')}</span>
-            <ArrowRight className="w-4 h-4 rtl:rotate-180" />
+            {t('auth.enterWorkspace', 'Log In to Workspace')}
           </button>
         </form>
 
-        {/* Register CTA */}
-        <div className="mt-5 pt-4 border-t border-slate-800/80 text-center">
-          <p className="text-xs text-slate-400 mb-2">
+        {/* Register New Facility prompt */}
+        <div className="mt-5 pt-4 border-t border-slate-800 text-center">
+          <p className="text-xs text-slate-400 mb-2.5">
             {t('auth.newEstablishmentPrompt', 'New hospitality establishment?')}
           </p>
           <button
             type="button"
             onClick={onOpenRegister}
-            className="w-full py-2.5 px-3 rounded-xl border border-slate-700 hover:border-cyan-500/50 bg-slate-800/50 hover:bg-slate-800 text-xs font-semibold text-slate-200 flex items-center justify-center gap-2 transition-colors cursor-pointer"
+            className="w-full py-2.5 px-4 rounded-xl text-xs font-bold border border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/10 transition-colors flex items-center justify-center gap-2 cursor-pointer"
           >
-            <UserPlus className="w-4 h-4 text-cyan-400" />
+            <UserPlus className="w-4 h-4" />
             <span>{t('auth.register', 'Register New Establishment')}</span>
           </button>
         </div>
 
-        {/* Quick Test Switcher for Testing All Mock Roles */}
-        <div className="mt-6 pt-4 border-t border-slate-800/80">
-          <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 mb-2">
-            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-            <span>{t('auth.quickRoles', 'Interactive Role Simulator')}</span>
+        {/* Interactive Role Switcher for Phase 2 & 4 preview */}
+        <div className="mt-5 pt-4 border-t border-slate-800/60">
+          <div className="flex items-center gap-1.5 mb-2.5 text-slate-400">
+            <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+            <span className="text-[11px] font-bold uppercase tracking-wider">
+              {t('auth.quickRoles', 'Interactive Role Simulator')}
+            </span>
           </div>
           <div className="grid grid-cols-2 gap-1.5">
             {quickRoles.map((qr) => (
@@ -290,15 +320,94 @@ export const LoginView: React.FC<{
                 key={qr.role}
                 type="button"
                 onClick={() => switchRole(qr.role)}
-                className="p-2 text-start bg-slate-950/60 hover:bg-slate-800 border border-slate-800/70 hover:border-slate-700 rounded-lg text-[11px] transition-colors cursor-pointer"
+                className="text-start p-2 rounded-lg bg-slate-950/60 hover:bg-cyan-950/40 border border-slate-800/80 hover:border-cyan-500/40 transition-colors cursor-pointer group"
               >
-                <div className="font-semibold text-slate-200">{qr.title}</div>
+                <div className="text-[11px] font-bold text-slate-200 group-hover:text-cyan-300">
+                  {qr.title}
+                </div>
                 <div className="text-[10px] text-slate-500 truncate">{qr.hint}</div>
               </button>
             ))}
           </div>
         </div>
       </div>
+
+      {/* Forgot Facility Number Modal */}
+      {isForgotModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xs animate-fade-in">
+          <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-2xl relative">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+              <div className="flex items-center gap-2">
+                <Building2 className="w-5 h-5 text-cyan-400" />
+                <h3 className="text-sm font-bold text-slate-100">
+                  {t('auth.savedOnDevice', 'Registered establishments on this device')}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsForgotModalOpen(false)}
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-100"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <p className="text-xs text-slate-400 my-3">
+              {isAr
+                ? 'اختر منشأتك من القائمة المسجلة محلياً لتعبئة رقم المنشأة تلقائياً والمتابعة:'
+                : 'Select your establishment from the saved list to auto-fill its number and proceed:'}
+            </p>
+
+            <div className="space-y-2 max-h-60 overflow-y-auto">
+              {establishments && establishments.length > 0 ? (
+                establishments.map((est) => {
+                  const [p, n] = est.code.split('.');
+                  return (
+                    <button
+                      key={est.id}
+                      type="button"
+                      onClick={() => {
+                        setTypeCode(p || est.prefix);
+                        setNumber(n || est.number);
+                        setIsForgotModalOpen(false);
+                      }}
+                      className="w-full p-3 rounded-xl bg-slate-950 border border-slate-800 hover:border-cyan-500/50 text-start flex items-center justify-between group transition-colors cursor-pointer"
+                    >
+                      <div>
+                        <div className="text-xs font-bold text-slate-200 group-hover:text-cyan-300">
+                          {est.name}
+                        </div>
+                        <div className="text-[11px] text-slate-400 mt-0.5">
+                          {isAr ? 'المالك:' : 'Owner:'} {est.ownerName || 'Admin'} · {est.city}
+                        </div>
+                      </div>
+                      <div className="text-end">
+                        <span className="font-mono text-xs font-black text-cyan-400 bg-cyan-950/60 px-2 py-1 rounded-lg border border-cyan-800/40" dir="ltr">
+                          {est.code}
+                        </span>
+                      </div>
+                    </button>
+                  );
+                })
+              ) : (
+                <div className="text-center py-6 text-xs text-slate-500">
+                  {isAr ? 'لا توجد منشآت مسجلة على هذا الجهاز بعد.' : 'No saved establishments found on this device.'}
+                </div>
+              )}
+            </div>
+
+            <div className="mt-4 pt-3 border-t border-slate-800 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setIsForgotModalOpen(false)}
+                className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-200 cursor-pointer"
+              >
+                {t('common.close', 'Close')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

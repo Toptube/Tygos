@@ -28,6 +28,8 @@ import {
   HelpCircle,
   Globe2,
   Compass,
+  Activity,
+  Settings,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.tsx';
 import { useI18n } from '../../i18n/I18nContext.tsx';
@@ -38,6 +40,7 @@ import { ThemeSwitcher } from '../common/ThemeSwitcher.tsx';
 import { ConnectivityStatus } from '../common/ConnectivityStatus.tsx';
 import { DraggableAssistantLauncher } from '../ai/DraggableAssistantLauncher.tsx';
 import { GuidedTourModal } from '../common/GuidedTourModal.tsx';
+import { VoiceNavigatorButton } from '../common/VoiceNavigatorButton.tsx';
 import { UserRole } from '../../types/index.ts';
 
 export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -172,6 +175,18 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
         'super_admin',
       ],
     },
+    {
+      id: 'health',
+      label: isAr ? 'صحة المنظومة' : 'System Health',
+      icon: Activity,
+      roles: ['tenant_admin', 'general_manager', 'super_admin'],
+    },
+    {
+      id: 'settings',
+      label: isAr ? 'إعدادات المنشأة' : 'Settings',
+      icon: Settings,
+      roles: ['tenant_admin', 'super_admin'],
+    },
   ];
 
   if (role === 'super_admin') {
@@ -271,6 +286,9 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
 
         {/* Zone 3: Essential Actions & Utilities (Clean on Mobile) */}
         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          {/* Hands-Free Voice Navigation */}
+          <VoiceNavigatorButton />
+
           {/* Tygos AI Assistant Trigger */}
           <button
             type="button"
@@ -582,6 +600,7 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
           <DraggableAssistantLauncher
             onClick={() => setIsAssistantOpen(true)}
             isOpen={isAssistantOpen}
+            activeView={activeView}
           />
         </main>
       </div>

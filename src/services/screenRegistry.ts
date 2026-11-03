@@ -1,0 +1,428 @@
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ * 
+ * CENTRAL SCREEN & CAPABILITY REGISTRY
+ * Single source of truth for all modules, screens, and workflows in TYGOS.
+ * Directly consumed by:
+ * 1. TYGOS AI Assistant (zero-code automatic discovery of any new screen)
+ * 2. Voice Command Navigator (SpeechRecognition)
+ * 3. Global Search & Command Palette (⌘K)
+ * 4. Guided Tour and SOP Documentation Help Center
+ */
+
+import { UserRole } from '../types/index.ts';
+
+export interface ScreenQuickAction {
+  id: string;
+  labelAr: string;
+  labelEn: string;
+  actionCode: string; // e.g. "NAV:pos", "ACTION:open_add_ingredient", "ACTION:open_add_product"
+}
+
+export interface ScreenDefinition {
+  id: string;
+  viewId: string;
+  category: 'operations' | 'cost_engineering' | 'inventory_supply' | 'finance_tax' | 'human_resources' | 'system';
+  nameAr: string;
+  nameEn: string;
+  shortLabelAr: string;
+  shortLabelEn: string;
+  descriptionAr: string;
+  descriptionEn: string;
+  iconName: string;
+  allowedRoles: UserRole[];
+  keywordsAr: string[];
+  keywordsEn: string[];
+  commonStepsAr: string[];
+  commonStepsEn: string[];
+  quickActions: ScreenQuickAction[];
+}
+
+export const SCREEN_REGISTRY: ScreenDefinition[] = [
+  {
+    id: 'dashboard',
+    viewId: 'dashboard',
+    category: 'operations',
+    nameAr: 'لوحة التحكم والمؤشرات التنفيذية',
+    nameEn: 'Executive Dashboard & Intelligence',
+    shortLabelAr: 'لوحة التحكم',
+    shortLabelEn: 'Dashboard',
+    descriptionAr: 'نظرة شاملة ومباشرة على المبيعات، نسب تكلفة الطعام، تنبيهات النواقص، ومؤشرات الأداء.',
+    descriptionEn: 'High-level real-time overview of sales, food cost %, inventory alerts, and performance metrics.',
+    iconName: 'LayoutDashboard',
+    allowedRoles: [
+      'tenant_admin',
+      'general_manager',
+      'financial_manager',
+      'financial_accountant',
+      'cost_accountant',
+      'store_manager',
+      'super_admin',
+    ],
+    keywordsAr: ['لوحة', 'تحكم', 'داشبورد', 'ملخص', 'مبيعات', 'أداء', 'عام', 'الرئيسية'],
+    keywordsEn: ['dashboard', 'executive', 'overview', 'summary', 'home', 'kpi', 'metrics'],
+    commonStepsAr: [
+      'تابع إجمالي مبيعات اليوم وهامش الربح الإجمالي لحظة بلحظة.',
+      'افحص مؤشر تكلفة الطعام (Food Cost %) وقارنه بالهدف.',
+      'انقر على أي بطاقة للانتقال المباشر للتقرير التفصيلي.',
+    ],
+    commonStepsEn: [
+      'Review today\'s sales and gross margin in real-time.',
+      'Monitor Food Cost % against target benchmark.',
+      'Click any card to jump to its in-depth report.',
+    ],
+    quickActions: [
+      { id: 'view_today_sales', labelAr: 'مبيعات اليوم', labelEn: 'Today Sales', actionCode: 'NAV:dashboard' },
+      { id: 'view_cost_alerts', labelAr: 'تنبيهات التكاليف', labelEn: 'Cost Alerts', actionCode: 'NAV:cost_control' },
+    ],
+  },
+  {
+    id: 'pos',
+    viewId: 'pos',
+    category: 'operations',
+    nameAr: 'نقطة البيع السريعة وطلبات الصالة',
+    nameEn: 'Point of Sale & Dine-In Orders',
+    shortLabelAr: 'نقطة البيع',
+    shortLabelEn: 'POS',
+    descriptionAr: 'واجهة سريعة وخفيفة لإصدار فواتير الطلبات، تقسيم الحساب، وإغلاق وردية الكاشير مع الخصم التلقائي للمخزون.',
+    descriptionEn: 'Lightning-fast order register, bill splitting, payment processing, and shift closing with auto-depletion.',
+    iconName: 'UtensilsCrossed',
+    allowedRoles: ['cashier', 'waiter', 'general_manager', 'tenant_admin', 'super_admin'],
+    keywordsAr: ['كاشير', 'نقطة بيع', 'pos', 'فاتورة', 'طلب', 'بيع', 'طاولات', 'دفع', 'وردية', 'شفت', 'زد ريبورت'],
+    keywordsEn: ['pos', 'cashier', 'register', 'order', 'bill', 'table', 'receipt', 'payment', 'shift', 'z-report'],
+    commonStepsAr: [
+      'ابدأ بفتح وردية الكاشير وتسجيل عهدة الدرج النقدية.',
+      'اختر الأصناف بالنقر المباشر أو ابحث بالاسم.',
+      'حدد طريقة الدفع (نقدي/بطاقة) واطبع الفاتورة الضريبية.',
+      'في نهاية اليوم، أغلق الوردية لإصدار تقرير Z المحاسبي.',
+    ],
+    commonStepsEn: [
+      'Open cashier shift with starting drawer cash float.',
+      'Add items by tapping or quick search.',
+      'Select payment method and issue tax invoice.',
+      'Close shift at end of day to generate verified Z-Report.',
+    ],
+    quickActions: [
+      { id: 'nav_pos', labelAr: 'فتح نقطة البيع', labelEn: 'Open Register', actionCode: 'NAV:pos' },
+    ],
+  },
+  {
+    id: 'menu',
+    viewId: 'menu',
+    category: 'cost_engineering',
+    nameAr: 'قائمة الطعام وهندسة الوصفات (BOM)',
+    nameEn: 'Menu & Recipe Engineering (BOM)',
+    shortLabelAr: 'الوصفات والمنيو',
+    shortLabelEn: 'Recipes & Menu',
+    descriptionAr: 'تفكيك كل طبق أو مشروب إلى خاماته الأساسية، مع حساب هالك التشفية، دقائق العمالة، والمنافع التشغيلية.',
+    descriptionEn: 'Detailed Bill of Materials (BOM) for dishes and drinks including yield waste, prep labor, and utility costs.',
+    iconName: 'ChefHat',
+    allowedRoles: ['tenant_admin', 'general_manager', 'kitchen_manager', 'bar_manager', 'cost_accountant', 'super_admin'],
+    keywordsAr: ['منيو', 'وصفة', 'وصفات', 'بوم', 'bom', 'طبق', 'مكونات', 'طبخ', 'شيف', 'مطعم', 'مشروب', 'أطباق', 'وجبة'],
+    keywordsEn: ['menu', 'recipe', 'bom', 'dish', 'ingredients', 'yield', 'prep', 'chef', 'food', 'drink'],
+    commonStepsAr: [
+      'اختر الصنف المراد إعداده أو أضف منتجاً جديداً بالمعالج.',
+      'أضف الخامات المستخدمة بالكمية المحددة للوجبة.',
+      'اضبط وقت التحضير ونسبة هالك التشفية لترى التكلفة الحقيقية تلقائياً.',
+    ],
+    commonStepsEn: [
+      'Select item to configure or add new product via wizard.',
+      'Add raw materials with exact portion quantities.',
+      'Set labor minutes and yield waste to view true cost automatically.',
+    ],
+    quickActions: [
+      { id: 'nav_menu', labelAr: 'عرض الوصفات', labelEn: 'View Recipes', actionCode: 'NAV:menu' },
+      { id: 'add_product_wizard', labelAr: 'إضافة منتج ووصفة', labelEn: 'Add Product & BOM', actionCode: 'ACTION:open_add_product' },
+    ],
+  },
+  {
+    id: 'cost_control',
+    viewId: 'cost_control',
+    category: 'cost_engineering',
+    nameAr: 'مراقبة التكاليف وكشف الانحراف والهدر',
+    nameEn: 'Cost Control & Variance Analytics',
+    shortLabelAr: 'مراقبة التكاليف',
+    shortLabelEn: 'Cost Control',
+    descriptionAr: 'مقارنة دقيقة بين الاستهلاك النظري والاستهلاك الفعلي في المستودعات لاكتشاف الهدر، السرقة، أو زيادة التوزيع.',
+    descriptionEn: 'Theoretical vs actual consumption audit to identify waste, portioning errors, or shrinkage before profits drop.',
+    iconName: 'Scale',
+    allowedRoles: ['tenant_admin', 'general_manager', 'cost_accountant', 'financial_manager', 'super_admin'],
+    keywordsAr: ['تكاليف', 'تكلفة', 'هدر', 'انحراف', 'فارق', 'نظري', 'فعلي', 'سرقة', 'خسارة', 'تالف', 'فود كوست'],
+    keywordsEn: ['cost', 'variance', 'waste', 'shrinkage', 'theoretical', 'actual', 'food cost', 'audit', 'loss'],
+    commonStepsAr: [
+      'شغّل مقارنة الاستهلاك النظري (المبيعات × الوصفة) بالاستهلاك الفعلي.',
+      'افحص الخامات التي تجاوزت نسبة الانحراف المسموحة (5%).',
+      'اتخذ إجراء التصحيح بتعديل الوصفة أو التدقيق على خط التحضير.',
+    ],
+    commonStepsEn: [
+      'Compare theoretical consumption against physical stock depletion.',
+      'Inspect raw ingredients exceeding variance threshold (5%).',
+      'Execute corrective audit or recalibrate recipe portions.',
+    ],
+    quickActions: [
+      { id: 'nav_cost_control', labelAr: 'شاشة الانحرافات', labelEn: 'Variance Report', actionCode: 'NAV:cost_control' },
+    ],
+  },
+  {
+    id: 'inventory',
+    viewId: 'inventory',
+    category: 'inventory_supply',
+    nameAr: 'المستودعات وحركات المخزون والجرد',
+    nameEn: 'Inventory & Stock Management',
+    shortLabelAr: 'المخزون',
+    shortLabelEn: 'Inventory',
+    descriptionAr: 'إدارة الخامات والمخازن المتعددة، متابعة حدود إعادة الطلب، تقييم المخزون (FIFO والمتوسط المرجح)، وتسجيل الجرد الفعلي.',
+    descriptionEn: 'Multi-warehouse stock control, reorder alerts, FIFO / weighted average valuation, and physical stocktakes.',
+    iconName: 'Package',
+    allowedRoles: ['tenant_admin', 'general_manager', 'store_manager', 'cost_accountant', 'super_admin'],
+    keywordsAr: ['مخزن', 'مخازن', 'مستودع', 'مخزون', 'خامات', 'جرد', 'نواقص', 'رصيد', 'خامة', 'طماطم', 'لحوم', 'استلام'],
+    keywordsEn: ['inventory', 'stock', 'warehouse', 'ingredients', 'stocktake', 'reorder', 'supplies', 'count'],
+    commonStepsAr: [
+      'أضف خامة جديدة في أقل من دقيقة بسعر الشراء ووحدة الاستهلاك.',
+      'تابع تنبيهات الخامات التي قاربت على النفاد لطلبها فوراً.',
+      'سجل نتائج الجرد الفعلي للمطابقة مع الرصيد الدفتري.',
+    ],
+    commonStepsEn: [
+      'Add new raw material in under 1 minute with cost and consumption unit.',
+      'Monitor reorder point alerts to issue purchase orders.',
+      'Record physical stocktake counts to reconcile with system balance.',
+    ],
+    quickActions: [
+      { id: 'nav_inventory', labelAr: 'فتح المستودعات', labelEn: 'Open Inventory', actionCode: 'NAV:inventory' },
+      { id: 'add_ingredient_quick', labelAr: 'إضافة خامة جديدة', labelEn: 'Add Raw Material', actionCode: 'ACTION:open_add_ingredient' },
+      { id: 'bulk_import_data', labelAr: 'استيراد خامات من إكسيل', labelEn: 'Import Excel / CSV', actionCode: 'ACTION:open_import_data' },
+    ],
+  },
+  {
+    id: 'purchasing',
+    viewId: 'purchasing',
+    category: 'inventory_supply',
+    nameAr: 'المشتريات والموردون وأوامر التوريد',
+    nameEn: 'Purchasing & Supplier Management',
+    shortLabelAr: 'المشتريات',
+    shortLabelEn: 'Purchasing',
+    descriptionAr: 'إصدار أوامر الشراء، استلام الشحنات وتحديث متوسط تكلفة الخامة تلقائياً في المخازن، مع متابعة فواتير الموردين.',
+    descriptionEn: 'Purchase orders, delivery receipts, automatic unit cost recalculation upon receipt, and supplier payables.',
+    iconName: 'ShoppingBag',
+    allowedRoles: ['tenant_admin', 'general_manager', 'store_manager', 'financial_accountant', 'super_admin'],
+    keywordsAr: ['شراء', 'مشتريات', 'مورد', 'موردين', 'أمر شراء', 'فاتورة شراء', 'توريد', 'استلام', 'بضاعة'],
+    keywordsEn: ['purchasing', 'purchase', 'supplier', 'vendor', 'po', 'order', 'receiving', 'invoice'],
+    commonStepsAr: [
+      'أنشئ أمر شراء للمورد وحدد الكميات المطلوبة.',
+      'عند وصول البضاعة، اعتمد محضر الاستلام لتحديث المخزون ومتوسط التكلفة.',
+      'يتم إنشاء قيد استحقاق للمورد تلقائياً في دفتر الأستاذ.',
+    ],
+    commonStepsEn: [
+      'Create purchase order for approved supplier.',
+      'Approve receiving voucher upon arrival to update stock and unit costs.',
+      'Accounts payable entry automatically posted to general ledger.',
+    ],
+    quickActions: [
+      { id: 'nav_purchasing', labelAr: 'أوامر الشراء', labelEn: 'Purchase Orders', actionCode: 'NAV:purchasing' },
+    ],
+  },
+  {
+    id: 'finance',
+    viewId: 'finance',
+    category: 'finance_tax',
+    nameAr: 'المالية والحسابات العامة ودفتر الأستاذ',
+    nameEn: 'Financial Accounting & General Ledger',
+    shortLabelAr: 'المالية',
+    shortLabelEn: 'Finance',
+    descriptionAr: 'شجرة حسابات مبسطة، قيود يومية تلقائية لكل حركة بيع أو شراء، قائمة الدخل، والأرباح والخسائر.',
+    descriptionEn: 'Double-entry accounting, automated journal entries for POS and inventory, and P&L financial statements.',
+    iconName: 'DollarSign',
+    allowedRoles: ['tenant_admin', 'financial_manager', 'financial_accountant', 'super_admin'],
+    keywordsAr: ['مالية', 'حسابات', 'أرباح', 'خسائر', 'دفتر أستاذ', 'شجرة حسابات', 'قيود', 'ميزانية', 'دخل'],
+    keywordsEn: ['finance', 'accounting', 'ledger', 'p&l', 'journal', 'profit', 'loss', 'balance', 'cfo'],
+    commonStepsAr: [
+      'راجع قيود اليومية التي يتم توليدها آلياً مع كل إغلاق وردية أو شراء.',
+      'افحص قائمة الدخل لمعرفة صافي الربح بعد خصم تكلفة المبيعات والمصاريف.',
+    ],
+    commonStepsEn: [
+      'Review automated journal entries from shifts and purchases.',
+      'Inspect income statement to monitor net profit after COGS and overhead.',
+    ],
+    quickActions: [
+      { id: 'nav_finance', labelAr: 'دفتر الأستاذ', labelEn: 'General Ledger', actionCode: 'NAV:finance' },
+    ],
+  },
+  {
+    id: 'tax',
+    viewId: 'tax',
+    category: 'finance_tax',
+    nameAr: 'الضرائب والفاتورة الإلكترونية المعتمدة',
+    nameEn: 'Tax & Electronic Invoicing Compliance',
+    shortLabelAr: 'الضرائب',
+    shortLabelEn: 'Tax',
+    descriptionAr: 'حساب ضريبة القيمة المضافة (المخرجات والمدخلات)، تجهيز الإقرارات الدورية، والفواتير المشفرة بـ QR Code.',
+    descriptionEn: 'VAT calculation (output and input tax), periodic tax returns, and compliant QR electronic invoicing.',
+    iconName: 'Receipt',
+    allowedRoles: ['tenant_admin', 'financial_manager', 'tax_accountant', 'super_admin'],
+    keywordsAr: ['ضريبة', 'ضرائب', 'قيمة مضافة', 'vat', 'فاتورة إلكترونية', 'qr', 'إقرار', 'مصلحة الضرائب'],
+    keywordsEn: ['tax', 'vat', 'e-invoice', 'compliance', 'qr', 'tax return', 'revenue authority'],
+    commonStepsAr: [
+      'اضبط نسبة الضريبة الأساسية والإضافية من الإعدادات.',
+      'تابع ملخص الضريبة المستحقة (المحصلة من المبيعات مخصوماً منها ضريبة المشتريات).',
+    ],
+    commonStepsEn: [
+      'Configure tax percentages in establishment settings.',
+      'Monitor net payable VAT (output tax minus input deductible tax).',
+    ],
+    quickActions: [
+      { id: 'nav_tax', labelAr: 'الإقرار الضريبي', labelEn: 'Tax Summary', actionCode: 'NAV:tax' },
+    ],
+  },
+  {
+    id: 'hr',
+    viewId: 'hr',
+    category: 'human_resources',
+    nameAr: 'الموارد البشرية والرواتب والورديات',
+    nameEn: 'Human Resources & Payroll',
+    shortLabelAr: 'الموارد البشرية',
+    shortLabelEn: 'HR & Payroll',
+    descriptionAr: 'بيانات فريق العمل، توزيع الورديات، مسير الرواتب الشهري، وربط أجور العمالة المباشرة بتكلفة الأطباق.',
+    descriptionEn: 'Employee profiles, shift scheduling, payroll processing, and direct labor allocation to menu recipes.',
+    iconName: 'Users',
+    allowedRoles: ['tenant_admin', 'general_manager', 'hr_manager', 'super_admin'],
+    keywordsAr: ['موظفين', 'رواتب', 'أجور', 'عمالة', 'ورديات', 'حضور', 'شفتات', 'ساعات عمل', 'hr'],
+    keywordsEn: ['hr', 'employees', 'payroll', 'salaries', 'shifts', 'staff', 'labor', 'attendance'],
+    commonStepsAr: [
+      'سجل الموظف وحدد دوره الوظيفي ومعدل الأجر بالساعة أو الشهر.',
+      'اربط ساعات عمل المطبخ والبار ببطاقات الوصفات لحساب تكلفة العمالة الحقيقية.',
+    ],
+    commonStepsEn: [
+      'Add staff profile with operational role and wage rate.',
+      'Link kitchen and bar labor hours into recipe cost allocations.',
+    ],
+    quickActions: [
+      { id: 'nav_hr', labelAr: 'فريق العمل والرواتب', labelEn: 'Staff & Payroll', actionCode: 'NAV:hr' },
+    ],
+  },
+  {
+    id: 'crm',
+    viewId: 'crm',
+    category: 'operations',
+    nameAr: 'علاقات العملاء وبرامج الولاء والضيوف',
+    nameEn: 'Customer Relationship & Guest Loyalty',
+    shortLabelAr: 'علاقات العملاء',
+    shortLabelEn: 'CRM',
+    descriptionAr: 'سجل تفضيلات الضيوف، كبار الشخصيات (VIP)، برامج النقاط والمكافآت، وملاحظات الحساسية الغذائية.',
+    descriptionEn: 'Guest preferences, VIP profiles, loyalty rewards points, and culinary allergy tracking.',
+    iconName: 'HeartHandshake',
+    allowedRoles: ['tenant_admin', 'general_manager', 'public_relations', 'cashier', 'waiter', 'super_admin'],
+    keywordsAr: ['عملاء', 'زبائن', 'ولاء', 'نقاط', 'ضيوف', 'vip', 'حساسية', 'علاقات عملاء', 'crm'],
+    keywordsEn: ['crm', 'customers', 'guests', 'loyalty', 'vip', 'points', 'preferences', 'relations'],
+    commonStepsAr: [
+      'سجل بيانات العميل ورقم هاتفه في نقطة البيع أو شاشة الـ CRM.',
+      'دوّن تفضيلات طاولة الضيف وأي حساسية غذائية.',
+    ],
+    commonStepsEn: [
+      'Record customer contact at register or CRM directory.',
+      'Note favorite seating preferences and allergy dietary requirements.',
+    ],
+    quickActions: [
+      { id: 'nav_crm', labelAr: 'دليل العملاء', labelEn: 'Guest Directory', actionCode: 'NAV:crm' },
+    ],
+  },
+  {
+    id: 'health',
+    viewId: 'health',
+    category: 'system',
+    nameAr: 'صحة المنظومة والمؤشرات الحيوية',
+    nameEn: 'System Health & Telemetry Metrics',
+    shortLabelAr: 'صحة المنظومة',
+    shortLabelEn: 'System Health',
+    descriptionAr: 'مراقبة أداء التخزين المحلي، سرعة الاستجابة، حالة المزامنة، ومعدل الاستقرار للمنشأة الحالية.',
+    descriptionEn: 'Real-time telemetry, response latency, sync queue health, and storage utilization for current partition.',
+    iconName: 'Activity',
+    allowedRoles: ['tenant_admin', 'general_manager', 'super_admin'],
+    keywordsAr: ['صحة', 'نظام', 'أداء', 'سيرفر', 'استجابة', 'سرعة', 'أخطاء', 'مزامنة', 'تخزين'],
+    keywordsEn: ['health', 'system', 'latency', 'telemetry', 'performance', 'sync', 'errors', 'uptime'],
+    commonStepsAr: [
+      'افحص زمن استجابة العمليات المحلية واستقرارها.',
+      'تأكد من عدم وجود أخطاء أو عمليات معلقة في قائمة المزامنة.',
+    ],
+    commonStepsEn: [
+      'Inspect local operations latency and uptime metrics.',
+      'Ensure zero error rate and verify offline sync queue status.',
+    ],
+    quickActions: [
+      { id: 'nav_health', labelAr: 'مؤشرات الأداء', labelEn: 'System Metrics', actionCode: 'NAV:health' },
+    ],
+  },
+  {
+    id: 'settings',
+    viewId: 'settings',
+    category: 'system',
+    nameAr: 'إعدادات المنشأة وتخصيص المنظومة',
+    nameEn: 'Establishment Configuration & Settings',
+    shortLabelAr: 'الإعدادات',
+    shortLabelEn: 'Settings',
+    descriptionAr: 'تحديد العملة، نسب الضرائب، طريقة تقييم المخزون (FIFO أو WAC)، هوامش الربح المستهدفة، والنسخ الاحتياطي.',
+    descriptionEn: 'Currency, tax rates, inventory valuation method, target food cost margins, and local JSON backup/restore.',
+    iconName: 'Settings',
+    allowedRoles: ['tenant_admin', 'super_admin'],
+    keywordsAr: ['إعدادات', 'ضبط', 'عملة', 'ضريبة', 'نسخ احتياطي', 'تخصيص', 'مظهر', 'استرجاع'],
+    keywordsEn: ['settings', 'config', 'currency', 'tax rate', 'backup', 'restore', 'fifo', 'margin'],
+    commonStepsAr: [
+      'اختر العملة الأساسية للحسابات ونسب الضريبة المطبقة.',
+      'حدد طريقة تقييم المخزون وهامش الربح المستهدف للتسعير التلقائي.',
+      'احفظ نسخة احتياطية محلية (JSON) من بيانات منشأتك بضغطة واحدة.',
+    ],
+    commonStepsEn: [
+      'Select operating base currency and applicable tax rates.',
+      'Configure inventory valuation method and target pricing margins.',
+      'Export secure local JSON backup of your partition anytime.',
+    ],
+    quickActions: [
+      { id: 'nav_settings', labelAr: 'فتح الإعدادات', labelEn: 'Open Settings', actionCode: 'NAV:settings' },
+    ],
+  },
+];
+
+/**
+ * Searches the registry for matching screens based on user query.
+ * Normalizes Arabic letters (أ/إ/ا, ى/ي, ة/ه) and handles English terms.
+ */
+export function findMatchingScreens(query: string, userRole?: UserRole): ScreenDefinition[] {
+  if (!query || query.trim() === '') return [];
+
+  const normalize = (text: string) =>
+    text
+      .toLowerCase()
+      .replace(/[أإآ]/g, 'ا')
+      .replace(/ة/g, 'ه')
+      .replace(/ى/g, 'ي')
+      .replace(/[\u064B-\u065F]/g, '')
+      .trim();
+
+  const normQuery = normalize(query);
+  const words = normQuery.split(/\s+/).filter(Boolean);
+
+  return SCREEN_REGISTRY.filter((screen) => {
+    // If role provided and not allowed, skip
+    if (userRole && !screen.allowedRoles.includes(userRole)) {
+      return false;
+    }
+
+    const normNameAr = normalize(screen.nameAr);
+    const normDescAr = normalize(screen.descriptionAr);
+    const normKeywordsAr = screen.keywordsAr.map(normalize);
+
+    const normNameEn = screen.nameEn.toLowerCase();
+    const normDescEn = screen.descriptionEn.toLowerCase();
+    const normKeywordsEn = screen.keywordsEn.map((k) => k.toLowerCase());
+
+    return words.some(
+      (w) =>
+        normNameAr.includes(w) ||
+        normDescAr.includes(w) ||
+        normKeywordsAr.some((k) => k.includes(w) || w.includes(k)) ||
+        normNameEn.includes(w) ||
+        normDescEn.includes(w) ||
+        normKeywordsEn.some((k) => k.includes(w) || w.includes(k))
+    );
+  });
+}

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import {
   AiAssistantMessage,
   AuditEvent,
@@ -40,6 +40,9 @@ import {
   generateTemporaryPrivilegeSession,
 } from '../services/auditService.ts';
 import { HELP_ARTICLES, processAssistantQuery } from '../services/aiKnowledgeEngine.ts';
+import { localAssistantEngine } from '../services/localAssistantEngine.ts';
+import { buildAppContextSnapshot } from '../services/appContextSnapshot.ts';
+import { dataService, RawMaterialItem, MenuItemProduct } from '../services/dataService.ts';
 import { useAuth } from './AuthContext.tsx';
 import { useI18n } from '../i18n/I18nContext.tsx';
 
@@ -343,8 +346,19 @@ interface BusinessContextType {
   setIsAccessModalOpen: (open: boolean) => void;
   isAuditReportModalOpen: boolean;
   setIsAuditReportModalOpen: (open: boolean) => void;
+  isAddIngredientModalOpen: boolean;
+  setIsAddIngredientModalOpen: (open: boolean) => void;
+  isAddProductModalOpen: boolean;
+  setIsAddProductModalOpen: (open: boolean) => void;
+  isImportDataModalOpen: boolean;
+  setIsImportDataModalOpen: (open: boolean) => void;
+  isOnboardingModalOpen: boolean;
+  setIsOnboardingModalOpen: (open: boolean) => void;
   targetAccessResource: { key: string; labelAr: string; labelEn: string } | null;
   setTargetAccessResource: (res: { key: string; labelAr: string; labelEn: string } | null) => void;
+  rawMaterials: RawMaterialItem[];
+  menuProducts: MenuItemProduct[];
+  refreshMaterialsAndProducts: () => Promise<void>;
 }
 
 const BusinessContext = createContext<BusinessContextType | undefined>(undefined);
@@ -352,9 +366,29 @@ const BusinessContext = createContext<BusinessContextType | undefined>(undefined
 export const BusinessProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const { currentUser, currentEstablishment } = useAuth();
+  const { currentUser, currentEstablishment, activeView } = useAuth();
   const role = currentUser?.role || 'tenant_admin';
   const { language } = useI18n();
+
+  // Materials & Products repository state
+  const estId = currentEstablishment?.id || 'default';
+  const [rawMaterials, setRawMaterials] = useState<RawMaterialItem[]>([]);
+  const [menuProducts, setMenuProducts] = useState<MenuItemProduct[]>([]);
+
+  const refreshMaterialsAndProducts = async () => {
+    try {
+      const mats = await dataService.getRawMaterials(estId);
+      const prods = await dataService.getProducts(estId);
+      setRawMaterials(mats);
+      setMenuProducts(prods);
+    } catch {
+      // Fallback
+    }
+  };
+
+  useEffect(() => {
+    refreshMaterialsAndProducts();
+  }, [estId]);
 
   // 1. Recipes & BOM state
   const [recipes, setRecipes] = useState<DetailedRecipe[]>(INITIAL_DETAILED_RECIPES);
@@ -629,7 +663,7 @@ export const BusinessProvider: React.FC<{ children: React.ReactNode }> = ({
     },
   ]);
 
-  const sendAssistantQuery = (query: string) => {
+  const sendAssistantQuery = async (query: string) => {
     if (!query.trim()) return;
 
     const userMsg: AiAssistantMessage = {
@@ -639,13 +673,38 @@ export const BusinessProvider: React.FC<{ children: React.ReactNode }> = ({
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     };
 
-    const aiResponse = processAssistantQuery(query, role, language, {
-      recipes,
-      currentEstablishment,
-      currentUser,
-    });
+    setAssistantMessages((prev) => [...prev, userMsg]);
 
-    setAssistantMessages((prev) => [...prev, userMsg, aiResponse]);
+    const contextSnapshot = buildAppContextSnapshot(
+      activeView || 'dashboard',
+      currentUser,
+      rawMaterials,
+      menuProducts,
+      recipes,
+      privilegedRequests.filter((r) => r.status === 'pending').length
+    );
+
+    const aiRes = await localAssistantEngine.ask(
+      contextSnapshot,
+      query,
+      language === 'ar' ? 'ar' : 'en'
+    );
+
+    const aiResponse: AiAssistantMessage = {
+      id: aiRes.id,
+      sender: 'tygos_ai',
+      content: aiRes.content,
+      contentAr: aiRes.contentAr,
+      contentEn: aiRes.contentEn,
+      timestamp: aiRes.timestamp,
+      suggestedActions: aiRes.suggestedActions?.map((a) => ({
+        label: a.label,
+        action: a.action,
+        query: a.label,
+      })),
+    };
+
+    setAssistantMessages((prev) => [...prev, aiResponse]);
   };
 
   const clearAssistantHistory = () => {
@@ -663,6 +722,10 @@ export const BusinessProvider: React.FC<{ children: React.ReactNode }> = ({
   const [isSimulationModalOpen, setIsSimulationModalOpen] = useState(false);
   const [isAccessModalOpen, setIsAccessModalOpen] = useState(false);
   const [isAuditReportModalOpen, setIsAuditReportModalOpen] = useState(false);
+  const [isAddIngredientModalOpen, setIsAddIngredientModalOpen] = useState(false);
+  const [isAddProductModalOpen, setIsAddProductModalOpen] = useState(false);
+  const [isImportDataModalOpen, setIsImportDataModalOpen] = useState(false);
+  const [isOnboardingModalOpen, setIsOnboardingModalOpen] = useState(false);
   const [targetAccessResource, setTargetAccessResource] = useState<{
     key: string;
     labelAr: string;
@@ -708,8 +771,19 @@ export const BusinessProvider: React.FC<{ children: React.ReactNode }> = ({
         setIsAccessModalOpen,
         isAuditReportModalOpen,
         setIsAuditReportModalOpen,
+        isAddIngredientModalOpen,
+        setIsAddIngredientModalOpen,
+        isAddProductModalOpen,
+        setIsAddProductModalOpen,
+        isImportDataModalOpen,
+        setIsImportDataModalOpen,
+        isOnboardingModalOpen,
+        setIsOnboardingModalOpen,
         targetAccessResource,
         setTargetAccessResource,
+        rawMaterials,
+        menuProducts,
+        refreshMaterialsAndProducts,
       }}
     >
       {children}

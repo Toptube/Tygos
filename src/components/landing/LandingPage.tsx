@@ -1,6 +1,10 @@
 /**
  * @license
  * SPDX-License-Identifier: Apache-2.0
+ * 
+ * TYGOS OFFICIAL MARKETING LANDING PAGE (المرحلة الرابعة)
+ * Written with warm, confident Egyptian/Modern Standard Arabic copy and professional English marketing translation.
+ * Follows the 9-section master conversion structure.
  */
 
 import React, { useState } from 'react';
@@ -18,17 +22,19 @@ import {
   DollarSign,
   Receipt,
   Users,
-  HeartHandshake,
+  Wrench,
   Bot,
-  Layers,
   Zap,
   Globe2,
   Lock,
-  Building2,
-  Sliders,
   ChevronDown,
-  ExternalLink,
-  BookOpen,
+  Building2,
+  Compass,
+  Smile,
+  AlertOctagon,
+  TrendingUp,
+  FileCheck,
+  Check,
 } from 'lucide-react';
 import { useI18n } from '../../i18n/I18nContext.tsx';
 import { LanguageSelector } from '../common/LanguageSelector.tsx';
@@ -53,187 +59,299 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
 
-  // Marketing modules architecture
+  // 1. Pain Points (الوجع)
+  const painCards = [
+    {
+      id: 'pricing',
+      icon: AlertOctagon,
+      titleAr: 'بتسعّر أطباقك ومشروباتك بالتخمين',
+      titleEn: 'Pricing Dishes by Guesswork',
+      descAr: 'بتشوف السوق بيبيع بكام وتقلده، وممكن تكتشف متأخر إن تكلفة خامك مع العمالة والغاز واكلة كل هامش ربحك.',
+      descEn: 'You copy competitors without knowing your raw ingredients, gas, and labor costs are quietly eating your margins.',
+    },
+    {
+      id: 'waste',
+      icon: Scale,
+      titleAr: 'المخزون بيخلص أو بيبوظ فجأة',
+      titleEn: 'Stock Depletes or Spoils Unexpectedly',
+      descAr: 'خامات غالية بتنتهي صلاحيتها في الثلاجة، أو ييجي وقت ذروة الشغل وتكتشف إن صنف أساسي خلصان ومش معمول حسابه.',
+      descEn: 'Expensive ingredients spoil in cold storage, or crucial items run out right at peak service hours without warning.',
+    },
+    {
+      id: 'accounts',
+      icon: Receipt,
+      titleAr: 'الحسابات آخر الشهر مابتطابقش الفعلي',
+      titleEn: 'End-of-Month Ledger Never Matches Reality',
+      descAr: 'المبيعات في الدرج عالية جداً، بس الفلوس في البنك قليلة.. وفارق الهدر أو هالك التشفية مش باين في أي دفتر.',
+      descEn: 'Register sales look strong, but actual bank balances fall short because prep trim waste and variance are invisible.',
+    },
+  ];
+
+  // 2. The 3-Step Solution (الحل في ٣ خطوات)
+  const solutionSteps = [
+    {
+      stepNum: '1',
+      titleAr: 'سجّل خاماتك في دقيقة',
+      titleEn: 'Record Raw Materials in 1 Min',
+      descAr: 'اكتب اسم الخامة، سعر الشراء، والكمية. النظام بيحسبلك تلقائياً تكلفة الجرام الصافي بعد خصم هالك التقشير والتشفية.',
+      descEn: 'Enter item name, purchase cost, and quantity. The system automatically computes net usable cost after trim waste.',
+    },
+    {
+      stepNum: '2',
+      titleAr: 'ركّب وصفاتك واعرف تكلفتها',
+      titleEn: 'Build Recipes & Know True Cost',
+      descAr: 'حدّد مكونات كل طبق أو مشروب. هتشوف تكلفة طبقك للقرش مع حساب وقت الشيف واستهلاك الغاز والتغليف.',
+      descEn: 'Define ingredients for each dish or drink. See exact true cost down to the penny including prep time, utilities, and packaging.',
+    },
+    {
+      stepNum: '3',
+      titleAr: 'بيع في الصالة وتابع أرباحك',
+      titleEn: 'Sell at POS & Watch Profits Grow',
+      descAr: 'مع كل طلب بيطلع من الكاشير، بيتم خصم مكونات الطبق من المخزن آلياً، وبيظهرلك فوراً أي انحراف أو هدر غير مبرر.',
+      descEn: 'Every POS sale auto-depletes inventory ingredients and instantly flags any unexplained portioning variance or shrinkage.',
+    },
+  ];
+
+  // 3. The 8 Operational Modules (الوحدات الثمانية) - صيغة "هتقدر تعمل إيه"
   const modulesList = [
     {
       id: 'pos',
       icon: UtensilsCrossed,
-      color: 'from-cyan-500 to-blue-600',
-      titleAr: 'نقطة البيع السريعة والصالة (POS & Tables)',
-      titleEn: 'High-Speed Cloud POS & Tables',
-      descAr: 'واجهة لمس فائقة السرعة، إدارة حية للطاولات، تقسيم الفواتير، مع استقرار تام أثناء انقطاع الإنترنت والمزامنة التلقائية فور عودة الاتصال.',
-      descEn: 'Ultra-fast touch order entry, live floor status, split bills, and resilient offline-first caching with auto-reconciliation.',
-      benefitAr: 'خصم فوري لمكونات الوصفة لحظة سداد الفاتورة.',
-      benefitEn: 'Instant recipe explosion and inventory depletion upon settlement.',
+      titleAr: 'نقاط البيع والصالة',
+      titleEn: 'Point of Sale & Dine-In',
+      actionAr: 'بيع بسرعة وطلّع فاتورتك الضريبية بضغطة واحدة، حتى لو النت فصل في عز زحمة الوردية.',
+      actionEn: 'Issue compliant tax receipts in seconds with full offline resilience during peak rush hours.',
     },
     {
-      id: 'menu',
+      id: 'cost_engine',
       icon: ChefHat,
-      color: 'from-amber-500 to-orange-600',
-      titleAr: 'هندسة الوصفات وإصدارات الـ BOM',
-      titleEn: 'Recipe Engineering & BOM Versions',
-      descAr: 'بناء معايير الوصفات من أصغر مدخل تشغيلي، احتساب نسب هالك التشفية، وأرشفة نسخ الوصفات بشكل تراكمي غير قابل للتعديل بأثر رجعي.',
-      descEn: 'Precision recipe decomposition from prep scraps to portioning, locked with immutable historical versioning.',
-      benefitAr: 'تتبع دقيق لتكلفة الطبق وتحديث هوامش الربح.',
-      benefitEn: 'Granular portion costing and margin benchmark protection.',
+      titleAr: 'محرك التكلفة الحقيقية (BOM)',
+      titleEn: 'True Cost Engineering (BOM)',
+      actionAr: 'اعرف تكلفة طبقك للقرش: من أول اللحم والخضار لهالك التشفية، وقت الشيف، والغاز والكهربا.',
+      actionEn: 'Discover your exact portion cost down to raw yield scraps, direct prep labor, and allocated gas/power.',
     },
     {
-      id: 'cost_control',
+      id: 'variance',
       icon: Scale,
-      color: 'from-emerald-500 to-teal-600',
-      titleAr: 'محرك التكلفة الحقيقية وتحليل الانحراف',
-      titleEn: 'True Cost Engine & Variance Control',
-      descAr: 'حساب التكلفة الشاملة: خامات صافية، عمالة مباشرة، منافع، ومواد تعبئة، مع كشف الفارق بين الاستهلاك المعياري والفعلي فورياً.',
-      descEn: 'All-inclusive cost absorption: ingredients, labor, utilities, and packaging, coupled with live theoretical vs actual variance auditing.',
-      benefitAr: 'تشخيص أسباب الهالك والفاقد وتوفير ما يصل لـ 8% من المصاريف.',
-      benefitEn: 'Root-cause shrinkage diagnosis saving up to 8% in food spend.',
+      titleAr: 'كشف الهدر والانحرافات',
+      titleEn: 'Waste & Variance Detection',
+      actionAr: 'قارن اللي المفروض يخرج من المخزن باللي خرج فعلاً، وامسك أي تسريب أو زيادة في التوزيع قبل ما يخسرك.',
+      actionEn: 'Compare theoretical BOM consumption against physical inventory to catch waste and portion creep early.',
     },
     {
       id: 'inventory',
       icon: Package,
-      color: 'from-blue-500 to-cyan-600',
-      titleAr: 'المستودعات المركزية والجرد الآلي',
-      titleEn: 'Multi-Warehouse Inventory & Audits',
-      descAr: 'فصل المستودعات التشغيلية، متابعة أذون الصرف والاستلام، تنبيهات نقاط إعادة الطلب الآلية، وتسجيل تسويات الجرد بربط محاسبي فوري.',
-      descEn: 'Multi-store isolation, internal store transfers, par-level replenishment triggers, and automated ledger stocktaking entries.',
-      benefitAr: 'منع نفاد المواد الخام ومطابقة المخزن في أي لحظة.',
-      benefitEn: 'Zero stockout incidents with 100% audited traceability.',
+      titleAr: 'المخازن والمستودعات',
+      titleEn: 'Warehouse & Inventory',
+      actionAr: 'تابع رصيد خاماتك بالجرام والمل، واستقبل تنبيهات فورية قبل ما أي صنف يخلص عشان تطلبه في وقته.',
+      actionEn: 'Track ingredient stock by grams and ml, with automated low-stock reorder point notifications.',
     },
     {
-      id: 'purchasing',
-      icon: ShoppingBag,
-      color: 'from-purple-500 to-indigo-600',
-      titleAr: 'المشتريات ومراقبة تقلبات أسعار الموردين',
-      titleEn: 'Procurement & Supplier Price Drift',
-      descAr: 'دورة شراء مؤتمتة من طلب الشراء حتى الفاتورة، مع رصد ذكي لانحراف أسعار عقود التوريد مقارنة بالسعر المعياري للوصفات.',
-      descEn: 'End-to-end purchasing lifecycle with automated alerts on vendor price inflation relative to target recipe BOMs.',
-      benefitAr: 'تقييم كفاءة الموردين وحماية استقرار التكاليف.',
-      benefitEn: 'Data-driven supplier rating and procurement cost defense.',
-    },
-    {
-      id: 'finance',
+      id: 'finance_tax',
       icon: DollarSign,
-      color: 'from-emerald-600 to-cyan-500',
-      titleAr: 'المحاسبة العامة وقائمة الدخل اللحظية',
-      titleEn: 'General Ledger & Live P&L Financials',
-      descAr: 'قيود يومية مزدوجة تلقائية لكل حركة بيع أو شراء أو استهلاك، شجرة حسابات متخصصة، وقائمة دخل لحظية دون أي إدخال يدوي.',
-      descEn: 'Automated double-entry journals generated by operational events, hospitality chart of accounts, and live executive P&L.',
-      benefitAr: 'ميزان مراجعة وسيولة نقدية محدثة لحظة بلحظة.',
-      benefitEn: 'Instantaneous financial closing and cash position visibility.',
+      titleAr: 'المالية والضرائب',
+      titleEn: 'Finance & Compliant Taxes',
+      actionAr: 'قيود يومية وميزانيات بتتولد آلياً مع كل حركة بيع وشراء، وإقرارك الضريبي جاهز بضغطة زر.',
+      actionEn: 'Automated journal entries with every shift and purchase, with instant compliant tax return summaries.',
     },
     {
-      id: 'tax',
-      icon: Receipt,
-      color: 'from-amber-600 to-rose-600',
-      titleAr: 'الضرائب والفوترة الإلكترونية (ZATCA / VAT)',
-      titleEn: 'Tax & Certified E-Invoicing Ledger',
-      descAr: 'إدارة متكاملة لضريبة القيمة المضافة وإصدار الفواتير الإلكترونية المعتمدة بنظام التشفير ورموز الاستجابة السريعة (QR Code).',
-      descEn: 'Full VAT accounting, compliant cryptographic e-invoicing, and regulatory clearance integration.',
-      benefitAr: 'امتثال ضريبي كامل وأرشفة غير قابلة للتلاعب.',
-      benefitEn: 'Zero regulatory risk with tamper-proof tax audits.',
+      id: 'hr_payroll',
+      icon: Users,
+      titleAr: 'الموارد البشرية والورديات',
+      titleEn: 'HR, Staff & Shifts',
+      actionAr: 'وزّع شفتات فريقك، احسب رواتبهم وساعات إضافيهم، واربط أجر وقت الطبخ بتكلفة الصنف المباشرة.',
+      actionEn: 'Schedule crew shifts, manage wages, and factor cook preparation time directly into menu portioning.',
     },
     {
-      id: 'ai',
+      id: 'maintenance',
+      icon: Wrench,
+      titleAr: 'صيانة الأصول والمعدات',
+      titleEn: 'Asset & Equipment Maintenance',
+      actionAr: 'حافظ على أفرانك، ماكينات الإسبريسو، وغرف التبريد بمواعيد صيانة دورية تفاديك الأعطال المفاجئة.',
+      actionEn: 'Safeguard espresso machines, ovens, and chillers with recurring preventive maintenance schedules.',
+    },
+    {
+      id: 'ai_assistant',
       icon: Bot,
-      color: 'from-cyan-400 to-indigo-600',
-      titleAr: 'مساعد TYGOS الذكي للتشغيل الميداني',
-      titleEn: 'TYGOS Grounded Intelligence Assistant',
-      descAr: 'مساعد تنفيذي يفهم الأصناف والوصفات وقواعد البيانات، ينفذ أوامر التنقل المباشر ("افتح المخزون")، ويشرح أسباب تغير الأرباح بصلاحيات مقيدة.',
-      descEn: 'System-aware assistant executing navigation, reporting portion costs, and diagnosing profit drivers under strict RBAC.',
-      benefitAr: 'إجابات دقيقة تستند لبيانات منشأتك الحية مع زر عائم متحرك.',
-      benefitEn: 'Real-time business answers with a movable draggable interface.',
+      titleAr: 'مساعد TYGOS الذكي',
+      titleEn: 'TYGOS Smart Assistant',
+      actionAr: 'اسأله عن أي رقم، أو قوله "وديني للكاشير" أو "أضف خامة"، وهيتحرك وينفذ معاك في نفس اللحظة.',
+      actionEn: 'Ask questions about costs or give instant navigation commands hands-free with intelligent local guidance.',
     },
   ];
 
-  // Dynamic Announcements & Continuous SaaS updates
-  const continuousUpdates = [
+  // 4. Before & After (قبل وبعد)
+  const beforeAfterStats = [
     {
-      tag: isAr ? 'تحديث جديد · V3.2' : 'New Feature · V3.2',
-      titleAr: 'محرك محاكاة التكلفة الفورية (What-If Analysis Workspace)',
-      titleEn: 'Real-time What-If Cost Drift Simulation Workspace',
-      descAr: 'اختبار تأثير تضخم أسعار شراء اللحوم والزيوت على صافي الربح وسعر بيع الوجبة قبل توقيع عقود الموردين.',
-      descEn: 'Test the financial impact of raw material inflation on net profit and target menu prices before signing vendor contracts.',
+      labelAr: 'نسبة الهدر غير المحسوب في الخامات',
+      labelEn: 'Unaccounted Prep Scraps & Trim Waste',
+      before: '18% - 24%',
+      after: '4% - 6%',
+      gainAr: 'توفير مباشر في فاتورة المشتريات',
+      gainEn: 'Direct savings on purchase bills',
     },
     {
-      tag: isAr ? 'أمان متقدم' : 'Security Escalation',
-      titleAr: 'بروتوكول التصاريح المؤقتة المشفرة بدون مشاركة كلمات المرور',
-      titleEn: 'Timed Cryptographic Privileges with Zero Password Sharing',
-      descAr: 'طلب تصعيد الصلاحيات لأعمال محددة بالدقائق مع إشعار واعتماد فوري من المشرف وسجل تدقيق غير قابل للتعديل.',
-      descEn: 'Minute-by-minute privilege escalation requests approved via supervisor cockpit with an immutable cryptographic audit trail.',
+      labelAr: 'دقة حساب تكلفة الطبق الواحد',
+      labelEn: 'Portion Cost Calculation Accuracy',
+      before: 'تخمين تقريبي',
+      after: '99.5% بالقرش',
+      gainAr: 'تسعير عادل يضمن ربحك الصافي',
+      gainEn: 'Defensible pricing protecting gross margins',
     },
     {
-      tag: isAr ? 'استقرار التشغيل' : 'High Availability',
-      titleAr: 'بنية أوفلاين كاملة لنقاط البيع وإدارة الطاولات (Offline-First)',
-      titleEn: 'Resilient Offline-First Cloud POS Architecture',
-      descAr: 'مواصلة إصدار الفواتير وطباعة أوامر المطبخ حتى أثناء انقطاع الإنترنت التام مع مزامنة لحظية فورية.',
-      descEn: 'Continue firing kitchen tickets and settling bills during network outages with automated zero-data-loss sync.',
+      labelAr: 'الوقت المستغرق في إقفال الحسابات والجرد',
+      labelEn: 'Time Required for Stocktake & Shift Closing',
+      before: '3 إلى 5 أيام شهرياً',
+      after: 'فوري مع كل وردية',
+      gainAr: 'تقرير Z ومطابقة مالية يومية',
+      gainEn: 'Daily automated Z-reports and ledger updates',
     },
   ];
 
-  const faqs = [
+  // 5. Three Real-World Scenarios (ثلاث حكايات)
+  const caseStories = [
     {
-      qAr: 'كيف تضمن Tygos خصوصية واستقلالية بيانات منشأتي؟',
-      qEn: 'How does Tygos enforce data isolation and sovereignty across tenants?',
-      aAr: 'تعتمد المنظومة بروتوكول العزل متعدد المنشآت (Multi-Tenant Partitioning). لكل منشأة كود هوية مستقل ولا يمكن لأي منشأة الاطلاع على بيانات أو فواتير أو وصفات منشأة أخرى، مع تشفير البيانات وفق أعلى معايير الأمان.',
-      aEn: 'Tygos implements strict multi-tenant partition isolation. Each establishment is ring-fenced with a dedicated identity code, ensuring zero data leakage between restaurants, hotels, or cafes.',
+      typeAr: 'مطعم مشويات وباستا (القاهرة)',
+      typeEn: 'Grill & Pasta Bistro (Cairo)',
+      problemAr: 'كان الشيف يشتري لحوم بكميات ضخمة ومبيعات الستيك عالية، لكن صافي الربح مكنش متطابق مع حجم المبيعات.',
+      problemEn: 'High-volume steak sales were hiding severe profit leaks due to unmeasured butchery fat and bone loss.',
+      transformationAr: 'مع TYGOS، تم احتساب هالك التشفية بنسبة 16% وإضافته لتكلفة الطبق الحقيقية، واكتشفوا إن سعر البيع كان منخفضاً.',
+      transformationEn: 'Using TYGOS, 16% yield waste was incorporated into the BOM, uncovering that selling prices were undercutting cost.',
+      resultAr: 'النتيجة: ارتفع هامش ربح قسم اللحوم بنسبة 22% خلال شهرين فقط دون أي تراجع في رضا الزبائن.',
+      resultEn: 'Result: Meat section gross margin increased by 22% in two months while keeping customer satisfaction high.',
     },
     {
-      qAr: 'ما هو مفهوم "التكلفة الحقيقية للوجبة" في Tygos؟',
-      qEn: 'What is the True Product Costing methodology in Tygos?',
-      aAr: 'على عكس البرامج التقليدية التي تكتفي بحساب سعر شراء المواد الخام، تحسب Tygos التكلفة الشاملة الممتصة: صافي الخامات مخصوماً منها نسبة الفاقد والهالك، مواد التعبئة والتغليف، أجر دقيقة العمالة المباشرة، وحصة استهلاك المياه والطاقة.',
-      aEn: 'Unlike legacy software that only tracks raw purchase prices, Tygos calculates fully absorbed cost: net ingredients adjusted for prep trim loss, packaging, direct kitchen labor minutes, and culinary utilities.',
+      typeAr: 'كافيه قهوة مختصة ومخبوزات (الرياض)',
+      typeEn: 'Specialty Coffee & Bakery (Riyadh)',
+      problemAr: 'استهلاك الحليب والبن كان بيتسرب بكميات مش مفهومة، والكرواسون كان بيخلص وقت الزحمة والزبائن تمشي.',
+      problemEn: 'Steaming milk and espresso beans were disappearing without tracking, while croissants ran out during morning rushes.',
+      transformationAr: 'فعلوا حدود إعادة الطلب الذكية، وتم ربط كل فلات وايت وسيروب بالخصم التلقائي من المخزن اللحظي.',
+      transformationEn: 'They configured automatic reorder alerts and linked each flat white shot directly to instant stock depletion.',
+      resultAr: 'النتيجة: انعدم نفاد البضاعة وقت الذروة، وقل هدر الحليب بنسبة 65%.',
+      resultEn: 'Result: Zero stockouts during peak hours, and dairy waste was slashed by 65%.',
     },
     {
-      qAr: 'هل يدعم النظام العمل دون إنترنت في صالة المطعم؟',
-      qEn: 'Does Tygos support full offline operations during internet outages?',
-      aAr: 'نعم تماماً. صُممت نقطة بيع Tygos بتقنية Offline-First، حيث يتم تخزين العمليات محلياً ومواصلة طباعة إيصالات المطبخ والصندوق، وتتم المزامنة تلقائياً بمجرد عودة الاتصال دون أي تعطل.',
-      aEn: 'Yes. Tygos POS operates offline-first, queuing orders and kitchen tickets locally with automated background sync the moment connectivity restores.',
+      typeAr: 'منشأة سياحية وبوفيه فندقي (الغردقة)',
+      typeEn: 'Resort & Beach Club (Hurghada)',
+      problemAr: 'صعوبة تتبع تكلفة بوفيه الإفطار المفتوح، وتكلفة الغاز ومنافع التبريد مكنتش بتتحسب في ميزانية المطبخ.',
+      problemEn: 'Difficulties tracking open breakfast buffet margins, while power and chiller gas overhead were neglected.',
+      transformationAr: 'وزعوا مصاريف المنافع والمستهلكات على عدد التذاكر اليومية بدقة، وراقبوا حركة الأسماك والمأكولات الطازجة.',
+      transformationEn: 'Allocated utilities and packaging across daily covers and monitored high-value fresh seafood movement.',
+      resultAr: 'النتيجة: ضبط ميزانية التشغيل الشهري وتوفير أكثر من 14% من المصاريف غير المرئية.',
+      resultEn: 'Result: Budget variance normalized with a 14% drop in previously invisible operational leakage.',
+    },
+  ];
+
+  // 6. Role Portals for Demo (جرّب بنفسك)
+  const rolePortals: { role: UserRole; titleAr: string; titleEn: string; descAr: string; descEn: string }[] = [
+    {
+      role: 'tenant_admin',
+      titleAr: 'مالك المنشأة',
+      titleEn: 'Establishment Owner',
+      descAr: 'استعرض الأرباح، تقارير التكلفة، وإعدادات المنظومة.',
+      descEn: 'Inspect overall margins, P&L, and system settings.',
+    },
+    {
+      role: 'general_manager',
+      titleAr: 'المدير العام',
+      titleEn: 'General Manager',
+      descAr: 'تابع سير الورديات، حركة الصالة، وأداء الأقسام.',
+      descEn: 'Monitor shifts, dining operations, and departments.',
+    },
+    {
+      role: 'cost_accountant',
+      titleAr: 'محاسب التكاليف',
+      titleEn: 'Cost Controller',
+      descAr: 'افحص نسب الانحراف، هالك التحضير، وتكلفة الـ Food Cost.',
+      descEn: 'Analyze variance, prep trim yield, and portion costs.',
+    },
+    {
+      role: 'cashier',
+      titleAr: 'كاشير نقطة البيع',
+      titleEn: 'POS Cashier',
+      descAr: 'جرّب تسجيل الطلبات السريعة وإصدار الفاتورة الضريبية.',
+      descEn: 'Test high-speed ordering, receipt issuance, and Z-report.',
+    },
+    {
+      role: 'kitchen_manager',
+      titleAr: 'شيف المطبخ',
+      titleEn: 'Executive Chef',
+      descAr: 'عدّل مكونات الوصفات واضبط معايير التحضير (SOP).',
+      descEn: 'Fine-tune BOM ingredient portions and prep SOP steps.',
+    },
+  ];
+
+  // 7. Frequently Asked Questions (8 أسئلة شائعة)
+  const faqList = [
+    {
+      qAr: 'هل أحتاج لخبرة محاسبية أو تدريب تقني معقد لاستخدام TYGOS؟',
+      qEn: 'Do I need accounting expertise or technical training to use TYGOS?',
+      aAr: 'أبداً. صممنا المنظومة لتكون أبسط من أي برنامج محاسبي تقليدي؛ أي شيف أو كاشير يقدر يسجل خامة أو يبيع في أقل من دقيقة، والنظام بيعمل كل الحسابات المعقدة في الخلفية.',
+      aEn: 'Not at all. Designed for operational simplicity; any cook or cashier can add ingredients or sell in under a minute while backend formulas handle accounting automatically.',
+    },
+    {
+      qAr: 'هل يعمل النظام على الهواتف والأجهزة اللوحية (التابلت)؟',
+      qEn: 'Does the platform work seamlessly on smartphones and tablets?',
+      aAr: 'نعم بنسبة 100%. تم بناء الواجهة بتقنية Mobile-First لتتكيف مع أصغر شاشة موبايل (320px) وحتى الشاشات الكبيرة بدون أي تمرير أفقي مزعج.',
+      aEn: '100% yes. Built Mobile-First to adapt smoothly from small 320px mobile screens up to multi-monitor setups without horizontal scrolling.',
+    },
+    {
+      qAr: 'ماذا يحدث إذا انقطع الإنترنت في منتصف العمل؟',
+      qEn: 'What happens if the internet disconnects during a busy rush?',
+      aAr: 'نقطة البيع ومسودة الطلبات تعمل دون اتصال، ويتم حفظ جميع الفواتير محلياً على جهازك، وتتزامن البيانات تلقائياً بمجرد عودة الاتصال.',
+      aEn: 'POS and draft orders operate offline. Invoices are stored locally on your device and sync seamlessly once connectivity returns.',
+    },
+    {
+      qAr: 'هل بيانات منشأتي وأسعار خاماتي في أمان وخصوصية تامة؟',
+      qEn: 'Is my venue data and private pricing completely secure?',
+      aAr: 'نعم. كل منشأة لها قسم بيانات معزول ومحمي (Sovereign Partition)، ولا يمكن لأي منشأة أخرى أو كاشير غير مصرح له الاطلاع على أرباحك وتكاليفك.',
+      aEn: 'Yes. Every venue runs in an isolated sovereign partition. Unprivileged staff cannot view profits or true costs without a manager token.',
+    },
+    {
+      qAr: 'هل يناسب المنظومة كافيه صغير أو عربة طعام متنقلة؟',
+      qEn: 'Is TYGOS suitable for a small cafe or food truck?',
+      aAr: 'بالتأكيد. يمكنك البدء بخامات بسيطة ووصفات معدودة، وتكبر معك المنظومة لتغطي فروعاً متعددة ومستودعاً مركزياً كلما توسع نشاطك.',
+      aEn: 'Absolutely. Start with simple coffee beans and a few items; the system scales with you to multiple branches and central commissaries.',
+    },
+    {
+      qAr: 'كيف يختلف TYGOS عن برامج الكاشير ونقاط البيع التقليدية؟',
+      qEn: 'How does TYGOS differ from traditional point of sale systems?',
+      aAr: 'برامج الكاشير التقليدية بتسجل الفلوس فقط؛ TYGOS بيوريك تكلفة كل جرام لحم، هالك التقشير، ودقائق العمالة، ويكشفلك فين بتروح أرباحك الحقيقية.',
+      aEn: 'Traditional POS registers just count revenue; TYGOS reveals portion cost, prep yield scraps, and labor minutes to stop profit leakage.',
+    },
+    {
+      qAr: 'هل يمكنني استيراد خاماتي وقائمتي الحالية من ملف Excel؟',
+      qEn: 'Can I import my existing raw ingredients and menu from Excel?',
+      aAr: 'نعم، نوفر مساحة استيراد بصرية تمكنك من نسخ ولصق الخلايا من Excel أو رفع ملف CSV ومعاينته وتعديله قبل الحفظ بنقرة واحدة.',
+      aEn: 'Yes. A visual import workspace lets you paste directly from Excel or upload CSV with instant preview and inline editing.',
+    },
+    {
+      qAr: 'هل يمكنني تحميل نسخة احتياطية من بياناتي في أي وقت؟',
+      qEn: 'Can I export a local backup of my entire business data anytime?',
+      aAr: 'بكل تأكيد. يمكنك من صفحة الإعدادات تنزيل ملف JSON مشفر يحتوي على كافة خاماتك ومنتجاتك وسجلاتك بنقرة زر ودون الحاجة لأي خوادم خارجية.',
+      aEn: 'Certainly. Export a local JSON backup anytime from Settings to keep offline copies of all ingredients, recipes, and logs.',
     },
   ];
 
   return (
     <div
       dir={dir}
-      className="min-h-screen bg-[#070b14] text-slate-100 flex flex-col selection:bg-cyan-500/20 selection:text-cyan-300 overflow-x-hidden font-sans"
+      className="min-h-screen bg-[#070b14] text-slate-100 flex flex-col selection:bg-cyan-500/30 selection:text-cyan-300 relative overflow-x-hidden font-sans"
     >
-      {/* 1. Global Navigation Bar */}
-      <nav className="h-18 border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-md sticky top-0 z-40 px-4 sm:px-8 flex items-center justify-between gap-4">
-        {/* Brand identity */}
+      {/* 1. TOP MARKETING NAVIGATION */}
+      <nav className="h-18 sticky top-0 z-50 border-b border-slate-800/80 bg-[#070b14]/85 backdrop-blur-md px-4 sm:px-8 flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <TygosLogo variant="compact" showSubtitle />
-          <span className="hidden md:inline-block font-mono text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
-            Sovereign Hospitality ERP
-          </span>
+          <TygosLogo variant="responsive-header" showSubtitle={false} />
         </div>
 
-        {/* Center menu links (desktop) */}
-        <div className="hidden lg:flex items-center gap-6 text-xs font-semibold text-slate-300">
-          <a href="#why" className="hover:text-cyan-400 transition-colors">
-            {isAr ? 'لماذا Tygos؟' : 'Why Tygos?'}
-          </a>
-          <a href="#modules" className="hover:text-cyan-400 transition-colors">
-            {isAr ? 'الوحدات المتكاملة' : 'Modules'}
-          </a>
-          <a href="#cost" className="hover:text-cyan-400 transition-colors">
-            {isAr ? 'محرك التكلفة' : 'True Cost'}
-          </a>
-          <a href="#ai" className="hover:text-cyan-400 transition-colors">
-            {isAr ? 'مساعد الذكاء' : 'TYGOS AI'}
-          </a>
-          <a href="#updates" className="hover:text-cyan-400 transition-colors">
-            {isAr ? 'التحديثات' : 'Updates'}
-          </a>
-        </div>
-
-        {/* Right utility buttons */}
-        <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
+        <div className="flex items-center gap-2 sm:gap-4">
           <LanguageSelector variant="header" />
           <ThemeSwitcher />
 
           <button
             type="button"
             onClick={onOpenLogin}
-            className="px-3 sm:px-4 py-2 rounded-xl text-xs font-bold text-slate-300 hover:text-white border border-slate-700/80 hover:border-slate-600 bg-slate-900/60 transition-colors cursor-pointer"
+            className="text-xs font-bold text-slate-300 hover:text-cyan-400 px-3 py-2 rounded-xl transition-colors cursor-pointer"
           >
             {isAr ? 'تسجيل الدخول' : 'Sign In'}
           </button>
@@ -241,224 +359,205 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           <button
             type="button"
             onClick={onOpenRegister}
-            className="px-3.5 sm:px-5 py-2 rounded-xl text-xs font-black text-slate-950 bg-gradient-to-r from-cyan-400 via-cyan-300 to-emerald-400 hover:from-cyan-300 hover:to-emerald-300 transition-all shadow-lg shadow-cyan-950/60 flex items-center gap-1.5 cursor-pointer"
+            className="px-4 py-2 text-xs font-bold rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 shadow-md shadow-cyan-950/40 transition-all cursor-pointer"
           >
-            <span>{isAr ? 'سجّل منشأتك الآن' : 'Register Now'}</span>
-            <ArrowIcon className="w-3.5 h-3.5" />
+            {isAr ? 'ابدأ مجاناً' : 'Get Started'}
           </button>
         </div>
       </nav>
 
-      {/* 2. Hero Section with 1920x1080 Responsive Cover Visual */}
-      <section className="relative min-h-[85vh] flex items-center justify-center p-4 sm:p-8 lg:p-12 overflow-hidden border-b border-slate-800/80">
-        {/* Responsive Background Asset (1920x1080 16:9 Cover) with Brand Overlays */}
+      {/* 2. SECTION 1: HERO SECTION */}
+      <section className="relative min-h-[82vh] flex items-center justify-center py-16 px-4 sm:px-6 overflow-hidden">
+        {/* Crisp Cover Wallpaper visual */}
         <div className="absolute inset-0 z-0">
           <img
             src={TYGOS_COVER_SRC}
-            alt="Tygos Enterprise Systems"
-            className="w-full h-full object-cover object-center opacity-40 sm:opacity-50 select-none pointer-events-none scale-105 transform duration-1000"
+            alt="TYGOS Platform Background"
+            referrerPolicy="no-referrer"
+            className="w-full h-full object-cover object-center opacity-30 select-none scale-105"
+            draggable={false}
           />
-          {/* Subtle Cyber Grid & Gradient Masks */}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#070b14] via-[#070b14]/70 to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#070b14] via-transparent to-[#070b14]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#070b14]/85 via-[#070b14]/75 to-[#070b14]" />
         </div>
 
-        {/* Hero Interactive Content Box */}
-        <div className="relative z-10 max-w-4xl mx-auto text-center space-y-6 pt-8 pb-12">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs font-bold animate-pulse">
+        {/* Ambient Glows */}
+        <div className="absolute top-1/3 start-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[350px] bg-cyan-500/15 rounded-full blur-[120px] pointer-events-none" />
+
+        <div className="relative z-10 max-w-4xl mx-auto text-center space-y-6">
+          {/* Subtle Tagline Badge */}
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-cyan-950/70 border border-cyan-500/30 text-cyan-300 text-xs font-bold shadow-lg">
             <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-            <span>
-              {isAr
-                ? 'المنظومة السحابية المتكاملة لإدارة وتشغيل قطاع الضيافة'
-                : 'The Enterprise Operating System for Modern Hospitality'}
-            </span>
+            <span>{isAr ? 'منظومة إدارة تكاليف وتشغيل المطاعم والكافيهات' : 'Hospitality ERP & Food Cost Intelligence'}</span>
           </div>
 
-          {/* Primary Main Headline */}
-          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-tight sm:leading-none">
-            {isAr ? (
-              <>
-                من نقطة البيع إلى الربحية الصافية، <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-emerald-400">
-                  ذكاء تشغيلي يحكم كل قطرة ومكون.
-                </span>
-              </>
-            ) : (
-              <>
-                From Fast POS to True Net Profit, <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-emerald-400">
-                  Grounded Intelligence Across Every Dish.
-                </span>
-              </>
-            )}
+          {/* Hook Headline */}
+          <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-tight">
+            {isAr ? 'فين بتروح أرباحك آخر الشهر؟' : 'Where Do Your Restaurant Profits Disappear?'}
           </h1>
 
-          {/* Subtitle Description */}
-          <p className="text-sm sm:text-base lg:text-lg text-slate-300 max-w-2xl mx-auto leading-relaxed font-normal">
+          {/* Warm Egyptian Subtitle */}
+          <p className="text-base sm:text-lg lg:text-xl text-slate-300 max-w-2xl mx-auto leading-relaxed font-normal">
             {isAr
-              ? 'Tygos تجمع نقطة البيع السحابية، إدارة الطاولات، هندسة الوصفات غير القابلة للتعديل، مراقبة الانحراف المعياري، حسابات الأستاذ العام، ومساعد TYGOS الذكي في نظام موحد متكامل.'
-              : 'Tygos unifies ultra-fast cloud POS, table management, immutable recipe BOMs, theoretical vs actual variance control, general ledger, and grounded AI in one sovereign platform.'}
+              ? 'TYGOS بيوريك تكلفة كل طبق وكل كوباية على حقيقتها، وبيكشف الهدر قبل ما يأكل مكسبك. من أول بيعة لآخر جنيه.'
+              : 'TYGOS exposes the true cost of every dish and beverage, catching hidden trim waste and portion creep before profits slip away.'}
           </p>
 
-          {/* Primary Call to Action Lockup */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 pt-4">
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
             <button
               type="button"
               onClick={onOpenRegister}
-              className="w-full sm:w-auto px-8 py-4 rounded-xl text-sm font-black text-slate-950 bg-gradient-to-r from-cyan-400 via-cyan-300 to-emerald-400 hover:from-cyan-300 hover:to-emerald-300 transition-all shadow-xl shadow-cyan-950/70 flex items-center justify-center gap-2 cursor-pointer transform hover:-translate-y-0.5"
+              className="w-full sm:w-auto px-8 py-3.5 rounded-xl font-black text-sm bg-gradient-to-r from-cyan-400 via-cyan-300 to-emerald-400 hover:from-cyan-300 hover:to-emerald-300 text-slate-950 shadow-xl shadow-cyan-950/60 transition-all cursor-pointer flex items-center justify-center gap-2"
             >
-              <span>{isAr ? 'سجّل منشأتك واحصل على كود الهوية' : 'Register Establishment & Claim Partition'}</span>
+              <span>{isAr ? 'جرّب مجاناً الآن' : 'Try Free Now'}</span>
               <ArrowIcon className="w-4 h-4" />
             </button>
 
             <button
               type="button"
-              onClick={onOpenLogin}
-              className="w-full sm:w-auto px-7 py-4 rounded-xl text-sm font-bold text-slate-200 hover:text-white border border-slate-700 bg-slate-900/80 hover:bg-slate-800 transition-all flex items-center justify-center gap-2 cursor-pointer"
+              onClick={() => {
+                const el = document.getElementById('how-it-works');
+                el?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="w-full sm:w-auto px-7 py-3.5 rounded-xl font-bold text-sm bg-slate-900/90 border border-slate-700 hover:border-cyan-500 text-slate-200 transition-colors cursor-pointer flex items-center justify-center gap-2"
             >
-              <span>{isAr ? 'دخول فضاء العمل واستكشاف المنظومة' : 'Explore Demo Workspace'}</span>
-              <ExternalLink className="w-4 h-4 opacity-70" />
+              <Compass className="w-4 h-4 text-cyan-400" />
+              <span>{isAr ? 'شوف إزاي بيشتغل' : 'See How It Works'}</span>
             </button>
           </div>
 
-          {/* Trust points */}
-          <div className="pt-6 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-2xl mx-auto text-xs text-slate-400 border-t border-slate-800/80">
-            <div className="flex items-center justify-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-              <span>{isAr ? 'عزل كامل للمنشآت' : 'Multi-Tenant Isolation'}</span>
+          {/* Micro Trust Bar */}
+          <div className="pt-6 flex flex-wrap items-center justify-center gap-4 sm:gap-8 text-xs text-slate-400 font-medium">
+            <div className="flex items-center gap-1.5">
+              <Check className="w-4 h-4 text-emerald-400" />
+              <span>{isAr ? 'يعمل على أي موبايل أو تابلت' : 'Works on any smartphone'}</span>
             </div>
-            <div className="flex items-center justify-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-              <span>{isAr ? 'تشغيل أوفلاين تام' : 'Offline-First Durability'}</span>
+            <div className="flex items-center gap-1.5">
+              <Check className="w-4 h-4 text-emerald-400" />
+              <span>{isAr ? 'عربي وإنجليزي بنقرة واحدة' : 'Bilingual Arabic & English'}</span>
             </div>
-            <div className="flex items-center justify-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-              <span>{isAr ? 'أمان دون مشاركة كلمات المرور' : 'Zero Password Sharing'}</span>
-            </div>
-            <div className="flex items-center justify-center gap-1.5">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-              <span>{isAr ? 'تدقيق ضريبي معتمد' : 'ZATCA / VAT Certified'}</span>
+            <div className="flex items-center gap-1.5">
+              <Check className="w-4 h-4 text-emerald-400" />
+              <span>{isAr ? 'بدون تعقيد محاسبي' : 'Zero accounting jargon'}</span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 3. Section: Why Tygos? (Architectural Differentiators) */}
-      <section id="why" className="py-16 sm:py-20 px-4 sm:px-8 border-b border-slate-800/80 relative">
-        <div className="max-w-6xl mx-auto space-y-12">
-          <div className="text-center space-y-3">
-            <span className="text-xs font-mono font-bold uppercase tracking-widest text-cyan-400">
-              {isAr ? 'فلسفة التصميم والريادة' : 'Architectural Sovereignty'}
+      {/* 3. SECTION 2: THE PAIN (الوجع) */}
+      <section className="py-16 px-4 sm:px-8 border-t border-slate-800/60 bg-slate-950/50">
+        <div className="max-w-5xl mx-auto space-y-8">
+          <div className="text-center space-y-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-rose-400">
+              {isAr ? 'تحديات التشغيل اليومية' : 'The Real Struggle'}
             </span>
-            <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight">
-              {isAr
-                ? 'لماذا تثق منشآت الضيافة الرائدة في Tygos؟'
-                : 'Why Modern Hospitality Leaders Choose Tygos?'}
+            <h2 className="text-2xl sm:text-3xl font-black text-white">
+              {isAr ? 'لو ده بيحصل معاك، إنت مش لوحدك' : 'If this happens to you, you are not alone'}
             </h2>
-            <p className="text-xs sm:text-sm text-slate-400 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-400 max-w-lg mx-auto">
               {isAr
-                ? 'صُممت Tygos من الصفر لتكون نظاماً واحداً متكاملاً يربط المبيعات والمخزن والتكلفة والحسابات وذكاء القرارات دون فجوات.'
-                : 'Built from first principles as one unified system connecting sales, storage, true costing, and executive ledger.'}
+                ? 'أغلب أصحاب المطاعم بيخسروا مش بسبب قلة الزبائن، لكن بسبب تسريب الهدر غير المحسوب.'
+                : 'Most restaurants lose money not from a lack of guests, but from unmeasured operational leakage.'}
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-4 hover:border-cyan-500/40 transition-colors">
-              <div className="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
-                <Scale className="w-6 h-6" />
-              </div>
-              <h3 className="text-lg font-bold text-white">
-                {isAr ? 'محرك التكلفة الشاملة (True Costing)' : 'True Absorption Costing'}
-              </h3>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                {isAr
-                  ? 'لا نكتفي بسعر شراء الصنف، بل نحسب الفاقد والهالك، عمالة التحضير بالدقيقة، التغليف، والمنافع، لحماية هوامش الربحية الحقيقية.'
-                  : 'Beyond purchase prices: absorbs trim scrap loss, prep minute wages, packaging, and station utilities to defend true margins.'}
-              </p>
-            </div>
-
-            <div className="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-4 hover:border-emerald-500/40 transition-colors">
-              <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
-                <Zap className="w-6 h-6" />
-              </div>
-              <h3 className="text-lg font-bold text-white">
-                {isAr ? 'تشغيل أوفلاين فوري (Zero-Downtime)' : 'Resilient Offline Architecture'}
-              </h3>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                {isAr
-                  ? 'تواصل صالة الطعام العمل وإصدار الفواتير وطباعة تذاكر المطبخ حتى أثناء انقطاع الإنترنت التام مع مزامنة لحظية فورية.'
-                  : 'Kitchen displays and POS registers fire uninterrupted during network failures, instantly syncing when back online.'}
-              </p>
-            </div>
-
-            <div className="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-4 hover:border-purple-500/40 transition-colors">
-              <div className="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400">
-                <Shield className="w-6 h-6" />
-              </div>
-              <h3 className="text-lg font-bold text-white">
-                {isAr ? 'أمان حقيقي وتصاريح مؤقتة' : 'Zero Password Leaks & Audits'}
-              </h3>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                {isAr
-                  ? 'بروتوكول صارم يمنع مشاركة كلمات المرور، ويوفر تصاريح مؤقتة محددة بالدقائق مع سجل تدقيق غير قابل للتعديل.'
-                  : 'Strict prohibition on credential sharing with audited, minute-scoped privilege sessions approved in real-time.'}
-              </p>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {painCards.map((card) => {
+              const Icon = card.icon;
+              return (
+                <div
+                  key={card.id}
+                  className="p-6 rounded-2xl bg-slate-900/70 border border-slate-800/80 hover:border-rose-500/40 transition-colors space-y-3"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-rose-500/10 border border-rose-500/25 flex items-center justify-center text-rose-400">
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <h3 className="text-sm font-bold text-slate-100">
+                    {isAr ? card.titleAr : card.titleEn}
+                  </h3>
+                  <p className="text-xs text-slate-400 leading-relaxed">
+                    {isAr ? card.descAr : card.descEn}
+                  </p>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* 4. Section: Complete Hospitality Modules Grid */}
-      <section id="modules" className="py-16 sm:py-20 px-4 sm:px-8 border-b border-slate-800/80 bg-slate-950/50">
-        <div className="max-w-6xl mx-auto space-y-12">
-          <div className="text-center space-y-3">
-            <span className="text-xs font-mono font-bold uppercase tracking-widest text-cyan-400">
-              {isAr ? 'منظومة شاملة تحت سقف واحد' : 'Comprehensive Hospitality Suite'}
+      {/* 4. SECTION 3: THE 3-STEP SOLUTION (الحل في ٣ خطوات) */}
+      <section id="how-it-works" className="py-16 px-4 sm:px-8 border-t border-slate-800/60">
+        <div className="max-w-5xl mx-auto space-y-10">
+          <div className="text-center space-y-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-cyan-400">
+              {isAr ? 'البساطة هي الأساس' : 'Simple by Design'}
             </span>
-            <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight">
-              {isAr ? 'كل ما تحتاجه لإدارة منشأتك باحترافية' : 'End-to-End Operational & Financial Modules'}
+            <h2 className="text-2xl sm:text-3xl font-black text-white">
+              {isAr ? 'الحل في ٣ خطوات سهلة ومباشرة' : 'The Solution in 3 Clear Steps'}
             </h2>
-            <p className="text-xs sm:text-sm text-slate-400 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-400 max-w-lg mx-auto">
               {isAr
-                ? 'ثماني وحدات مركزية تتحدث لغة واحدة، تشترك في شجرة البيانات وسجل الأمان ومحرك التكلفة.'
-                : 'Eight synchronized modules sharing a single data model, security registry, and true costing pipeline.'}
+                ? 'مش محتاج شهور تدريب؛ تبدأ وتشوف أرقامك في نفس اليوم.'
+                : 'No months of onboarding required; see your real numbers today.'}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative">
+            {solutionSteps.map((step) => (
+              <div
+                key={step.stepNum}
+                className="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-cyan-500/40 transition-all space-y-3 relative"
+              >
+                <div className="w-9 h-9 rounded-xl bg-cyan-500 text-slate-950 font-black text-sm flex items-center justify-center shadow-lg">
+                  {step.stepNum}
+                </div>
+                <h3 className="text-sm font-bold text-white">
+                  {isAr ? step.titleAr : step.titleEn}
+                </h3>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  {isAr ? step.descAr : step.descEn}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 5. SECTION 4: THE 8 OPERATIONAL MODULES (الوحدات الثمانية) */}
+      <section className="py-16 px-4 sm:px-8 border-t border-slate-800/60 bg-slate-950/40">
+        <div className="max-w-6xl mx-auto space-y-10">
+          <div className="text-center space-y-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">
+              {isAr ? 'منظومة شاملة لكل ركن في نشاطك' : 'Comprehensive Sovereign Modules'}
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-black text-white">
+              {isAr ? 'هتقدر تعمل إيه مع وحدات TYGOS؟' : 'What You Can Accomplish with TYGOS'}
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-400 max-w-xl mx-auto">
+              {isAr
+                ? 'كل وحدة مصممة لتوفر عليك مجهود وتمنع تسريب الجنيه في مكانها المحدد.'
+                : 'Each module is purposefully engineered to save time and stop specific leakage.'}
             </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {modulesList.map((m) => {
-              const Icon = m.icon;
+            {modulesList.map((mod) => {
+              const Icon = mod.icon;
               return (
                 <div
-                  key={m.id}
-                  className="p-5 rounded-2xl bg-slate-900 border border-slate-800/80 hover:border-slate-700 flex flex-col justify-between space-y-4 transition-all hover:-translate-y-1 shadow-lg"
+                  key={mod.id}
+                  className="p-5 rounded-2xl bg-slate-900/80 border border-slate-800/80 hover:border-cyan-500/40 transition-all flex flex-col justify-between space-y-3"
                 >
                   <div className="space-y-3">
-                    <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${m.color} text-slate-950 flex items-center justify-center p-2 shadow-md`}>
-                      <Icon className="w-full h-full text-white" />
+                    <div className="w-9 h-9 rounded-xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+                      <Icon className="w-4 h-4" />
                     </div>
-                    <h3 className="text-sm font-bold text-white">
-                      {isAr ? m.titleAr : m.titleEn}
+                    <h3 className="text-sm font-bold text-slate-100">
+                      {isAr ? mod.titleAr : mod.titleEn}
                     </h3>
                     <p className="text-xs text-slate-400 leading-relaxed">
-                      {isAr ? m.descAr : m.descEn}
+                      {isAr ? mod.actionAr : mod.actionEn}
                     </p>
-                  </div>
-
-                  <div className="pt-3 border-t border-slate-800/70 space-y-2.5">
-                    <div className="text-[11px] text-cyan-400 font-medium">
-                      ✓ {isAr ? m.benefitAr : m.benefitEn}
-                    </div>
-
-                    <button
-                      type="button"
-                      onClick={onOpenRegister}
-                      className="w-full py-2 px-3 rounded-lg bg-slate-800 hover:bg-cyan-500/20 hover:text-cyan-300 text-xs font-semibold text-slate-300 transition-colors flex items-center justify-between cursor-pointer"
-                    >
-                      <span>{isAr ? 'سجّل لبدء الاستخدام' : 'Get Started'}</span>
-                      <ArrowIcon className="w-3 h-3" />
-                    </button>
                   </div>
                 </div>
               );
@@ -467,86 +566,192 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         </div>
       </section>
 
-      {/* 5. Section: Continuous Updates & Dynamic Announcements */}
-      <section id="updates" className="py-16 sm:py-20 px-4 sm:px-8 border-b border-slate-800/80">
-        <div className="max-w-6xl mx-auto space-y-8">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <span className="text-xs font-mono font-bold uppercase tracking-widest text-emerald-400">
-                {isAr ? 'تطور متسارع ومستمر' : 'Continuous SaaS Innovation'}
-              </span>
-              <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight mt-1">
-                {isAr ? 'أحدث المزايا والتحديثات التشغيلية' : 'Latest Enterprise Features & Releases'}
-              </h2>
-            </div>
-
-            <button
-              type="button"
-              onClick={onOpenRegister}
-              className="px-4 py-2 rounded-xl text-xs font-bold text-cyan-300 border border-cyan-500/30 bg-cyan-950/30 hover:bg-cyan-950/60 transition-colors flex items-center gap-2 cursor-pointer self-start sm:self-auto"
-            >
-              <span>{isAr ? 'انضم للمنشآت المستفيدة' : 'Join Modern Tenants'}</span>
-              <ArrowIcon className="w-3.5 h-3.5" />
-            </button>
+      {/* 6. SECTION 5: BEFORE & AFTER (قبل وبعد) */}
+      <section className="py-16 px-4 sm:px-8 border-t border-slate-800/60">
+        <div className="max-w-4xl mx-auto space-y-8">
+          <div className="text-center space-y-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-cyan-400">
+              {isAr ? 'فارق التأثير الملموس' : 'Tangible Transformation'}
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-black text-white">
+              {isAr ? 'الفرق بين الإدارة بالتخمين وبين TYGOS' : 'Guesswork Management vs TYGOS'}
+            </h2>
+            <p className="text-[11px] text-slate-500">
+              {isAr
+                ? '* أرقام توضيحية للتبسيط، وتختلف نسب التوفير حسب نشاطك وسوقك.'
+                : '* Illustrative metrics for simplification; actual figures vary by market conditions.'}
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {continuousUpdates.map((u, i) => (
+          <div className="space-y-3">
+            {beforeAfterStats.map((stat, idx) => (
               <div
-                key={i}
-                className="p-5 rounded-2xl bg-slate-900/70 border border-slate-800 space-y-3 relative overflow-hidden"
+                key={idx}
+                className="p-4 sm:p-5 rounded-2xl bg-slate-900/80 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
               >
-                <div className="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                  {u.tag}
+                <div>
+                  <h3 className="text-xs sm:text-sm font-bold text-slate-200">
+                    {isAr ? stat.labelAr : stat.labelEn}
+                  </h3>
+                  <span className="text-[11px] text-emerald-400 font-semibold block mt-0.5">
+                    {isAr ? stat.gainAr : stat.gainEn}
+                  </span>
                 </div>
-                <h3 className="text-sm font-bold text-white">
-                  {isAr ? u.titleAr : u.titleEn}
-                </h3>
-                <p className="text-xs text-slate-400 leading-relaxed">
-                  {isAr ? u.descAr : u.descEn}
-                </p>
+
+                <div className="flex items-center gap-3 shrink-0">
+                  <div className="px-3 py-1.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 font-mono text-xs">
+                    <span className="opacity-75 block text-[9px]">{isAr ? 'قبل:' : 'Before:'}</span>
+                    <span className="font-bold">{stat.before}</span>
+                  </div>
+
+                  <ArrowIcon className="w-4 h-4 text-slate-500" />
+
+                  <div className="px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-mono text-xs">
+                    <span className="opacity-75 block text-[9px]">{isAr ? 'مع تايجوس:' : 'With Tygos:'}</span>
+                    <span className="font-black">{stat.after}</span>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* 6. Section: FAQ Section */}
-      <section className="py-16 sm:py-20 px-4 sm:px-8 border-b border-slate-800/80 bg-slate-950/40">
+      {/* 7. SECTION 6: THREE REAL SCENARIOS (ثلاث حكايات) */}
+      <section className="py-16 px-4 sm:px-8 border-t border-slate-800/60 bg-slate-950/40">
+        <div className="max-w-5xl mx-auto space-y-8">
+          <div className="text-center space-y-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-purple-400">
+              {isAr ? 'تجارب من واقع السوق' : 'Realistic Scenarios'}
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-black text-white">
+              {isAr ? '٣ حكايات واقعية لكيف تحولت أرباحهم' : '3 Realistic Operational Turnarounds'}
+            </h2>
+            <p className="text-[11px] text-slate-500">
+              {isAr
+                ? '* سيناريوهات توضيحية مبنية على حالات واقعية في قطاع الضيافة.'
+                : '* Illustrative case scenarios derived from hospitality field workflows.'}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {caseStories.map((story, i) => (
+              <div
+                key={i}
+                className="p-5 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-3 flex flex-col justify-between"
+              >
+                <div className="space-y-2">
+                  <span className="text-xs font-black text-cyan-400 block pb-1 border-b border-slate-800">
+                    {isAr ? story.typeAr : story.typeEn}
+                  </span>
+                  <div>
+                    <span className="text-[10px] text-rose-400 font-bold block">{isAr ? 'المشكلة:' : 'Problem:'}</span>
+                    <p className="text-xs text-slate-300">{isAr ? story.problemAr : story.problemEn}</p>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-cyan-400 font-bold block">{isAr ? 'التحول:' : 'Shift:'}</span>
+                    <p className="text-xs text-slate-300">{isAr ? story.transformationAr : story.transformationEn}</p>
+                  </div>
+                </div>
+
+                <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-semibold">
+                  {isAr ? story.resultAr : story.resultEn}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 8. SECTION 7: TRY IT YOURSELF (جرّب بنفسك) */}
+      <section className="py-16 px-4 sm:px-8 border-t border-slate-800/60">
         <div className="max-w-4xl mx-auto space-y-8">
           <div className="text-center space-y-2">
-            <span className="text-xs font-mono font-bold uppercase tracking-widest text-cyan-400">
-              {isAr ? 'الأسئلة الشائعة' : 'Frequently Asked Questions'}
+            <span className="text-xs font-bold uppercase tracking-wider text-cyan-400">
+              {isAr ? 'استكشف التجربة بدون أي التزام' : 'Instant Role Demos'}
             </span>
-            <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-              {isAr ? 'إجابات واضحة حول المنظومة' : 'Everything You Need to Know'}
+            <h2 className="text-2xl sm:text-3xl font-black text-white">
+              {isAr ? 'جرّب بنفسك: ادخل الآن بأي دور وظيفي' : 'Test Drive Any Operational Role'}
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-400 max-w-md mx-auto">
+              {isAr
+                ? 'انقر على أي دور للدخول المباشر إلى المنظومة واستكشاف الشاشات.'
+                : 'Click any role below to launch the live platform and inspect workflows.'}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {rolePortals.map((portal) => (
+              <button
+                key={portal.role}
+                type="button"
+                onClick={() => onExploreDemo && onExploreDemo(portal.role)}
+                className="p-4 rounded-xl bg-slate-900 border border-slate-800 hover:border-cyan-500/60 text-start group transition-all cursor-pointer space-y-1"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-white group-hover:text-cyan-400">
+                    {isAr ? portal.titleAr : portal.titleEn}
+                  </span>
+                  <ArrowIcon className="w-3.5 h-3.5 text-slate-500 group-hover:text-cyan-400" />
+                </div>
+                <p className="text-[11px] text-slate-400">
+                  {isAr ? portal.descAr : portal.descEn}
+                </p>
+              </button>
+            ))}
+
+            {/* Quick Register Portal */}
+            <button
+              type="button"
+              onClick={onOpenRegister}
+              className="p-4 rounded-xl bg-gradient-to-r from-cyan-950 to-blue-950 border border-cyan-500/40 text-start hover:border-cyan-400 transition-all cursor-pointer space-y-1"
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-cyan-300">
+                  {isAr ? 'تسجيل منشأة جديدة بالكامل' : 'Provision New Venue'}
+                </span>
+                <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+              </div>
+              <p className="text-[11px] text-slate-400">
+                {isAr ? 'ابدأ معالج تسجيل منشأتك ببياناتك الخاصة.' : 'Launch wizard with your own brand details.'}
+              </p>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* 9. SECTION 8: FAQ (أسئلة شائعة) */}
+      <section className="py-16 px-4 sm:px-8 border-t border-slate-800/60 bg-slate-950/40">
+        <div className="max-w-3xl mx-auto space-y-8">
+          <div className="text-center space-y-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+              {isAr ? 'إجابات مبسطة' : 'Clear Answers'}
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-black text-white">
+              {isAr ? 'الأسئلة الشائعة' : 'Frequently Asked Questions'}
             </h2>
           </div>
 
-          <div className="space-y-3">
-            {faqs.map((f, idx) => {
-              const isOpen = activeFaq === idx;
+          <div className="space-y-2.5">
+            {faqList.map((faq, index) => {
+              const isOpen = activeFaq === index;
               return (
                 <div
-                  key={idx}
-                  className="rounded-2xl border border-slate-800 bg-slate-900/60 overflow-hidden transition-colors"
+                  key={index}
+                  className="rounded-xl border border-slate-800 bg-slate-900/70 overflow-hidden transition-colors"
                 >
                   <button
                     type="button"
-                    onClick={() => setActiveFaq(isOpen ? null : idx)}
-                    className="w-full p-4 sm:p-5 text-start flex items-center justify-between gap-4 font-bold text-sm text-slate-200 hover:text-white cursor-pointer"
+                    onClick={() => setActiveFaq(isOpen ? null : index)}
+                    className="w-full p-4 text-start text-xs sm:text-sm font-bold text-slate-200 hover:text-white flex items-center justify-between gap-3 cursor-pointer"
                   >
-                    <span>{isAr ? f.qAr : f.qEn}</span>
-                    <ChevronDown
-                      className={`w-4 h-4 text-cyan-400 shrink-0 transition-transform ${
-                        isOpen ? 'rotate-180' : ''
-                      }`}
-                    />
+                    <span>{isAr ? faq.qAr : faq.qEn}</span>
+                    <ChevronDown className={`w-4 h-4 text-slate-400 shrink-0 transition-transform ${isOpen ? 'rotate-180 text-cyan-400' : ''}`} />
                   </button>
 
                   {isOpen && (
-                    <div className="p-4 sm:p-5 pt-0 text-xs text-slate-400 leading-relaxed border-t border-slate-800/60">
-                      {isAr ? f.aAr : f.aEn}
+                    <div className="px-4 pb-4 text-xs text-slate-400 leading-relaxed border-t border-slate-800/60 pt-3">
+                      {isAr ? faq.aAr : faq.aEn}
                     </div>
                   )}
                 </div>
@@ -556,72 +761,38 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         </div>
       </section>
 
-      {/* 7. Final Registration CTA Banner */}
-      <section className="py-16 sm:py-20 px-4 sm:px-8 relative overflow-hidden bg-gradient-to-b from-[#070b14] to-[#04070e]">
-        <div className="max-w-4xl mx-auto text-center space-y-6 relative z-10 p-8 sm:p-12 rounded-3xl bg-slate-900/90 border border-slate-800 shadow-2xl">
-          <div className="w-16 h-16 mx-auto rounded-2xl bg-cyan-500/10 border border-cyan-500/30 p-2 flex items-center justify-center">
-            <img src={TYGOS_LOGO_SRC} alt="Tygos" className="w-full h-full object-contain" />
-          </div>
-
-          <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight">
-            {isAr ? 'جاهز لقيادة منشأتك بأعلى معايير الربحية؟' : 'Ready to Elevate Your Hospitality Margins?'}
+      {/* 10. SECTION 9: FINAL CALL TO ACTION (دعوة أخيرة) */}
+      <section className="py-20 px-4 sm:px-8 border-t border-slate-800/80 bg-gradient-to-b from-slate-950 to-[#070b14] relative text-center">
+        <div className="max-w-2xl mx-auto space-y-6">
+          <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
+            {isAr ? 'جاهز تقفل كل أبواب الهدر وتشوف أرباحك الحقيقية؟' : 'Ready to Stop Waste and Realize True Profits?'}
           </h2>
-
-          <p className="text-xs sm:text-sm text-slate-400 max-w-xl mx-auto leading-relaxed">
+          <p className="text-sm text-slate-300">
             {isAr
-              ? 'سجل الآن خلال دقيقتين، واحصل على كود هوية منشأتك المستقل فوراً، وابدأ ضبط التكاليف ونقاط البيع.'
-              : 'Register in two minutes, claim your sovereign establishment partition, and take full control of costs.'}
+              ? 'انضم لعشرات المطاعم والكافيهات التي تثق في TYGOS لتشغيل منشآتها بالقرش.'
+              : 'Join hospitality managers who rely on TYGOS for surgical portion and food cost control.'}
           </p>
-
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+          <div className="pt-2">
             <button
               type="button"
               onClick={onOpenRegister}
-              className="w-full sm:w-auto px-8 py-3.5 rounded-xl text-sm font-black text-slate-950 bg-gradient-to-r from-cyan-400 via-cyan-300 to-emerald-400 hover:from-cyan-300 hover:to-emerald-300 transition-all shadow-xl shadow-cyan-950/70 flex items-center justify-center gap-2 cursor-pointer"
+              className="px-8 py-3.5 rounded-xl font-black text-sm bg-gradient-to-r from-cyan-400 to-emerald-400 hover:from-cyan-300 hover:to-emerald-300 text-slate-950 shadow-xl shadow-cyan-950/60 cursor-pointer transition-all"
             >
-              <span>{isAr ? 'سجّل منشأة جديدة الآن' : 'Register New Establishment'}</span>
-              <ArrowIcon className="w-4 h-4" />
-            </button>
-
-            <button
-              type="button"
-              onClick={onOpenLogin}
-              className="w-full sm:w-auto px-6 py-3.5 rounded-xl text-sm font-bold text-slate-300 hover:text-white border border-slate-700 bg-slate-900 hover:bg-slate-800 transition-colors cursor-pointer"
-            >
-              {isAr ? 'الدخول بحساب قائم' : 'Sign in to Existing Account'}
+              {isAr ? 'ابدأ تجربة المنظومة مجاناً' : 'Start Your Free Trial'}
             </button>
           </div>
         </div>
       </section>
 
-      {/* 8. Global Standard Footer */}
-      <footer className="border-t border-slate-800/80 bg-slate-950 py-10 px-4 sm:px-8 text-xs text-slate-500">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-start">
-          <div className="flex flex-col sm:flex-row items-center gap-3">
-            <TygosLogo variant="compact" />
-            <span className="text-[11px] text-slate-500">
-              © 2026 Tygos Intelligent Business Systems. All rights reserved.
-            </span>
+      {/* FOOTER */}
+      <footer className="py-6 px-4 sm:px-8 border-t border-slate-800 text-center text-xs text-slate-500">
+        <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-slate-300">TYGOS</span>
+            <span>· {isAr ? 'منظومة إدارة الضيافة الشاملة والذكاء التشغيلي' : 'Hospitality ERP & Food Cost Intelligence'}</span>
           </div>
-
-          <div className="flex items-center gap-6">
-            <button
-              type="button"
-              onClick={onOpenLogin}
-              className="hover:text-cyan-400 transition-colors cursor-pointer"
-            >
-              {isAr ? 'تسجيل الدخول' : 'Workspace Login'}
-            </button>
-            <button
-              type="button"
-              onClick={onOpenRegister}
-              className="hover:text-cyan-400 transition-colors cursor-pointer"
-            >
-              {isAr ? 'معالج التسجيل' : 'Establishment Registration'}
-            </button>
-            <a href="#why" className="hover:text-cyan-400 transition-colors">
-              {isAr ? 'سياسة الأمان' : 'Security Model'}
-            </a>
+          <div>
+            <span>© 2026 TYGOS Systems. {isAr ? 'جميع الحقوق محفوظة' : 'All rights reserved.'}</span>
           </div>
         </div>
       </footer>

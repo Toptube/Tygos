@@ -8,7 +8,7 @@ import { ThemeProvider } from './theme/ThemeContext.tsx';
 import { I18nProvider } from './i18n/I18nContext.tsx';
 import { SyncProvider } from './sync/SyncContext.tsx';
 import { AuthProvider, useAuth } from './context/AuthContext.tsx';
-import { BusinessProvider } from './context/BusinessContext.tsx';
+import { BusinessProvider, useBusiness } from './context/BusinessContext.tsx';
 import { AppLayout } from './components/layout/AppLayout.tsx';
 import { LandingPage } from './components/landing/LandingPage.tsx';
 import { LoginView } from './components/auth/LoginView.tsx';
@@ -25,16 +25,37 @@ import { TaxModule } from './components/tax/TaxModule.tsx';
 import { HrModule } from './components/hr/HrModule.tsx';
 import { CrmModule } from './components/crm/CrmModule.tsx';
 import { InternalChatModule } from './components/chat/InternalChatModule.tsx';
+import { SystemHealthDashboard } from './components/system/SystemHealthDashboard.tsx';
+import { SettingsModule } from './components/settings/SettingsModule.tsx';
 import { GlobalSearchModal } from './components/search/GlobalSearchModal.tsx';
 import { TygosAssistantModal } from './components/ai/TygosAssistantModal.tsx';
 import { CostSimulationWorkspace } from './components/costcontrol/CostSimulationWorkspace.tsx';
 import { PrivilegedAccessModal } from './components/security/PrivilegedAccessModal.tsx';
 import { AuditReportModal } from './components/security/AuditReportModal.tsx';
 import { HelpCenterModal } from './components/help/HelpCenterModal.tsx';
+import { AddIngredientQuickModal } from './components/inventory/AddIngredientQuickModal.tsx';
+import { AddProductWizardModal } from './components/menu/AddProductWizardModal.tsx';
+import { BulkDataImportModal } from './components/common/BulkDataImportModal.tsx';
+import { QuickOnboardingModal } from './components/common/QuickOnboardingModal.tsx';
 
 const AppContent: React.FC = () => {
-  const { currentUser, activeView, setActiveView, switchRole } = useAuth();
+  const { currentUser, currentEstablishment, activeView, setActiveView, switchRole } = useAuth();
   const [isRegistering, setIsRegistering] = useState(false);
+
+  const {
+    isAddIngredientModalOpen,
+    setIsAddIngredientModalOpen,
+    isAddProductModalOpen,
+    setIsAddProductModalOpen,
+    isImportDataModalOpen,
+    setIsImportDataModalOpen,
+    isOnboardingModalOpen,
+    setIsOnboardingModalOpen,
+    rawMaterials,
+    refreshMaterialsAndProducts,
+  } = useBusiness();
+
+  const estId = currentEstablishment?.id || 'default';
 
   // 1. If actively viewing public landing page (or unauthenticated default)
   if (activeView === 'landing') {
@@ -101,6 +122,10 @@ const AppContent: React.FC = () => {
         return <CrmModule />;
       case 'chat':
         return <InternalChatModule />;
+      case 'health':
+        return <SystemHealthDashboard />;
+      case 'settings':
+        return <SettingsModule />;
       case 'dashboard':
       default:
         return <TenantDashboard />;
@@ -115,6 +140,39 @@ const AppContent: React.FC = () => {
       <PrivilegedAccessModal />
       <AuditReportModal />
       <HelpCenterModal />
+
+      {/* Effortless Rapid Data Entry & Onboarding Modals */}
+      <AddIngredientQuickModal
+        isOpen={isAddIngredientModalOpen}
+        onClose={() => setIsAddIngredientModalOpen(false)}
+        establishmentId={estId}
+        existingIngredients={rawMaterials}
+        onIngredientAdded={() => refreshMaterialsAndProducts()}
+      />
+
+      <AddProductWizardModal
+        isOpen={isAddProductModalOpen}
+        onClose={() => setIsAddProductModalOpen(false)}
+        establishmentId={estId}
+        availableMaterials={rawMaterials}
+        onRefreshMaterials={() => refreshMaterialsAndProducts()}
+        onProductCreated={() => refreshMaterialsAndProducts()}
+      />
+
+      <BulkDataImportModal
+        isOpen={isImportDataModalOpen}
+        onClose={() => setIsImportDataModalOpen(false)}
+        establishmentId={estId}
+        onImportComplete={() => refreshMaterialsAndProducts()}
+      />
+
+      <QuickOnboardingModal
+        isOpen={isOnboardingModalOpen}
+        onClose={() => setIsOnboardingModalOpen(false)}
+        establishmentId={estId}
+        onCompleted={() => refreshMaterialsAndProducts()}
+      />
+
       {renderActiveView()}
     </AppLayout>
   );

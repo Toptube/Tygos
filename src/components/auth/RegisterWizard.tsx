@@ -142,7 +142,7 @@ export const RegisterWizard: React.FC<{ onCancel: () => void }> = ({ onCancel })
           {/* Generated Code Badge */}
           <div className="p-6 bg-slate-950/80 border border-slate-800 rounded-xl mb-6 text-center">
             <span className="text-xs uppercase tracking-widest text-cyan-400 font-bold block mb-1">
-              {t('registration.codeGenerated', 'Official Establishment Code')}
+              {language === 'ar' ? 'رقم منشأتك' : 'Your Establishment Number'}
             </span>
             <div
               className="text-4xl font-black font-mono tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-emerald-400"
@@ -150,11 +150,10 @@ export const RegisterWizard: React.FC<{ onCancel: () => void }> = ({ onCancel })
             >
               {registeredSuccessEst.code}
             </div>
-            <p className="text-xs text-slate-500 mt-2">
-              <span>{language === 'ar' ? 'البادئة:' : 'Prefix:'} </span>
-              <strong className="text-slate-300 font-mono" dir="ltr">{registeredSuccessEst.prefix}</strong>
-              <span> · {language === 'ar' ? 'الرقم التسلسلي:' : 'Serial:'} </span>
-              <strong className="text-slate-300 font-mono" dir="ltr">{registeredSuccessEst.number}</strong>
+            <p className="text-xs text-slate-400 mt-2">
+              {language === 'ar'
+                ? 'احتفظ بهذا الرقم لاستخدامه دائماً عند تسجيل الدخول'
+                : 'Keep this number handy to log in to your account'}
             </p>
           </div>
 
@@ -313,7 +312,7 @@ export const RegisterWizard: React.FC<{ onCancel: () => void }> = ({ onCancel })
                 >
                   {businessTypes.map((tItem) => (
                     <option key={tItem.value} value={tItem.value}>
-                      {t(tItem.key, tItem.value)} ({language === 'ar' ? 'البادئة:' : 'Code Prefix:'} {tItem.prefix}.0000)
+                      {t(tItem.key, tItem.value)} ({tItem.prefix}:)
                     </option>
                   ))}
                 </select>

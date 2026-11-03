@@ -35,6 +35,9 @@ export const TygosAssistantModal: React.FC = () => {
     setIsHelpOpen,
     helpArticles,
     setSelectedHelpArticle,
+    setIsAddIngredientModalOpen,
+    setIsAddProductModalOpen,
+    setIsImportDataModalOpen,
   } = useBusiness();
   const { currentUser, setActiveView } = useAuth();
   const role = currentUser?.role || 'tenant_admin';
@@ -66,10 +69,19 @@ export const TygosAssistantModal: React.FC = () => {
         const view = actionStr.replace('NAV:', '');
         setActiveView(view);
         setIsAssistantOpen(false);
+      } else if (actionStr === 'ACTION:open_add_ingredient') {
+        setIsAddIngredientModalOpen(true);
+        setIsAssistantOpen(false);
+      } else if (actionStr === 'ACTION:open_add_product') {
+        setIsAddProductModalOpen(true);
+        setIsAssistantOpen(false);
+      } else if (actionStr === 'ACTION:open_import_data') {
+        setIsImportDataModalOpen(true);
+        setIsAssistantOpen(false);
       } else if (actionStr === 'ACTION:simulation') {
         setIsSimulationModalOpen(true);
         setIsAssistantOpen(false);
-      } else if (actionStr === 'ACTION:request_access') {
+      } else if (actionStr === 'ACTION:request_access' || actionStr === 'ACTION:request_privileged_token') {
         setTargetAccessResource({
           key: 'HR_PAYROLL_MASTER',
           labelAr: 'مسير الرواتب المعتمد والبيانات المحمية',
