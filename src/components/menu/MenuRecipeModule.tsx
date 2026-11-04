@@ -61,7 +61,7 @@ export const MenuRecipeModule: React.FC = () => {
     const matchesSearch =
       p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       p.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      p.barcode.toLowerCase().includes(searchQuery.toLowerCase());
+      Boolean(p.barcode && p.barcode.toLowerCase().includes(searchQuery.toLowerCase()));
     return matchesDept && matchesSearch;
   });
 

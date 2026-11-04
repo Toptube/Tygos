@@ -380,6 +380,96 @@ export const SCREEN_REGISTRY: ScreenDefinition[] = [
       { id: 'nav_settings', labelAr: 'فتح الإعدادات', labelEn: 'Open Settings', actionCode: 'NAV:settings' },
     ],
   },
+  {
+    id: 'kds',
+    viewId: 'kds',
+    category: 'operations',
+    nameAr: 'شاشات محطات المطبخ والبار (KDS)',
+    nameEn: 'Kitchen Display System & Station Routing',
+    shortLabelAr: 'شاشات المطبخ',
+    shortLabelEn: 'KDS',
+    descriptionAr: 'توزيع فوري لطلبات العملاء والكاشير على المحطات (المطبخ الساخن، البار، المشاوي)، مع مؤقتات لونية وتنبيه صوتي وطباعة فواتير حرارية 80 مم.',
+    descriptionEn: 'Instant order routing to preparation stations (hot kitchen, bar, grill) with color-coded timers, audio chime, and 80mm thermal printing.',
+    iconName: 'Flame',
+    allowedRoles: ['kitchen_manager', 'bar_manager', 'tenant_admin', 'general_manager', 'cashier', 'super_admin'],
+    keywordsAr: ['مطبخ', 'شاشة مطبخ', 'kds', 'محطة', 'بار', 'مشاوي', 'تحضير', 'تذكرة', 'شيف', 'طهاة', 'طباعة حرارية'],
+    keywordsEn: ['kds', 'kitchen', 'station', 'prep', 'cook', 'bar', 'grill', 'tickets', 'thermal print', 'timer'],
+    commonStepsAr: [
+      'اختر المحطة المناسبة (الكل / المطبخ الساخن / البار / المشاوي).',
+      'راقب زمن انتظار التذكرة (أخضر أقل من 10 دقائق، كهرماني، أحمر أكثر من 20 دقيقة).',
+      'انقر "بدء التحضير" ثم "جاهز للتسليم" لتحديث حالة الطلب فوراً عند الكاشير والعميل.',
+      'اطبع تذكرة المطبخ الحرارية (80 مم) عند الحاجة.',
+    ],
+    commonStepsEn: [
+      'Filter by your station (All / Hot Kitchen / Bar / Grill).',
+      'Monitor ticket elapsed timers with color alerts (<10m green, amber, >20m red).',
+      'Click "Start Prep" then "Mark Ready" to notify cashier and customer instantly.',
+      'Print 80mm thermal ticket as needed.',
+    ],
+    quickActions: [
+      { id: 'view_kds_all', labelAr: 'عرض شاشة المطبخ', labelEn: 'Open KDS', actionCode: 'NAV:kds' },
+    ],
+  },
+  {
+    id: 'menu_management',
+    viewId: 'menu_management',
+    category: 'cost_engineering',
+    nameAr: 'إدارة المنيو والتسويق والصور',
+    nameEn: 'Menu Marketing & Visuals Management',
+    shortLabelAr: 'إدارة المنيو',
+    shortLabelEn: 'Menu & Visuals',
+    descriptionAr: 'مساحة متكاملة لمدير المنشأة ومسؤول التسويق لرفع وضغط الصور محلياً، وكتابة الوصف التسويقي، وتحديد المكونات الظاهرة للجمهور، وتعيين محطة التحضير مع معاينة مباشرة للموبايل.',
+    descriptionEn: 'Dedicated workspace for manager and marketing officer to upload and compress photos locally, write copy, set public ingredients, and assign stations with live mobile preview.',
+    iconName: 'QrCode',
+    allowedRoles: ['tenant_admin', 'general_manager', 'marketing_officer', 'super_admin'],
+    keywordsAr: ['منيو', 'صور', 'تسويق', 'وصف', 'محطة تحضير', 'صورة طبق', 'معاينة موبايل', 'حساسية'],
+    keywordsEn: ['menu marketing', 'dish photo', 'visuals', 'allergens', 'ingredients', 'mobile preview', 'station assignment'],
+    commonStepsAr: [
+      'اختر الصنف من القائمة لإدارته وتعديل بياناته العامة.',
+      'ارفع صوراً جذابة واستخدم ضاغط الصور المدمج في المتصفح للحفاظ على سرعة التحميل.',
+      'اختر قالباً تسويقياً جاهزاً أو اكتب وصفاً بشرياً دافئاً باللغتين.',
+      'حدد محطة التحضير (مطبخ ساخن، بار، مشاوي) والمكونات الظاهرة ومسببات الحساسية.',
+      'شاهد التغييرات فوراً في المعاينة التفاعلية للموبايل على يمين الشاشة.',
+    ],
+    commonStepsEn: [
+      'Select item from list to manage public appearance.',
+      'Upload photos and compress them locally in-browser for snappy load times.',
+      'Select marketing copy template or write bilingual descriptions.',
+      'Assign prep station and toggle public ingredients and allergens.',
+      'Check real-time mobile preview on the right panel.',
+    ],
+    quickActions: [
+      { id: 'open_menu_mgmt', labelAr: 'إدارة المنيو والصور', labelEn: 'Manage Menu Visuals', actionCode: 'NAV:menu_management' },
+    ],
+  },
+  {
+    id: 'qr_tables',
+    viewId: 'qr_tables',
+    category: 'operations',
+    nameAr: 'إدارة ملصقات QR للطاولات',
+    nameEn: 'Table QR Code Generator & Tent Stickers',
+    shortLabelAr: 'ملصقات QR',
+    shortLabelEn: 'Table QRs',
+    descriptionAr: 'توليد وتنزيل وطباعة رموز QR مخصصة للمنشأة ولكل طاولة في الصالة، تعمل دون إنترنت أو خدمات خارجية مع ملصقات أنيقة جاهزة للطباعة.',
+    descriptionEn: 'Generate, download, and print custom venue and table QR codes fully offline with elegant, printable table tent stickers.',
+    iconName: 'Smartphone',
+    allowedRoles: ['tenant_admin', 'general_manager', 'marketing_officer', 'cashier', 'super_admin'],
+    keywordsAr: ['qr', 'طاولات', 'ملصقات', 'رمز كيو ار', 'كود طاولة', 'طباعة ستيكر', 'رابط المنيو'],
+    keywordsEn: ['qr code', 'table sticker', 'table tent', 'qr generator', 'menu link', 'print qr'],
+    commonStepsAr: [
+      'استعرض رابط المنيو العام للمنشأة أو شاركه مباشرة.',
+      'اختر أي طاولة لتوليد رمز QR الخاص بها الذي يملأ رقم الطاولة تلقائياً للعميل.',
+      'نزّل الرمز بصيغة PNG أو اطبع ملصقات الطاولات الأنيقة المعتمدة.',
+    ],
+    commonStepsEn: [
+      'View public venue menu link or copy it.',
+      'Select any table to generate its pre-filled QR code.',
+      'Download PNG or print standardized table tent stickers directly.',
+    ],
+    quickActions: [
+      { id: 'open_qr_tables', labelAr: 'ملصقات الطاولات', labelEn: 'Table QRs', actionCode: 'NAV:qr_tables' },
+    ],
+  },
 ];
 
 /**
@@ -425,4 +515,8 @@ export function findMatchingScreens(query: string, userRole?: UserRole): ScreenD
         normKeywordsEn.some((k) => k.includes(w) || w.includes(k))
     );
   });
+}
+
+export function getAllScreens(): ScreenDefinition[] {
+  return SCREEN_REGISTRY;
 }

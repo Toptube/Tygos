@@ -199,7 +199,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = () => {
     setCurrentUser(null);
     setCurrentEstablishment(null);
-    setActiveView('login');
+    setActiveView('landing');
     try {
       localStorage.removeItem(SESSION_STORAGE_KEY);
     } catch {
@@ -226,7 +226,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } else if (role === 'cashier' || role === 'waiter') {
       setActiveView('pos');
     } else if (role === 'kitchen_manager' || role === 'bar_manager') {
-      setActiveView('menu');
+      setActiveView('kds');
+    } else if (role === 'marketing_officer') {
+      setActiveView('menu_management');
     } else if (role === 'cost_accountant') {
       setActiveView('cost_control');
     } else if (role === 'financial_manager' || role === 'financial_accountant') {
@@ -257,6 +259,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       food_beverage_outlet: 'FB',
       bakery: 'BK',
       pastry: 'PS',
+      system_admin: 'SYS',
       other: 'O',
     };
 

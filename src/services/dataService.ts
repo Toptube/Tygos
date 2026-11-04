@@ -16,11 +16,32 @@ import {
   calculateGrossMargin,
   calculateFoodCostPercentage,
 } from '../domain/formulas.ts';
-import { UserRole } from '../types/index.ts';
+import { UserRole, Establishment } from '../types/index.ts';
+import {
+  MenuItemOverride,
+  formatOrderSerialNumber,
+} from '../domain/qrMenuTypes.ts';
 
 // ---------------------------------------------------------------------------
 // TYPES & INTERFACES
 // ---------------------------------------------------------------------------
+
+export interface VenueSettings {
+  publicAppUrl: string;
+  currency: string;
+  taxStandard: number;
+  taxReduced: number;
+  serviceCharge: number;
+  deliveryFee: number;
+  isTaxInclusive: boolean;
+  valuationMethod: 'weighted_average' | 'fifo';
+  targetMargin: number;
+  numberFormat: 'standard' | 'european';
+  autoAcceptOrders: boolean;
+  menuThemeColor?: string;
+  hideUnavailableMenuItems: boolean;
+  customerDataRetentionDays: number;
+}
 
 export interface RawMaterialItem {
   id: string;
@@ -644,6 +665,139 @@ class DataService {
         updatedAt: new Date().toISOString(),
       },
     ];
+  }
+
+  // ---------------------------------------------------------------------------
+  // PHASE 5: MENU OVERRIDES, SERIAL GENERATOR & VENUE SETTINGS
+  // ---------------------------------------------------------------------------
+
+  public async getMenuItemOverrides(estId: string): Promise<MenuItemOverride[]> {
+    const key = `tygos_${estId}_menu_overrides`;
+    try {
+      const data = localStorage.getItem(key);
+      if (data) return JSON.parse(data);
+    } catch {
+      // ignore
+    }
+    return [];
+  }
+
+  public async saveMenuItemOverride(estId: string, override: MenuItemOverride): Promise<void> {
+    const key = `tygos_${estId}_menu_overrides`;
+    const list = await this.getMenuItemOverrides(estId);
+    const idx = list.findIndex((m) => m.productId === override.productId);
+    if (idx !== -1) {
+      list[idx] = { ...list[idx], ...override };
+    } else {
+      list.push(override);
+    }
+    try {
+      localStorage.setItem(key, JSON.stringify(list));
+    } catch {
+      // ignore
+    }
+  }
+
+  public async getNextOrderSerialNumber(estId: string): Promise<string> {
+    const key = `tygos_${estId}_last_order_serial`;
+    let lastNum = 0;
+    try {
+      const stored = localStorage.getItem(key);
+      if (stored) lastNum = parseInt(stored, 10) || 0;
+    } catch {
+      // ignore
+    }
+    const nextNum = lastNum + 1;
+    try {
+      localStorage.setItem(key, nextNum.toString());
+    } catch {
+      // ignore
+    }
+    return formatOrderSerialNumber(nextNum);
+  }
+
+  public async getVenueSettings(estId: string): Promise<VenueSettings> {
+    const key = `tygos_${estId}_venue_settings`;
+    const defaultUrl = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
+    const defaults: VenueSettings = {
+      publicAppUrl: defaultUrl,
+      currency: 'USD',
+      taxStandard: 14.0,
+      taxReduced: 5.0,
+      serviceCharge: 12.0,
+      deliveryFee: 5.0,
+      isTaxInclusive: false,
+      valuationMethod: 'weighted_average',
+      targetMargin: 70,
+      numberFormat: 'standard',
+      autoAcceptOrders: false,
+      menuThemeColor: '#0891b2',
+      hideUnavailableMenuItems: false,
+      customerDataRetentionDays: 90,
+    };
+    try {
+      const stored = localStorage.getItem(key);
+      if (stored) return { ...defaults, ...JSON.parse(stored) };
+    } catch {
+      // ignore
+    }
+    return defaults;
+  }
+
+  public async saveVenueSettings(estId: string, partial: Partial<VenueSettings>): Promise<VenueSettings> {
+    const key = `tygos_${estId}_venue_settings`;
+    const current = await this.getVenueSettings(estId);
+    const updated = { ...current, ...partial };
+    try {
+      localStorage.setItem(key, JSON.stringify(updated));
+    } catch {
+      // ignore
+    }
+    if (updated.publicAppUrl && typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('tygos_settings_publicAppUrl', updated.publicAppUrl);
+      } catch {
+        // ignore
+      }
+    }
+    return updated;
+  }
+
+  public async getEstablishmentByCode(code: string): Promise<Establishment | null> {
+    if (typeof window === 'undefined') return null;
+    try {
+      const raw = localStorage.getItem('tygos_registered_establishments');
+      const list: Establishment[] = raw ? JSON.parse(raw) : [];
+      const match = list.find((e) => e.code.toLowerCase() === code.toLowerCase());
+      if (match) return match;
+    } catch {
+      // ignore
+    }
+    // Fallback seed establishment
+    if (code.toUpperCase().includes('R.0001') || code.toUpperCase() === 'R.0001' || code === 'default') {
+      return {
+        id: 'est-restaurant-1',
+        name: 'مطعم وكافيه الأفق الأزرق',
+        businessType: 'restaurant_cafe',
+        prefix: 'R',
+        number: '0001',
+        code: 'R.0001',
+        ownerName: 'ألكسندر فانك',
+        email: 'alexander@azurebistro.com',
+        phone: '+20 100 482 9182',
+        address: 'شارع كورنيش النيل، برج الأفق',
+        city: 'القاهرة',
+        state: 'القاهرة',
+        country: 'مصر',
+        nationalId: '29801011234567',
+        status: 'active',
+        currency: 'USD',
+        language: 'ar',
+        timezone: 'UTC+2',
+        createdAt: '2026-01-01T00:00:00.000Z',
+      };
+    }
+    return null;
   }
 }
 

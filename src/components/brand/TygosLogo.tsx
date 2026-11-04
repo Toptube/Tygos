@@ -16,6 +16,8 @@ interface TygosLogoProps {
 export const TYGOS_LOGO_SRC = '/assets/aistudio/1793697602757_a43f2155.png';
 export const TYGOS_COVER_SRC = '/assets/aistudio/1793718672612_80f803af.jpg';
 
+export { PermanentAppBrandBadge } from './PermanentAppBrandBadge.tsx';
+
 export const TygosLogo: React.FC<TygosLogoProps> = ({
   variant = 'compact',
   className = '',

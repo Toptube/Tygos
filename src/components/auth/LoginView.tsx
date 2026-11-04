@@ -8,6 +8,7 @@ import { Eye, EyeOff, ArrowRight, UserPlus, Sparkles, Building2, HelpCircle, X, 
 import { useAuth } from '../../context/AuthContext.tsx';
 import { useI18n } from '../../i18n/I18nContext.tsx';
 import { TygosLogo } from '../brand/TygosLogo.tsx';
+import { PermanentAppBrandBadge } from '../brand/PermanentAppBrandBadge.tsx';
 import { LanguageSelector } from '../common/LanguageSelector.tsx';
 import { UserRole } from '../../types/index.ts';
 
@@ -102,8 +103,8 @@ export const LoginView: React.FC<{
       <div className="absolute top-1/4 start-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-10 end-10 w-72 h-72 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
 
-      {/* Top Bar with Back to Landing & Language Switcher */}
-      <div className="w-full max-w-md flex items-center justify-between mb-3 z-20">
+      {/* Top Bar with Back to Landing, Permanent App URL Badge, & Language Switcher */}
+      <div className="w-full max-w-md flex items-center justify-between gap-2 mb-3 z-20">
         {onBackToLanding ? (
           <button
             type="button"
@@ -111,11 +112,12 @@ export const LoginView: React.FC<{
             className="text-xs text-slate-400 hover:text-cyan-300 flex items-center gap-1.5 transition-colors cursor-pointer"
           >
             <ArrowRight className="w-3.5 h-3.5 ltr:rotate-180" />
-            <span>{isAr ? 'الرئيسية التعريفية' : 'Platform Overview'}</span>
+            <span className="hidden sm:inline">{isAr ? 'الرئيسية التعريفية' : 'Platform'}</span>
           </button>
         ) : (
           <div />
         )}
+        <PermanentAppBrandBadge variant="header-pill" />
         <LanguageSelector variant="login" />
       </div>
 
@@ -331,6 +333,9 @@ export const LoginView: React.FC<{
           </div>
         </div>
       </div>
+
+      {/* Permanent Verified Production Link Card */}
+      <PermanentAppBrandBadge variant="card" className="w-full max-w-md mt-4 relative z-10" />
 
       {/* Forgot Facility Number Modal */}
       {isForgotModalOpen && (

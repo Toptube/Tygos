@@ -37,10 +37,28 @@ import { AddIngredientQuickModal } from './components/inventory/AddIngredientQui
 import { AddProductWizardModal } from './components/menu/AddProductWizardModal.tsx';
 import { BulkDataImportModal } from './components/common/BulkDataImportModal.tsx';
 import { QuickOnboardingModal } from './components/common/QuickOnboardingModal.tsx';
+import { PublicMenuPage } from './components/menu/PublicMenuPage.tsx';
+import { MenuManagementModule } from './components/menu/MenuManagementModule.tsx';
+import { KitchenDisplaySystem } from './components/pos/KitchenDisplaySystem.tsx';
+import { QrTableManagerView } from './components/menu/QrTableManagerView.tsx';
+import { parseAppRoute } from './utils/urlRouter.ts';
 
 const AppContent: React.FC = () => {
   const { currentUser, currentEstablishment, activeView, setActiveView, switchRole } = useAuth();
   const [isRegistering, setIsRegistering] = useState(false);
+  const [route, setRoute] = useState(() => parseAppRoute());
+
+  React.useEffect(() => {
+    const handleUrlChange = () => {
+      setRoute(parseAppRoute());
+    };
+    window.addEventListener('popstate', handleUrlChange);
+    window.addEventListener('hashchange', handleUrlChange);
+    return () => {
+      window.removeEventListener('popstate', handleUrlChange);
+      window.removeEventListener('hashchange', handleUrlChange);
+    };
+  }, []);
 
   const {
     isAddIngredientModalOpen,
@@ -56,6 +74,24 @@ const AppContent: React.FC = () => {
   } = useBusiness();
 
   const estId = currentEstablishment?.id || 'default';
+
+  // 0. Public Electronic Menu Route (ZERO authentication required)
+  if (route.isPublicMenu) {
+    return (
+      <PublicMenuPage
+        establishmentCode={route.establishmentCode}
+        tableNumber={route.tableNumber}
+        onBackToApp={() => {
+          window.location.hash = '';
+          if (window.location.pathname.startsWith('/m/')) {
+            window.history.pushState(null, '', '/');
+          }
+          setRoute(parseAppRoute());
+          setActiveView('landing');
+        }}
+      />
+    );
+  }
 
   // 1. If actively viewing public landing page (or unauthenticated default)
   if (activeView === 'landing') {
@@ -104,6 +140,12 @@ const AppContent: React.FC = () => {
         return <SuperAdminDashboard />;
       case 'pos':
         return <PosModule />;
+      case 'kds':
+        return <KitchenDisplaySystem />;
+      case 'menu_management':
+        return <MenuManagementModule />;
+      case 'qr_tables':
+        return <QrTableManagerView />;
       case 'menu':
         return <MenuRecipeModule />;
       case 'cost_control':

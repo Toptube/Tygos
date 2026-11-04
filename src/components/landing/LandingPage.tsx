@@ -35,12 +35,17 @@ import {
   TrendingUp,
   FileCheck,
   Check,
+  QrCode,
+  Flame,
+  Smartphone,
+  ExternalLink,
 } from 'lucide-react';
 import { useI18n } from '../../i18n/I18nContext.tsx';
 import { LanguageSelector } from '../common/LanguageSelector.tsx';
 import { ThemeSwitcher } from '../common/ThemeSwitcher.tsx';
-import { TygosLogo, TYGOS_LOGO_SRC, TYGOS_COVER_SRC } from '../brand/TygosLogo.tsx';
+import { TygosLogo, TYGOS_LOGO_SRC, TYGOS_COVER_SRC, PermanentAppBrandBadge } from '../brand/TygosLogo.tsx';
 import { UserRole } from '../../types/index.ts';
+import { getMergedWhatsNew, qrMenuMarketingSection } from '../../data/landingContent.ts';
 
 interface LandingPageProps {
   onOpenRegister: () => void;
@@ -338,10 +343,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       dir={dir}
       className="min-h-screen bg-[#070b14] text-slate-100 flex flex-col selection:bg-cyan-500/30 selection:text-cyan-300 relative overflow-x-hidden font-sans"
     >
+      {/* 0. PERMANENT OFFICIAL BRAND BANNER WITH APP URL */}
+      <PermanentAppBrandBadge variant="banner" />
+
       {/* 1. TOP MARKETING NAVIGATION */}
       <nav className="h-18 sticky top-0 z-50 border-b border-slate-800/80 bg-[#070b14]/85 backdrop-blur-md px-4 sm:px-8 flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <TygosLogo variant="responsive-header" showSubtitle={false} />
+          <PermanentAppBrandBadge variant="header-pill" className="hidden sm:inline-flex" />
         </div>
 
         <div className="flex items-center gap-2 sm:gap-4">
@@ -439,6 +448,124 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             <div className="flex items-center gap-1.5">
               <Check className="w-4 h-4 text-emerald-400" />
               <span>{isAr ? 'بدون تعقيد محاسبي' : 'Zero accounting jargon'}</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 2.5. SECTION: WHAT'S NEW IN TYGOS (جديد في TYGOS) */}
+      <section className="py-12 px-4 sm:px-8 border-t border-slate-800/80 bg-gradient-to-b from-[#0a1122] to-[#070b14]">
+        <div className="max-w-6xl mx-auto space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/70 pb-4">
+            <div className="flex items-center gap-3">
+              <span className="flex h-3 w-3 relative">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-cyan-500"></span>
+              </span>
+              <h2 className="text-xl sm:text-2xl font-black text-white">
+                {isAr ? 'جديد في منظومة TYGOS' : "What's New in TYGOS"}
+              </h2>
+            </div>
+            <p className="text-xs text-slate-400">
+              {isAr ? 'تحديثات وميزات أضيفت حديثاً لتسهيل تشغيلك' : 'Latest tools added to streamline your operations'}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {getMergedWhatsNew().slice(0, 3).map((item) => (
+              <div
+                key={item.id}
+                className="p-5 rounded-2xl bg-slate-900/60 border border-slate-800 hover:border-cyan-500/40 transition-all space-y-3 relative overflow-hidden"
+              >
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-[10px] font-bold text-cyan-400 bg-cyan-500/10 border border-cyan-500/20 px-2 py-0.5 rounded-md">
+                    {item.badge || (isAr ? 'تحديث' : 'Update')}
+                  </span>
+                  <span className="text-[10px] text-slate-400">{item.date}</span>
+                </div>
+                <h3 className="text-sm font-bold text-white">
+                  {isAr ? item.titleAr : item.titleEn}
+                </h3>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  {isAr ? item.descAr : item.descEn}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 2.6. SECTION: QR ELECTRONIC MENU & STATION ROUTING (بوابة المنيو الإلكتروني) */}
+      <section id="qr-menu" className="py-20 px-4 sm:px-8 border-t border-slate-800/80 bg-gradient-to-br from-slate-950 via-[#071324] to-[#070b14] relative overflow-hidden">
+        <div className="max-w-6xl mx-auto space-y-12 relative z-10">
+          <div className="text-center space-y-3 max-w-3xl mx-auto">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold">
+              <QrCode className="w-3.5 h-3.5" />
+              <span>{isAr ? 'المرحلة الخامسة: المنيو الإلكتروني السريع' : 'Phase 5: Digital QR Menu'}</span>
+            </div>
+            <h2 className="text-2xl sm:text-4xl font-black text-white tracking-tight leading-snug">
+              {isAr ? qrMenuMarketingSection.headlineAr : qrMenuMarketingSection.headlineEn}
+            </h2>
+            <p className="text-xs sm:text-base text-slate-300 leading-relaxed">
+              {isAr ? qrMenuMarketingSection.subheadAr : qrMenuMarketingSection.subheadEn}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+            {qrMenuMarketingSection.features.map((feat, idx) => (
+              <div
+                key={idx}
+                className="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 hover:border-cyan-500/50 transition-all space-y-3 shadow-lg"
+              >
+                <div className="w-10 h-10 rounded-xl bg-cyan-500/15 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+                  {idx === 0 && <Smartphone className="w-5 h-5" />}
+                  {idx === 1 && <Flame className="w-5 h-5" />}
+                  {idx === 2 && <UtensilsCrossed className="w-5 h-5" />}
+                  {idx === 3 && <Shield className="w-5 h-5" />}
+                </div>
+                <h3 className="text-sm font-bold text-white">
+                  {isAr ? feat.titleAr : feat.titleEn}
+                </h3>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  {isAr ? feat.descAr : feat.descEn}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* Interactive Live Demo Bar for Customer QR Menu */}
+          <div className="p-6 rounded-2xl bg-cyan-950/30 border border-cyan-500/30 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3 text-start">
+              <div className="w-12 h-12 rounded-xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-300 shrink-0">
+                <QrCode className="w-6 h-6" />
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-white">
+                  {isAr ? 'عايز تشوف المنيو كأنك زبون في المطعم؟' : 'Experience it as a restaurant guest'}
+                </h4>
+                <p className="text-xs text-slate-400">
+                  {isAr ? 'ادخل على المنيو الإلكتروني التجريبي فوراً وبدون أي تسجيل دخول.' : 'Open the live customer demo menu with zero login required.'}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 flex-wrap justify-end w-full sm:w-auto">
+              <button
+                onClick={() => {
+                  window.location.hash = '#/m/R.0001?t=12';
+                }}
+                className="px-5 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs flex items-center gap-2 cursor-pointer transition-all shadow-md"
+              >
+                <span>{isAr ? 'معاينة منيو طاولة #12' : 'Preview Table #12 Menu'}</span>
+                <ArrowIcon className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => {
+                  if (onExploreDemo) onExploreDemo('marketing_officer');
+                }}
+                className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-medium text-xs flex items-center gap-2 cursor-pointer transition-colors"
+              >
+                <span>{isAr ? 'لوحة تحكم التسويق' : 'Marketing Dashboard'}</span>
+              </button>
             </div>
           </div>
         </div>
@@ -784,15 +911,22 @@ export const LandingPage: React.FC<LandingPageProps> = ({
         </div>
       </section>
 
-      {/* FOOTER */}
-      <footer className="py-6 px-4 sm:px-8 border-t border-slate-800 text-center text-xs text-slate-500">
-        <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <span className="font-bold text-slate-300">TYGOS</span>
-            <span>· {isAr ? 'منظومة إدارة الضيافة الشاملة والذكاء التشغيلي' : 'Hospitality ERP & Food Cost Intelligence'}</span>
+      {/* FOOTER WITH APPROVED EMBLEM & PRODUCTION APP LINK */}
+      <footer className="py-8 px-4 sm:px-8 border-t border-slate-800 text-center text-xs text-slate-500 bg-[#060911]">
+        <div className="max-w-5xl mx-auto space-y-6">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 pb-6 border-b border-slate-800/60">
+            <PermanentAppBrandBadge variant="card" className="w-full md:w-auto" />
+            <PermanentAppBrandBadge variant="footer" />
           </div>
-          <div>
-            <span>© 2026 TYGOS Systems. {isAr ? 'جميع الحقوق محفوظة' : 'All rights reserved.'}</span>
+
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-slate-400 text-xs">
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-white">TYGOS</span>
+              <span>· {isAr ? 'منظومة إدارة الضيافة الشاملة والذكاء التشغيلي (المرحلة الرابعة)' : 'Hospitality ERP & Food Cost Intelligence (Phase 4 Final)'}</span>
+            </div>
+            <div>
+              <span>© 2026 TYGOS Systems. {isAr ? 'جميع الحقوق محفوظة' : 'All rights reserved.'}</span>
+            </div>
           </div>
         </div>
       </footer>

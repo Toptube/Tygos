@@ -21,21 +21,52 @@ import {
   Receipt,
   Search,
   X,
+  Bell,
+  QrCode,
 } from 'lucide-react';
 import { MOCK_MENU_ITEMS, MOCK_TABLES } from '../../data/mockData.ts';
 import { MenuItem, OrderItem, PosOrderMode, PosTable, TableStatus } from '../../types/index.ts';
 import { useSync } from '../../sync/SyncContext.tsx';
 import { useI18n } from '../../i18n/I18nContext.tsx';
+import { useAuth } from '../../context/AuthContext.tsx';
+import { IncomingOrdersDrawer } from './IncomingOrdersDrawer.tsx';
+import { orderTransport } from '../../services/orderTransport.ts';
+import { CustomerOrder } from '../../domain/qrMenuTypes.ts';
 
 export const PosModule: React.FC = () => {
   const { addMockChange, isOnline } = useSync();
   const { t, formatCurrency, formatNumber, isRtl } = useI18n();
+  const { currentEstablishment } = useAuth();
+  const estId = currentEstablishment?.id || 'default';
 
   const [mode, setMode] = useState<PosOrderMode>('dine_in');
   const [selectedSection, setSelectedSection] = useState<string>('All');
   const [selectedTable, setSelectedTable] = useState<PosTable | null>(MOCK_TABLES[0]);
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [itemSearch, setItemSearch] = useState('');
+
+  // Incoming QR Customer Orders state
+  const [isIncomingDrawerOpen, setIsIncomingDrawerOpen] = useState(false);
+  const [pendingQrCount, setPendingQrCount] = useState(0);
+
+  React.useEffect(() => {
+    const updateCount = () => {
+      const pending = orderTransport.getOrders(estId).filter(o => o.status === 'pending_approval').length;
+      setPendingQrCount(pending);
+    };
+    updateCount();
+    const unsub = orderTransport.subscribe((event) => {
+      if (
+        event.type === 'ORDER_SUBMITTED' ||
+        event.type === 'ORDER_STATUS_CHANGED' ||
+        event.type === 'ORDER_UPDATED' ||
+        event.type === 'ORDER_REJECTED'
+      ) {
+        updateCount();
+      }
+    });
+    return unsub;
+  }, [estId]);
 
   // Cart State
   const [cart, setCart] = useState<OrderItem[]>([
@@ -99,7 +130,7 @@ export const PosModule: React.FC = () => {
           unitPrice: product.sellingPrice,
           totalPrice: product.sellingPrice,
           department: product.department,
-          selectedModifiers: product.modifiers.slice(0, 1),
+          selectedModifiers: product.modifiers ? product.modifiers.slice(0, 1) : [],
         },
       ];
     });
@@ -175,7 +206,26 @@ export const PosModule: React.FC = () => {
           </button>
         </div>
 
-        <div className="flex items-center gap-3 text-xs">
+        <div className="flex items-center gap-2 sm:gap-3 text-xs flex-wrap">
+          {/* Incoming QR Orders Button */}
+          <button
+            onClick={() => setIsIncomingDrawerOpen(true)}
+            className={`relative flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              pendingQrCount > 0
+                ? 'bg-amber-500 hover:bg-amber-600 text-slate-950 animate-pulse shadow-sm shadow-amber-500/30'
+                : 'bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300'
+            }`}
+            title={isRtl ? 'طلبات المنيو الإلكتروني QR الواردة' : 'Incoming QR Orders'}
+          >
+            <Bell className={`w-4 h-4 ${pendingQrCount > 0 ? 'text-slate-950 fill-slate-950' : 'text-cyan-500'}`} />
+            <span>{isRtl ? 'طلبات QR الواردة' : 'Incoming QR'}</span>
+            {pendingQrCount > 0 && (
+              <span className="flex items-center justify-center min-w-[20px] h-5 px-1.5 text-[11px] font-black rounded-full bg-red-600 text-white shadow-xs">
+                {pendingQrCount}
+              </span>
+            )}
+          </button>
+
           {mode === 'dine_in' && selectedTable && (
             <div className="flex items-center gap-2 px-3 py-1.5 bg-cyan-50 dark:bg-cyan-950/40 border border-cyan-500/30 rounded-lg text-cyan-700 dark:text-cyan-300">
               <span className="font-bold">{t('pos.activeTable')}</span>
@@ -606,6 +656,18 @@ export const PosModule: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Real-time Incoming QR Orders Drawer */}
+      <IncomingOrdersDrawer
+        isOpen={isIncomingDrawerOpen}
+        onClose={() => setIsIncomingDrawerOpen(false)}
+        onOrderApprovedToPos={(approvedOrder) => {
+          if (approvedOrder.tableNumber) {
+            const matched = MOCK_TABLES.find((t) => t.tableNumber === approvedOrder.tableNumber);
+            if (matched) setSelectedTable(matched);
+          }
+        }}
+      />
     </div>
   );
 };

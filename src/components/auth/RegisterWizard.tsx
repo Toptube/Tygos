@@ -19,6 +19,7 @@ import { useAuth } from '../../context/AuthContext.tsx';
 import { useI18n } from '../../i18n/I18nContext.tsx';
 import { BusinessType, Establishment } from '../../types/index.ts';
 import { TygosLogo } from '../brand/TygosLogo.tsx';
+import { PermanentAppBrandBadge } from '../brand/PermanentAppBrandBadge.tsx';
 import { LanguageSelector } from '../common/LanguageSelector.tsx';
 
 export const RegisterWizard: React.FC<{ onCancel: () => void }> = ({ onCancel }) => {
@@ -181,6 +182,9 @@ export const RegisterWizard: React.FC<{ onCancel: () => void }> = ({ onCancel })
             </div>
           </div>
 
+          {/* Permanent Verified Production Link Card */}
+          <PermanentAppBrandBadge variant="card" className="mb-6 text-start" />
+
           <button
             type="button"
             onClick={handleFinishAndEnter}
@@ -200,8 +204,11 @@ export const RegisterWizard: React.FC<{ onCancel: () => void }> = ({ onCancel })
       className="min-h-screen py-10 px-4 bg-[#070b14] text-slate-100 flex flex-col items-center justify-center"
     >
       <div className="w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-2xl relative">
-        <div className="flex items-center justify-between pb-6 border-b border-slate-800">
-          <TygosLogo variant="compact" />
+        <div className="flex items-center justify-between gap-2 pb-6 border-b border-slate-800">
+          <div className="flex items-center gap-3">
+            <TygosLogo variant="compact" />
+            <PermanentAppBrandBadge variant="header-pill" className="hidden md:inline-flex" />
+          </div>
           <div className="flex items-center gap-3">
             <LanguageSelector variant="header" />
             <button

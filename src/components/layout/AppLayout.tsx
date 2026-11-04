@@ -30,11 +30,15 @@ import {
   Compass,
   Activity,
   Settings,
+  QrCode,
+  Flame,
+  Smartphone,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.tsx';
 import { useI18n } from '../../i18n/I18nContext.tsx';
 import { useBusiness } from '../../context/BusinessContext.tsx';
 import { TygosLogo, TYGOS_LOGO_SRC } from '../brand/TygosLogo.tsx';
+import { PermanentAppBrandBadge } from '../brand/PermanentAppBrandBadge.tsx';
 import { LanguageSelector } from '../common/LanguageSelector.tsx';
 import { ThemeSwitcher } from '../common/ThemeSwitcher.tsx';
 import { ConnectivityStatus } from '../common/ConnectivityStatus.tsx';
@@ -86,6 +90,7 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
     public_relations: { ar: 'علاقات الضيوف وكبار الشخصيات', en: 'Guest Relations' },
     kitchen_manager: { ar: 'رئيس الطهاة (شيف المطبخ)', en: 'Executive Chef' },
     bar_manager: { ar: 'مدير قسم المشروبات والبار', en: 'Bar & Beverage Manager' },
+    marketing_officer: { ar: 'مسؤول التسويق والمنيو', en: 'Marketing & Menu Officer' },
     waiter: { ar: 'مقدم خدمة (نادل)', en: 'Service Waiter' },
   };
 
@@ -101,6 +106,7 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
         'financial_accountant',
         'cost_accountant',
         'store_manager',
+        'marketing_officer',
         'super_admin',
       ],
     },
@@ -109,6 +115,24 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
       label: t('navigation.pos', 'Point of Sale (POS)'),
       icon: UtensilsCrossed,
       roles: ['cashier', 'waiter', 'general_manager', 'tenant_admin', 'super_admin'],
+    },
+    {
+      id: 'kds',
+      label: isAr ? 'شاشات المطبخ (KDS)' : 'Kitchen Stations (KDS)',
+      icon: Flame,
+      roles: ['kitchen_manager', 'bar_manager', 'tenant_admin', 'general_manager', 'cashier', 'super_admin'],
+    },
+    {
+      id: 'menu_management',
+      label: isAr ? 'إدارة المنيو والصور' : 'Menu & Visuals',
+      icon: QrCode,
+      roles: ['tenant_admin', 'general_manager', 'marketing_officer', 'super_admin'],
+    },
+    {
+      id: 'qr_tables',
+      label: isAr ? 'ملصقات QR للطاولات' : 'Table QR Stickers',
+      icon: Smartphone,
+      roles: ['tenant_admin', 'general_manager', 'marketing_officer', 'cashier', 'super_admin'],
     },
     {
       id: 'menu',
@@ -267,12 +291,13 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
           )}
         </div>
 
-        {/* Zone 2: Universal Search Affordance (Medium & Large screens) */}
-        <div className="hidden md:flex items-center flex-1 max-w-sm mx-2">
+        {/* Zone 2: Universal Search Affordance & Permanent App Brand Link */}
+        <div className="hidden lg:flex items-center gap-3 flex-1 max-w-xl mx-2">
+          <PermanentAppBrandBadge variant="header-pill" />
           <button
             type="button"
             onClick={() => setIsSearchOpen(true)}
-            className="w-full flex items-center justify-between px-3.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400 hover:border-cyan-500/50 transition-colors cursor-pointer"
+            className="flex-1 flex items-center justify-between px-3.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400 hover:border-cyan-500/50 transition-colors cursor-pointer"
           >
             <div className="flex items-center gap-2">
               <Search className="w-3.5 h-3.5 text-cyan-500" />
@@ -282,6 +307,11 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
               ⌘K
             </span>
           </button>
+        </div>
+
+        {/* Medium screens Search only */}
+        <div className="hidden md:flex lg:hidden items-center flex-1 max-w-xs mx-2">
+          <PermanentAppBrandBadge variant="header-pill" />
         </div>
 
         {/* Zone 3: Essential Actions & Utilities (Clean on Mobile) */}
@@ -428,6 +458,9 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
                 </button>
               </div>
 
+              {/* Permanent Approved Logo & Verified App URL Card */}
+              <PermanentAppBrandBadge variant="card" />
+
               {/* Establishment Code Lockup */}
               {currentEstablishment && (
                 <div className="p-3 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
@@ -566,8 +599,10 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
             })}
           </div>
 
-          {/* Sidebar Footer: Quick Guided Tour & Landing link */}
+          {/* Sidebar Footer: Permanent Brand Link & Quick Guided Tour */}
           <div className="space-y-2 mt-4">
+            <PermanentAppBrandBadge variant="card" />
+
             <button
               onClick={() => setIsTourOpen(true)}
               className="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:border-cyan-500/40 flex items-center justify-between cursor-pointer transition-colors"
@@ -608,19 +643,16 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
       {/* 4. Guided Tour Modal Component */}
       <GuidedTourModal isOpen={isTourOpen} onClose={() => setIsTourOpen(false)} />
 
-      {/* 5. Minimal Footer */}
+      {/* 5. Minimal Footer with Approved Logo & Live App URL */}
       <footer className="py-2.5 px-4 bg-white dark:bg-[#0b101e] border-t border-slate-200 dark:border-slate-800 text-[11px] text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-2 shrink-0">
-        <div className="flex items-center gap-2">
-          <span className="font-bold text-slate-800 dark:text-slate-200">Tygos</span>
-          <span>· {t('brand.tagline', 'Hospitality ERP & Intelligence Platform')}</span>
-        </div>
+        <PermanentAppBrandBadge variant="footer" />
         <div className="flex items-center gap-3 font-mono text-[10px]">
           <span>{isAr ? 'العربية (الافتراضية)' : 'Arabic (Primary)'}</span>
           <span>·</span>
           <span>{dir.toUpperCase()}</span>
           <span>·</span>
           <span className="text-cyan-500 font-bold">
-            {isAr ? 'المرحلة 3 · الذكاء المترابط وتجربة الجوال' : 'Phase 3 · Mobile-First Connected SaaS'}
+            {isAr ? 'المرحلة الرابعة · النسخة الشاملة النهائية المعتمدة' : 'Phase 4 · Complete Final Edition'}
           </span>
         </div>
       </footer>

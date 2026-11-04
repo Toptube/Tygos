@@ -22,10 +22,13 @@ import {
   Moon,
   Sun,
   Shield,
+  QrCode,
+  Smartphone,
+  Info,
 } from 'lucide-react';
 import { useI18n } from '../../i18n/I18nContext.tsx';
 import { useAuth } from '../../context/AuthContext.tsx';
-import { dataService } from '../../services/dataService.ts';
+import { dataService, VenueSettings } from '../../services/dataService.ts';
 import { useBusiness } from '../../context/BusinessContext.tsx';
 
 export const SettingsModule: React.FC = () => {
@@ -45,10 +48,37 @@ export const SettingsModule: React.FC = () => {
   const [targetMargin, setTargetMargin] = useState('70');
   const [numberFormat, setNumberFormat] = useState<'standard' | 'european'>('standard');
 
+  // Phase 5 QR Menu & Public App URL settings
+  const [publicAppUrl, setPublicAppUrl] = useState(() =>
+    typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'
+  );
+  const [autoAcceptOrders, setAutoAcceptOrders] = useState(false);
+  const [deliveryFee, setDeliveryFee] = useState('5.0');
+
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [backupMessage, setBackupMessage] = useState<string | null>(null);
 
-  const handleSaveSettings = () => {
+  React.useEffect(() => {
+    const loadSettings = async () => {
+      const v = await dataService.getVenueSettings(estId);
+      if (v.publicAppUrl) setPublicAppUrl(v.publicAppUrl);
+      if (v.currency) setCurrency(v.currency);
+      if (v.taxStandard !== undefined) setTaxStandard(String(v.taxStandard));
+      if (v.autoAcceptOrders !== undefined) setAutoAcceptOrders(v.autoAcceptOrders);
+      if (v.deliveryFee !== undefined) setDeliveryFee(String(v.deliveryFee));
+    };
+    loadSettings();
+  }, [estId]);
+
+  const handleSaveSettings = async () => {
+    await dataService.saveVenueSettings(estId, {
+      publicAppUrl,
+      currency,
+      taxStandard: parseFloat(taxStandard) || 14.0,
+      autoAcceptOrders,
+      deliveryFee: parseFloat(deliveryFee) || 5.0,
+      targetMargin: parseFloat(targetMargin) || 70,
+    });
     setSavedSuccess(true);
     setTimeout(() => setSavedSuccess(false), 2500);
   };
@@ -277,6 +307,90 @@ export const SettingsModule: React.FC = () => {
               value={targetMargin}
               onChange={(e) => setTargetMargin(e.target.value)}
               className="w-full px-3 py-2 text-xs font-mono rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:outline-none"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* 3. QR Menu & Public App URL (المرحلة الخامسة) */}
+      <div className="p-5 rounded-2xl bg-white dark:bg-[#0b101e] border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
+        <div className="flex items-center gap-2 pb-2 border-b border-slate-100 dark:border-slate-800/80">
+          <QrCode className="w-4 h-4 text-cyan-500" />
+          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+            {isAr ? 'المنيو الإلكتروني ورابط التطبيق (QR Menu)' : 'Public App URL & QR Menu'}
+          </h2>
+        </div>
+
+        {/* Prototype Environment Notice */}
+        <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-start gap-2.5 text-xs text-amber-700 dark:text-amber-300">
+          <Info className="w-4 h-4 shrink-0 mt-0.5" />
+          <div className="space-y-0.5">
+            <span className="font-bold">
+              {isAr ? 'ملاحظة تشغيلية للمرحلة الحالية:' : 'Prototype Simulation Notice:'}
+            </span>
+            <p className="text-[11px] leading-relaxed text-amber-800 dark:text-amber-200">
+              {isAr
+                ? '«التجربة الحالية تعمل داخل نفس المتصفح فقط». يتم التزامن اللحظي بين شاشة العميل والكاشير وشاشات المطبخ عبر قنوات البث المحلية (BroadcastChannel) دون أي خوادم خارجية.'
+                : '“Current prototype sync operates locally inside the same browser only”. Real-time sync between customer QR, cashier, and KDS is powered by in-browser BroadcastChannels without external servers.'}
+            </p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="sm:col-span-2">
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+              {isAr ? 'رابط التطبيق المعتمد (Public App URL)' : 'Public App URL'}
+            </label>
+            <div className="flex items-center gap-2">
+              <input
+                type="url"
+                value={publicAppUrl}
+                onChange={(e) => setPublicAppUrl(e.target.value)}
+                placeholder="https://example.com"
+                className="w-full px-3 py-2 text-xs font-mono rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:outline-none"
+              />
+              <button
+                type="button"
+                onClick={() => setPublicAppUrl(window.location.origin)}
+                className="px-3 py-2 text-xs font-semibold rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 shrink-0 cursor-pointer"
+              >
+                {isAr ? 'الافتراضي' : 'Reset Origin'}
+              </button>
+            </div>
+            <p className="text-[10px] text-slate-500 mt-1">
+              {isAr
+                ? 'يستخدم في توليد شارات وروابط ورموز QR للمنيو الإلكتروني وطاولات الصالة.'
+                : 'Used when generating customer QR codes, table stickers, and copyable links.'}
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+              {isAr ? 'رسوم التوصيل الافتراضية (Delivery Fee)' : 'Default Delivery Fee'}
+            </label>
+            <input
+              type="number"
+              step="0.5"
+              value={deliveryFee}
+              onChange={(e) => setDeliveryFee(e.target.value)}
+              className="w-full px-3 py-2 text-xs font-mono rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:outline-none"
+            />
+          </div>
+
+          <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/80">
+            <div>
+              <span className="text-xs font-bold text-slate-700 dark:text-slate-200 block">
+                {isAr ? 'قبول طلبات QR تلقائياً' : 'Auto-Accept QR Orders'}
+              </span>
+              <span className="text-[10px] text-slate-500">
+                {isAr ? 'تخطي موافقة الكاشير اليدوية' : 'Bypass manual cashier approval'}
+              </span>
+            </div>
+            <input
+              type="checkbox"
+              checked={autoAcceptOrders}
+              onChange={(e) => setAutoAcceptOrders(e.target.checked)}
+              className="w-4 h-4 accent-cyan-500 cursor-pointer"
             />
           </div>
         </div>
