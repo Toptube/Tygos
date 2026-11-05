@@ -28,8 +28,10 @@ import {
 } from 'lucide-react';
 import { useI18n } from '../../i18n/I18nContext.tsx';
 import { useAuth } from '../../context/AuthContext.tsx';
-import { dataService, VenueSettings } from '../../services/dataService.ts';
+import { dataService, VenueSettings, DeliveryZone } from '../../services/dataService.ts';
 import { useBusiness } from '../../context/BusinessContext.tsx';
+import { useSync } from '../../sync/SyncContext.tsx';
+import { DeploymentMode, DeviceRole } from '../../sync/syncTypes.ts';
 
 export const SettingsModule: React.FC = () => {
   const { language, setLanguage, t } = useI18n();
@@ -55,6 +57,37 @@ export const SettingsModule: React.FC = () => {
   const [autoAcceptOrders, setAutoAcceptOrders] = useState(false);
   const [deliveryFee, setDeliveryFee] = useState('5.0');
 
+  const {
+    deploymentMode,
+    serverBaseUrl,
+    registeredDevices,
+    setDeploymentConfig,
+    registerDevice,
+    removeDevice,
+  } = useSync();
+
+  const [menuThemeColor, setMenuThemeColor] = useState('#06b6d4');
+  const [hideUnavailable, setHideUnavailable] = useState(false);
+  const [orderHoursStart, setOrderHoursStart] = useState('09:00');
+  const [orderHoursEnd, setOrderHoursEnd] = useState('23:30');
+  const [minDeliveryOrder, setMinDeliveryOrder] = useState('15');
+  const [welcomeMessageAr, setWelcomeMessageAr] = useState('أهلاً بكم في منيو TYGOS الإلكتروني');
+  const [welcomeMessageEn, setWelcomeMessageEn] = useState('Welcome to TYGOS Digital Menu');
+  const [loyaltyEnabled, setLoyaltyEnabled] = useState(true);
+  const [loyaltyPointsPerUnit, setLoyaltyPointsPerUnit] = useState('1');
+  const [loyaltyRedeemValue, setLoyaltyRedeemValue] = useState('0.05');
+  const [deliveryZones, setDeliveryZones] = useState<DeliveryZone[]>([
+    { id: 'z-1', nameAr: 'المنطقة المركزية', nameEn: 'Central Zone', fee: 5 },
+    { id: 'z-2', nameAr: 'الأحياء المجاورة', nameEn: 'Nearby Districts', fee: 8 },
+  ]);
+  const [newZoneName, setNewZoneName] = useState('');
+  const [newZoneFee, setNewZoneFee] = useState('6');
+
+  const [modeInput, setModeInput] = useState<DeploymentMode>(deploymentMode);
+  const [serverUrlInput, setServerUrlInput] = useState(serverBaseUrl);
+  const [newDevName, setNewDevName] = useState('');
+  const [newDevRole, setNewDevRole] = useState<DeviceRole>('cashier');
+
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [backupMessage, setBackupMessage] = useState<string | null>(null);
 
@@ -66,6 +99,17 @@ export const SettingsModule: React.FC = () => {
       if (v.taxStandard !== undefined) setTaxStandard(String(v.taxStandard));
       if (v.autoAcceptOrders !== undefined) setAutoAcceptOrders(v.autoAcceptOrders);
       if (v.deliveryFee !== undefined) setDeliveryFee(String(v.deliveryFee));
+      if (v.menuThemeColor) setMenuThemeColor(v.menuThemeColor);
+      if (v.hideUnavailableMenuItems !== undefined) setHideUnavailable(v.hideUnavailableMenuItems);
+      if (v.orderHoursStart) setOrderHoursStart(v.orderHoursStart);
+      if (v.orderHoursEnd) setOrderHoursEnd(v.orderHoursEnd);
+      if (v.minDeliveryOrder !== undefined) setMinDeliveryOrder(String(v.minDeliveryOrder));
+      if (v.welcomeMessageAr) setWelcomeMessageAr(v.welcomeMessageAr);
+      if (v.welcomeMessageEn) setWelcomeMessageEn(v.welcomeMessageEn);
+      if (v.deliveryZones && v.deliveryZones.length > 0) setDeliveryZones(v.deliveryZones);
+      if (v.loyaltyEnabled !== undefined) setLoyaltyEnabled(v.loyaltyEnabled);
+      if (v.loyaltyPointsPerUnit !== undefined) setLoyaltyPointsPerUnit(String(v.loyaltyPointsPerUnit));
+      if (v.loyaltyRedeemValue !== undefined) setLoyaltyRedeemValue(String(v.loyaltyRedeemValue));
     };
     loadSettings();
   }, [estId]);
@@ -78,7 +122,19 @@ export const SettingsModule: React.FC = () => {
       autoAcceptOrders,
       deliveryFee: parseFloat(deliveryFee) || 5.0,
       targetMargin: parseFloat(targetMargin) || 70,
+      menuThemeColor,
+      hideUnavailableMenuItems: hideUnavailable,
+      orderHoursStart,
+      orderHoursEnd,
+      minDeliveryOrder: parseFloat(minDeliveryOrder) || 0,
+      deliveryZones,
+      welcomeMessageAr,
+      welcomeMessageEn,
+      loyaltyEnabled,
+      loyaltyPointsPerUnit: parseFloat(loyaltyPointsPerUnit) || 1,
+      loyaltyRedeemValue: parseFloat(loyaltyRedeemValue) || 0.05,
     });
+    setDeploymentConfig(modeInput, serverUrlInput.trim());
     setSavedSuccess(true);
     setTimeout(() => setSavedSuccess(false), 2500);
   };
@@ -392,6 +448,296 @@ export const SettingsModule: React.FC = () => {
               onChange={(e) => setAutoAcceptOrders(e.target.checked)}
               className="w-4 h-4 accent-cyan-500 cursor-pointer"
             />
+          </div>
+
+          {/* Menu Theme, Hours, Min Order, Welcome Message & Delivery Zones */}
+          <div>
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+              {isAr ? 'لون ثيم المنيو العام' : 'Public Menu Theme Color'}
+            </label>
+            <input
+              type="color"
+              value={menuThemeColor}
+              onChange={(e) => setMenuThemeColor(e.target.value)}
+              className="w-full h-9 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 cursor-pointer"
+            />
+          </div>
+
+          <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800/80">
+            <div>
+              <span className="text-xs font-bold text-slate-700 dark:text-slate-200 block">
+                {isAr ? 'إخفاء الأصناف غير المتاحة' : 'Hide Unavailable Items'}
+              </span>
+              <span className="text-[10px] text-slate-500">
+                {isAr ? 'عدم عرض الأصناف النافدة في المنيو العام' : 'Hide sold-out items from public menu'}
+              </span>
+            </div>
+            <input
+              type="checkbox"
+              checked={hideUnavailable}
+              onChange={(e) => setHideUnavailable(e.target.checked)}
+              className="w-4 h-4 accent-cyan-500 cursor-pointer"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+              {isAr ? 'ساعات استقبال الطلبات (من - إلى)' : 'Order Reception Hours (Start - End)'}
+            </label>
+            <div className="flex items-center gap-2">
+              <input
+                type="time"
+                value={orderHoursStart}
+                onChange={(e) => setOrderHoursStart(e.target.value)}
+                className="flex-1 px-2.5 py-2 text-xs font-mono rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800"
+              />
+              <input
+                type="time"
+                value={orderHoursEnd}
+                onChange={(e) => setOrderHoursEnd(e.target.value)}
+                className="flex-1 px-2.5 py-2 text-xs font-mono rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+              {isAr ? 'الحد الأدنى لطلب التوصيل' : 'Minimum Delivery Order'}
+            </label>
+            <input
+              type="number"
+              min="0"
+              value={minDeliveryOrder}
+              onChange={(e) => setMinDeliveryOrder(e.target.value)}
+              className="w-full px-3 py-2 text-xs font-mono rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800"
+            />
+          </div>
+
+          <div className="sm:col-span-2">
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+              {isAr ? 'رسالة الترحيب في المنيو العام (عربي / إنجليزي)' : 'Public Menu Welcome Message (AR / EN)'}
+            </label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <input
+                type="text"
+                value={welcomeMessageAr}
+                onChange={(e) => setWelcomeMessageAr(e.target.value)}
+                placeholder="رسالة الترحيب بالعربية"
+                className="px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800"
+              />
+              <input
+                type="text"
+                value={welcomeMessageEn}
+                onChange={(e) => setWelcomeMessageEn(e.target.value)}
+                placeholder="Welcome message in English"
+                className="px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800"
+              />
+            </div>
+          </div>
+
+          {/* Delivery Zones */}
+          <div className="sm:col-span-2 space-y-2 pt-2 border-t border-slate-200 dark:border-slate-800">
+            <div className="text-xs font-bold text-slate-700 dark:text-slate-300">
+              {isAr ? 'مناطق التوصيل ورسوم كل منطقة' : 'Delivery Zones & Fees'}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {deliveryZones.map((z) => (
+                <div
+                  key={z.id}
+                  className="px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs flex items-center gap-2"
+                >
+                  <span>{isAr ? z.nameAr : z.nameEn}</span>
+                  <span className="font-mono font-bold text-cyan-600 dark:text-cyan-400">
+                    {z.fee} {currency}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setDeliveryZones(deliveryZones.filter((item) => item.id !== z.id))}
+                    className="text-rose-500 text-xs cursor-pointer"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                value={newZoneName}
+                onChange={(e) => setNewZoneName(e.target.value)}
+                placeholder={isAr ? 'اسم المنطقة...' : 'Zone name...'}
+                className="flex-1 px-3 py-1.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800"
+              />
+              <input
+                type="number"
+                value={newZoneFee}
+                onChange={(e) => setNewZoneFee(e.target.value)}
+                placeholder={isAr ? 'الرسوم' : 'Fee'}
+                className="w-24 px-3 py-1.5 text-xs font-mono rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800"
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  if (!newZoneName.trim()) return;
+                  setDeliveryZones([
+                    ...deliveryZones,
+                    {
+                      id: `z-${Date.now()}`,
+                      nameAr: newZoneName.trim(),
+                      nameEn: newZoneName.trim(),
+                      fee: parseFloat(newZoneFee) || 0,
+                    },
+                  ]);
+                  setNewZoneName('');
+                }}
+                className="px-3 py-1.5 rounded-xl bg-cyan-600 text-white text-xs font-bold cursor-pointer"
+              >
+                {isAr ? 'إضافة منطقة' : 'Add Zone'}
+              </button>
+            </div>
+          </div>
+
+          {/* Loyalty Program Settings */}
+          <div className="sm:col-span-2 space-y-2 pt-2 border-t border-slate-200 dark:border-slate-800">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                {isAr ? 'برنامج نقاط الولاء للعملاء' : 'Customer Loyalty Points Program'}
+              </span>
+              <input
+                type="checkbox"
+                checked={loyaltyEnabled}
+                onChange={(e) => setLoyaltyEnabled(e.target.checked)}
+                className="w-4 h-4 accent-cyan-500 cursor-pointer"
+              />
+            </div>
+            {loyaltyEnabled && (
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[11px] text-slate-500 mb-1">
+                    {isAr ? 'نقاط مكتسبة لكل وحدة عملة' : 'Points Earned per Currency Unit'}
+                  </label>
+                  <input
+                    type="number"
+                    step="0.5"
+                    value={loyaltyPointsPerUnit}
+                    onChange={(e) => setLoyaltyPointsPerUnit(e.target.value)}
+                    className="w-full px-3 py-1.5 text-xs font-mono rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] text-slate-500 mb-1">
+                    {isAr ? 'قيمة الخصم لكل نقطة عند الاستبدال' : 'Discount Value per Redeemed Point'}
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={loyaltyRedeemValue}
+                    onChange={(e) => setLoyaltyRedeemValue(e.target.value)}
+                    className="w-full px-3 py-1.5 text-xs font-mono rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* 3.5 Deployment Mode & Registered Devices (Phase 6 Architecture Readiness) */}
+      <div className="p-5 rounded-2xl bg-white dark:bg-[#0b101e] border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
+        <div className="flex items-center gap-2 pb-2 border-b border-slate-100 dark:border-slate-800/80">
+          <Globe2 className="w-4 h-4 text-cyan-500" />
+          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+            {isAr ? 'وضع التشغيل والمزامنة وتسجيل الأجهزة' : 'Deployment Mode & Registered Devices'}
+          </h2>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+              {isAr ? 'وضع التشغيل (Deployment Mode)' : 'Deployment Mode'}
+            </label>
+            <select
+              value={modeInput}
+              onChange={(e) => setModeInput(e.target.value as DeploymentMode)}
+              className="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800"
+            >
+              <option value="standalone">{isAr ? 'مستقل محلياً (Standalone)' : 'Standalone (Browser Local)'}</option>
+              <option value="cloud">{isAr ? 'سحابي أونلاين (Cloud Server)' : 'Cloud Server (Online)'}</option>
+              <option value="local">{isAr ? 'سيرفر محلي بالمنشأة (Local LAN)' : 'Local LAN Server'}</option>
+              <option value="hybrid">{isAr ? 'هجين (Hybrid Offline-First)' : 'Hybrid (Offline-First + Sync)'}</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+              {isAr ? 'عنوان الخادم (Server Base URL)' : 'Server Base URL'}
+            </label>
+            <input
+              type="url"
+              value={serverUrlInput}
+              onChange={(e) => setServerUrlInput(e.target.value)}
+              placeholder="http://192.168.1.50:4000"
+              className="w-full px-3 py-2 text-xs font-mono rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800"
+            />
+          </div>
+        </div>
+
+        {/* Registered Devices List */}
+        <div className="space-y-2 pt-2 border-t border-slate-200 dark:border-slate-800">
+          <div className="text-xs font-bold text-slate-700 dark:text-slate-300">
+            {isAr ? 'الأجهزة المسجلة في المنشأة (لتوجيه التذاكر والطابعات)' : 'Registered Venue Devices'}
+          </div>
+          <div className="divide-y divide-slate-200 dark:divide-slate-800">
+            {registeredDevices.map((dev) => (
+              <div key={dev.id} className="py-2 flex items-center justify-between text-xs">
+                <div>
+                  <span className="font-bold text-slate-900 dark:text-white">{dev.name}</span>
+                  <span className="mx-2 text-slate-400">·</span>
+                  <span className="font-mono text-cyan-600 dark:text-cyan-400">{dev.role}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => removeDevice(dev.id)}
+                  className="text-xs text-rose-500 cursor-pointer"
+                >
+                  {isAr ? 'حذف' : 'Remove'}
+                </button>
+              </div>
+            ))}
+          </div>
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 pt-1">
+            <input
+              type="text"
+              value={newDevName}
+              onChange={(e) => setNewDevName(e.target.value)}
+              placeholder={isAr ? 'اسم الجهاز (مثلاً: كاشير 2)...' : 'Device name...'}
+              className="flex-1 px-3 py-1.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800"
+            />
+            <select
+              value={newDevRole}
+              onChange={(e) => setNewDevRole(e.target.value as DeviceRole)}
+              className="px-3 py-1.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800"
+            >
+              <option value="cashier">{isAr ? 'كاشير' : 'Cashier'}</option>
+              <option value="kitchen">{isAr ? 'مطبخ' : 'Kitchen'}</option>
+              <option value="bar">{isAr ? 'بار' : 'Bar'}</option>
+              <option value="kds_display">{isAr ? 'شاشة عرض' : 'KDS Display'}</option>
+            </select>
+            <button
+              type="button"
+              onClick={() => {
+                if (!newDevName.trim()) return;
+                registerDevice({
+                  name: newDevName.trim(),
+                  role: newDevRole,
+                  isActive: true,
+                });
+                setNewDevName('');
+              }}
+              className="px-3 py-1.5 rounded-xl bg-cyan-600 text-white text-xs font-bold cursor-pointer"
+            >
+              {isAr ? 'تسجيل جهاز' : 'Register Device'}
+            </button>
           </div>
         </div>
       </div>

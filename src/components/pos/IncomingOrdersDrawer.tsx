@@ -31,6 +31,7 @@ import { CustomerOrder, CustomerOrderItem, PREP_STATIONS } from '../../domain/qr
 import { orderTransport } from '../../services/orderTransport.ts';
 import { dataService } from '../../services/dataService.ts';
 import { printerService } from '../../services/printerService.ts';
+import { customerService } from '../../services/customerService.ts';
 
 interface IncomingOrdersDrawerProps {
   isOpen: boolean;
@@ -53,6 +54,7 @@ export const IncomingOrdersDrawer: React.FC<IncomingOrdersDrawerProps> = ({
   const [rejectingOrderId, setRejectingOrderId] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState('');
   const [audioEnabled, setAudioEnabled] = useState(true);
+  const [driverInputs, setDriverInputs] = useState<Record<string, { name: string; phone: string }>>({});
 
   // Load and subscribe
   useEffect(() => {
@@ -90,15 +92,30 @@ export const IncomingOrdersDrawer: React.FC<IncomingOrdersDrawerProps> = ({
 
   const pendingOrders = orders.filter((o) => o.status === 'pending_approval');
   const activeStationOrders = orders.filter(
-    (o) => o.status === 'approved' || o.status === 'preparing' || o.status === 'ready'
+    (o) =>
+      o.status === 'approved' ||
+      o.status === 'preparing' ||
+      o.status === 'ready' ||
+      o.status === 'out_for_delivery'
   );
 
-  // Approve Order: Generates Serial #, updates status, dispatches to KDS & POS
+  // Approve Order: Generates Serial #, links CRM customer, updates status, dispatches to KDS & POS
   const handleApprove = async (order: CustomerOrder) => {
-    // Generate incremental serial number
     const serialNumber = await dataService.getNextOrderSerialNumber(estId);
 
-    // Initial station statuses
+    let linkedCustomerId = order.customerId;
+    if (order.customerPhone && order.customerPhone.trim()) {
+      const linked = await customerService.findOrCreateByPhone(estId, {
+        name: order.customerName || 'عميل منيو QR',
+        phone: order.customerPhone,
+        addressDescription: order.deliveryAddress,
+        deliveryNotes: order.deliveryNotes,
+        orderTotal: order.totalAmount,
+        pointsEarned: Math.floor(order.subtotal),
+      });
+      linkedCustomerId = linked.id;
+    }
+
     const stationStatuses: any = {};
     order.items.forEach((it) => {
       stationStatuses[it.station] = 'pending';
@@ -106,12 +123,12 @@ export const IncomingOrdersDrawer: React.FC<IncomingOrdersDrawerProps> = ({
 
     const updated = await orderTransport.updateOrderStatus(estId, order.id, 'approved', {
       serialNumber,
+      customerId: linkedCustomerId,
       stationStatuses,
       approvedAt: new Date().toISOString(),
     });
 
     if (updated) {
-      // Audit Log
       await dataService.logAudit(
         estId,
         'ORDER_APPROVED',
@@ -121,11 +138,27 @@ export const IncomingOrdersDrawer: React.FC<IncomingOrdersDrawerProps> = ({
         currentUser?.role || 'cashier'
       );
 
-      // Notify parent to inject into POS Shift orders
       if (onOrderApprovedToPos) {
         onOrderApprovedToPos(updated);
       }
     }
+  };
+
+  const handleDispatchDelivery = async (order: CustomerOrder) => {
+    const drv = driverInputs[order.id] || {
+      name: order.driverName || 'سائق التوصيل',
+      phone: order.driverPhone || '',
+    };
+    await orderTransport.updateOrderStatus(estId, order.id, 'out_for_delivery', {
+      driverName: drv.name.trim() || 'سائق التوصيل',
+      driverPhone: drv.phone.trim(),
+    });
+  };
+
+  const handleSettleDriverCash = async (order: CustomerOrder) => {
+    await orderTransport.updateOrderStatus(estId, order.id, 'completed', {
+      driverCashSettled: true,
+    });
   };
 
   // Reject Order
@@ -332,6 +365,77 @@ export const IncomingOrdersDrawer: React.FC<IncomingOrdersDrawerProps> = ({
                         })}
                       </div>
                     </div>
+
+                    {/* Delivery Driver Assignment & Cash Settlement */}
+                    {order.serviceType === 'delivery' && (
+                      <div className="pt-2 border-t border-slate-200 dark:border-slate-800 space-y-2">
+                        <div className="text-[11px] font-bold text-slate-500">
+                          {isAr ? 'إدارة سائق التوصيل والتحصيل:' : 'Delivery Driver & Cash Settlement:'}
+                        </div>
+                        {order.status === 'out_for_delivery' ? (
+                          <div className="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-xs">
+                            <div>
+                              <div className="font-bold text-cyan-700 dark:text-cyan-300">
+                                {isAr ? 'خرج للتوصيل مع:' : 'Out for delivery with:'}{' '}
+                                {order.driverName || 'سائق التوصيل'}
+                              </div>
+                              {order.driverPhone && (
+                                <div className="text-[11px] font-mono text-slate-500">
+                                  {order.driverPhone}
+                                </div>
+                              )}
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => handleSettleDriverCash(order)}
+                              className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold cursor-pointer shrink-0"
+                            >
+                              {isAr ? 'تسوية نقدية للسائق ✓' : 'Settle Driver Cash ✓'}
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                            <input
+                              type="text"
+                              value={driverInputs[order.id]?.name || ''}
+                              onChange={(e) =>
+                                setDriverInputs((prev) => ({
+                                  ...prev,
+                                  [order.id]: {
+                                    name: e.target.value,
+                                    phone: prev[order.id]?.phone || '',
+                                  },
+                                }))
+                              }
+                              placeholder={isAr ? 'اسم السائق...' : 'Driver name...'}
+                              className="flex-1 px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs"
+                            />
+                            <input
+                              type="text"
+                              value={driverInputs[order.id]?.phone || ''}
+                              onChange={(e) =>
+                                setDriverInputs((prev) => ({
+                                  ...prev,
+                                  [order.id]: {
+                                    name: prev[order.id]?.name || '',
+                                    phone: e.target.value,
+                                  },
+                                }))
+                              }
+                              placeholder={isAr ? 'هاتف السائق...' : 'Driver phone...'}
+                              className="flex-1 px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-mono"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => handleDispatchDelivery(order)}
+                              className="px-3 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold cursor-pointer shrink-0"
+                            >
+                              {isAr ? 'خرج للتوصيل' : 'Out for Delivery'}
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 );
               })

@@ -308,9 +308,24 @@ export const PublicMenuPage: React.FC<PublicMenuPageProps> = ({
   // RENDER: ACTIVE ORDER STATUS TRACKER
   // -------------------------------------------------------------------------
   if (activeOrder) {
-    const isApproved = activeOrder.status === 'approved' || activeOrder.status === 'preparing' || activeOrder.status === 'ready' || activeOrder.status === 'completed';
-    const isPreparing = activeOrder.status === 'preparing' || activeOrder.status === 'ready' || activeOrder.status === 'completed';
-    const isReady = activeOrder.status === 'ready' || activeOrder.status === 'completed';
+    const isApproved =
+      activeOrder.status === 'approved' ||
+      activeOrder.status === 'preparing' ||
+      activeOrder.status === 'ready' ||
+      activeOrder.status === 'out_for_delivery' ||
+      activeOrder.status === 'completed';
+    const isPreparing =
+      activeOrder.status === 'preparing' ||
+      activeOrder.status === 'ready' ||
+      activeOrder.status === 'out_for_delivery' ||
+      activeOrder.status === 'completed';
+    const isReady =
+      activeOrder.status === 'ready' ||
+      activeOrder.status === 'out_for_delivery' ||
+      activeOrder.status === 'completed';
+    const isOutForDelivery =
+      activeOrder.status === 'out_for_delivery' || activeOrder.status === 'completed';
+    const isCompleted = activeOrder.status === 'completed';
     const isRejected = activeOrder.status === 'rejected';
 
     return (
@@ -348,7 +363,7 @@ export const PublicMenuPage: React.FC<PublicMenuPageProps> = ({
             {isRejected ? (
               <div className="p-4 rounded-2xl bg-rose-500/15 border border-rose-500/40 text-rose-300 space-y-2">
                 <AlertCircle className="w-8 h-8 mx-auto text-rose-400" />
-                <h3 className="font-bold text-sm">{isAr ? 'عذراً، تعذر قبول الطلب' : 'Order Declined'}</h3>
+                <h3 className="font-bold text-sm">{isAr ? 'ملغي / مرفوض' : 'Cancelled / Declined'}</h3>
                 {activeOrder.rejectionReason && (
                   <p className="text-xs text-slate-300">
                     {isAr ? 'السبب:' : 'Reason:'} {activeOrder.rejectionReason}
@@ -364,7 +379,7 @@ export const PublicMenuPage: React.FC<PublicMenuPageProps> = ({
                   </div>
                   <div>
                     <h4 className="text-xs font-bold text-white">
-                      {isAr ? 'بانتظار موافقة الكاشير' : 'Awaiting Cashier Approval'}
+                      {isAr ? 'بانتظار الموافقة' : 'Awaiting Approval'}
                     </h4>
                     <p className="text-[11px] text-slate-400">
                       {isApproved ? (isAr ? 'تم قبول طلبك واعتماده' : 'Approved') : (isAr ? 'طلبك وصل وسيتم قبوله فوراً' : 'Order received, pending review')}
@@ -381,7 +396,7 @@ export const PublicMenuPage: React.FC<PublicMenuPageProps> = ({
                   </div>
                   <div>
                     <h4 className="text-xs font-bold text-white">
-                      {isAr ? 'جاري التحضير بالمحطات' : 'Preparing at Stations'}
+                      {isAr ? 'قيد التحضير' : 'Preparing'}
                     </h4>
                     <p className="text-[11px] text-slate-400">
                       {isReady ? (isAr ? 'اكتمل التحضير بنجاح' : 'Prepared') : isPreparing ? (isAr ? 'الشيف والبار يحضرون أصنافك' : 'Kitchen is preparing your items') : (isAr ? 'في الانتظار' : 'Queued')}
@@ -393,15 +408,58 @@ export const PublicMenuPage: React.FC<PublicMenuPageProps> = ({
 
                 {/* Step 3: Ready */}
                 <div className="flex items-center gap-3 text-start">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0 ${isReady ? 'bg-emerald-500 text-slate-950 animate-bounce' : 'bg-slate-800 text-slate-500'}`}>
-                    {isReady ? '★' : '3'}
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0 ${isReady ? 'bg-emerald-500 text-slate-950' : 'bg-slate-800 text-slate-500'}`}>
+                    {isReady ? '✓' : '3'}
                   </div>
                   <div>
                     <h4 className="text-xs font-bold text-white">
-                      {isAr ? 'طلبك جاهز!' : 'Order Ready!'}
+                      {isAr ? 'جاهز' : 'Ready'}
                     </h4>
                     <p className="text-[11px] text-slate-400">
-                      {isReady ? (isAr ? 'بالهنا والشفا، جاري التقديم أو الاستلام' : 'Enjoy your meal!') : (isAr ? 'في انتظار اكتمال التجهيز' : 'In prep')}
+                      {isReady ? (isAr ? 'طلبك جاهز للتقديم أو التسليم' : 'Your order is ready!') : (isAr ? 'في انتظار اكتمال التجهيز' : 'In prep')}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Step 4 (Delivery Only): Out for Delivery */}
+                {activeOrder.serviceType === 'delivery' && (
+                  <>
+                    <div className={`ms-4 h-6 w-0.5 border-s-2 ${isOutForDelivery ? 'border-emerald-500' : 'border-slate-800'}`} />
+                    <div className="flex items-center gap-3 text-start">
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0 ${isCompleted ? 'bg-emerald-500 text-slate-950' : isOutForDelivery ? 'bg-cyan-500 text-slate-950 animate-pulse' : 'bg-slate-800 text-slate-500'}`}>
+                        {isCompleted ? '✓' : '4'}
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-bold text-white">
+                          {isAr ? 'في الطريق (للدليفري)' : 'Out for Delivery'}
+                        </h4>
+                        <p className="text-[11px] text-slate-400">
+                          {isOutForDelivery
+                            ? isAr
+                              ? `خرج للتوصيل مع: ${activeOrder.driverName || 'السائق'} ${activeOrder.driverPhone ? `(${activeOrder.driverPhone})` : ''}`
+                              : `With driver: ${activeOrder.driverName || 'Driver'}`
+                            : isAr
+                              ? 'بانتظار تسليم الطلب للسائق'
+                              : 'Awaiting driver dispatch'}
+                        </p>
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                <div className={`ms-4 h-6 w-0.5 border-s-2 ${isCompleted ? 'border-emerald-500' : 'border-slate-800'}`} />
+
+                {/* Final Step: Completed */}
+                <div className="flex items-center gap-3 text-start">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs shrink-0 ${isCompleted ? 'bg-emerald-500 text-slate-950' : 'bg-slate-800 text-slate-500'}`}>
+                    {isCompleted ? '★' : activeOrder.serviceType === 'delivery' ? '5' : '4'}
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-bold text-white">
+                      {isAr ? 'تم' : 'Completed'}
+                    </h4>
+                    <p className="text-[11px] text-slate-400">
+                      {isCompleted ? (isAr ? 'تم تسليم الطلب بنجاح، بالهنا والشفا!' : 'Order delivered, enjoy!') : (isAr ? 'سيتم التأكيد عند التسليم' : 'Pending completion')}
                     </p>
                   </div>
                 </div>

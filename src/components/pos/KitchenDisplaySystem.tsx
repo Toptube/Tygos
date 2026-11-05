@@ -32,6 +32,7 @@ import {
 } from '../../domain/qrMenuTypes.ts';
 import { orderTransport } from '../../services/orderTransport.ts';
 import { printerService } from '../../services/printerService.ts';
+import { SyncStatusIndicator } from '../sync/SyncStatusIndicator.tsx';
 
 export const KitchenDisplaySystem: React.FC = () => {
   const { currentEstablishment } = useAuth();
@@ -133,6 +134,7 @@ export const KitchenDisplaySystem: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-3">
+          <SyncStatusIndicator />
           {/* Audio Chime Toggle */}
           <button
             type="button"

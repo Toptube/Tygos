@@ -32,6 +32,7 @@ import { useAuth } from '../../context/AuthContext.tsx';
 import { IncomingOrdersDrawer } from './IncomingOrdersDrawer.tsx';
 import { orderTransport } from '../../services/orderTransport.ts';
 import { CustomerOrder } from '../../domain/qrMenuTypes.ts';
+import { SyncStatusIndicator } from '../sync/SyncStatusIndicator.tsx';
 
 export const PosModule: React.FC = () => {
   const { addMockChange, isOnline } = useSync();
@@ -207,6 +208,7 @@ export const PosModule: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-2 sm:gap-3 text-xs flex-wrap">
+          <SyncStatusIndicator />
           {/* Incoming QR Orders Button */}
           <button
             onClick={() => setIsIncomingDrawerOpen(true)}

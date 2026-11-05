@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { Suspense, useState } from 'react';
 import { ThemeProvider } from './theme/ThemeContext.tsx';
 import { I18nProvider } from './i18n/I18nContext.tsx';
 import { SyncProvider } from './sync/SyncContext.tsx';
@@ -14,20 +14,7 @@ import { AppLayout } from './components/layout/AppLayout.tsx';
 import { LandingPage } from './components/landing/LandingPage.tsx';
 import { LoginView } from './components/auth/LoginView.tsx';
 import { RegisterWizard } from './components/auth/RegisterWizard.tsx';
-import { SuperAdminDashboard } from './components/superadmin/SuperAdminDashboard.tsx';
 import { TenantDashboard } from './components/dashboard/TenantDashboard.tsx';
-import { PosModule } from './components/pos/PosModule.tsx';
-import { MenuRecipeModule } from './components/menu/MenuRecipeModule.tsx';
-import { CostControlModule } from './components/costcontrol/CostControlModule.tsx';
-import { InventoryModule } from './components/inventory/InventoryModule.tsx';
-import { PurchasingModule } from './components/purchasing/PurchasingModule.tsx';
-import { FinanceModule } from './components/finance/FinanceModule.tsx';
-import { TaxModule } from './components/tax/TaxModule.tsx';
-import { HrModule } from './components/hr/HrModule.tsx';
-import { CrmModule } from './components/crm/CrmModule.tsx';
-import { InternalChatModule } from './components/chat/InternalChatModule.tsx';
-import { SystemHealthDashboard } from './components/system/SystemHealthDashboard.tsx';
-import { SettingsModule } from './components/settings/SettingsModule.tsx';
 import { GlobalSearchModal } from './components/search/GlobalSearchModal.tsx';
 import { TygosAssistantModal } from './components/ai/TygosAssistantModal.tsx';
 import { CostSimulationWorkspace } from './components/costcontrol/CostSimulationWorkspace.tsx';
@@ -39,10 +26,57 @@ import { AddProductWizardModal } from './components/menu/AddProductWizardModal.t
 import { BulkDataImportModal } from './components/common/BulkDataImportModal.tsx';
 import { QuickOnboardingModal } from './components/common/QuickOnboardingModal.tsx';
 import { PublicMenuPage } from './components/menu/PublicMenuPage.tsx';
-import { MenuManagementModule } from './components/menu/MenuManagementModule.tsx';
-import { KitchenDisplaySystem } from './components/pos/KitchenDisplaySystem.tsx';
-import { QrTableManagerView } from './components/menu/QrTableManagerView.tsx';
 import { parseAppRoute } from './utils/urlRouter.ts';
+
+// Lazy-loaded heavy workspace modules (Section 4 Performance Optimization)
+const SuperAdminDashboard = React.lazy(() =>
+  import('./components/superadmin/SuperAdminDashboard.tsx').then((m) => ({ default: m.SuperAdminDashboard }))
+);
+const PosModule = React.lazy(() =>
+  import('./components/pos/PosModule.tsx').then((m) => ({ default: m.PosModule }))
+);
+const KitchenDisplaySystem = React.lazy(() =>
+  import('./components/pos/KitchenDisplaySystem.tsx').then((m) => ({ default: m.KitchenDisplaySystem }))
+);
+const MenuManagementModule = React.lazy(() =>
+  import('./components/menu/MenuManagementModule.tsx').then((m) => ({ default: m.MenuManagementModule }))
+);
+const QrTableManagerView = React.lazy(() =>
+  import('./components/menu/QrTableManagerView.tsx').then((m) => ({ default: m.QrTableManagerView }))
+);
+const MenuRecipeModule = React.lazy(() =>
+  import('./components/menu/MenuRecipeModule.tsx').then((m) => ({ default: m.MenuRecipeModule }))
+);
+const CostControlModule = React.lazy(() =>
+  import('./components/costcontrol/CostControlModule.tsx').then((m) => ({ default: m.CostControlModule }))
+);
+const InventoryModule = React.lazy(() =>
+  import('./components/inventory/InventoryModule.tsx').then((m) => ({ default: m.InventoryModule }))
+);
+const PurchasingModule = React.lazy(() =>
+  import('./components/purchasing/PurchasingModule.tsx').then((m) => ({ default: m.PurchasingModule }))
+);
+const FinanceModule = React.lazy(() =>
+  import('./components/finance/FinanceModule.tsx').then((m) => ({ default: m.FinanceModule }))
+);
+const TaxModule = React.lazy(() =>
+  import('./components/tax/TaxModule.tsx').then((m) => ({ default: m.TaxModule }))
+);
+const HrModule = React.lazy(() =>
+  import('./components/hr/HrModule.tsx').then((m) => ({ default: m.HrModule }))
+);
+const CrmModule = React.lazy(() =>
+  import('./components/crm/CrmModule.tsx').then((m) => ({ default: m.CrmModule }))
+);
+const InternalChatModule = React.lazy(() =>
+  import('./components/chat/InternalChatModule.tsx').then((m) => ({ default: m.InternalChatModule }))
+);
+const SystemHealthDashboard = React.lazy(() =>
+  import('./components/system/SystemHealthDashboard.tsx').then((m) => ({ default: m.SystemHealthDashboard }))
+);
+const SettingsModule = React.lazy(() =>
+  import('./components/settings/SettingsModule.tsx').then((m) => ({ default: m.SettingsModule }))
+);
 
 const AppContent: React.FC = () => {
   const { currentUser, currentEstablishment, activeView, setActiveView, switchRole } = useAuth();
@@ -216,7 +250,15 @@ const AppContent: React.FC = () => {
         onCompleted={() => refreshMaterialsAndProducts()}
       />
 
-      {renderActiveView()}
+      <Suspense
+        fallback={
+          <div className="p-8 text-center text-xs text-slate-500 dark:text-slate-400">
+            جاري تحميل الوحدة...
+          </div>
+        }
+      >
+        {renderActiveView()}
+      </Suspense>
     </AppLayout>
   );
 };

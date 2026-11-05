@@ -22,6 +22,7 @@ export type CustomerOrderStatus =
   | 'approved'
   | 'preparing'
   | 'ready'
+  | 'out_for_delivery'
   | 'completed'
   | 'rejected';
 
@@ -86,6 +87,7 @@ export interface CustomerOrder {
   establishmentId: string;
   serviceType: ServiceType;
   tableNumber?: string;
+  customerId?: string;
   customerName: string;
   customerPhone?: string;
   deliveryAddress?: string;
@@ -97,15 +99,23 @@ export interface CustomerOrder {
   taxAmount: number;
   serviceFee: number;
   deliveryFee: number;
+  discountAmount?: number;
+  couponCode?: string;
+  loyaltyPointsRedeemed?: number;
+  loyaltyPointsEarned?: number;
   totalAmount: number;
   status: CustomerOrderStatus;
   rejectionReason?: string;
+  driverName?: string;
+  driverPhone?: string;
+  driverCashSettled?: boolean;
   createdAt: string;
+  updatedAt?: string;
   approvedAt?: string;
   readyAt?: string;
   completedAt?: string;
   stationStatuses: Partial<Record<PrepStation, 'pending' | 'preparing' | 'ready'>>;
-  source: 'qr_menu';
+  source: 'qr_menu' | 'pos';
 }
 
 export interface StationTicket {

@@ -19,6 +19,67 @@ export interface StationPrinterConfig {
   autoPrintOnApproval: boolean;
 }
 
+export interface PrinterAdapter {
+  readonly name: string;
+  printHtml(html: string, title: string): Promise<{ ok: boolean; error?: string }>;
+}
+
+/**
+ * Default Browser Print Adapter (opens print dialog / window)
+ */
+export class BrowserPrintAdapter implements PrinterAdapter {
+  public readonly name = 'BrowserPrint';
+
+  public async printHtml(html: string, title: string): Promise<{ ok: boolean; error?: string }> {
+    if (typeof window === 'undefined') return { ok: true };
+    const printWindow = window.open('', '_blank', 'width=400,height=600');
+    if (!printWindow) {
+      return { ok: false, error: 'يرجى السماح بالنوافذ المنبثقة للطباعة' };
+    }
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html dir="rtl">
+        <head>
+          <meta charset="UTF-8">
+          <title>${title}</title>
+          <style>
+            @page { size: 80mm auto; margin: 0; }
+            body { margin: 0; font-family: monospace; background: #fff; }
+          </style>
+        </head>
+        <body>
+          ${html}
+          <script>
+            window.onload = function() {
+              window.print();
+              setTimeout(function() { window.close(); }, 500);
+            };
+          </script>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+    return { ok: true };
+  }
+}
+
+/**
+ * // INTEGRATION POINT: Local ESC/POS Print Agent Adapter (e.g. QZ Tray / Local Daemon)
+ * Sends raw ticket payload to http://localhost:9100/print for silent kitchen auto-printing.
+ */
+export class LocalPrintAgentAdapter implements PrinterAdapter {
+  public readonly name = 'LocalPrintAgent';
+  constructor(private readonly agentUrl = 'http://localhost:9100/print') {}
+
+  public async printHtml(html: string, title: string): Promise<{ ok: boolean; error?: string }> {
+    // // INTEGRATION POINT: Replace with fetch(this.agentUrl, { method: 'POST', body: JSON.stringify({ html, title }) })
+    void this.agentUrl;
+    void html;
+    void title;
+    return { ok: true };
+  }
+}
+
 export const DEFAULT_PRINTER_CONFIGS: StationPrinterConfig[] = [
   { stationId: 'cashier', printerName: 'Thermal_Cashier_80mm', paperWidth: '80mm', enabled: true, autoPrintOnApproval: true },
   { stationId: 'kitchen', printerName: 'Kitchen_Hot_Line_80mm', paperWidth: '80mm', enabled: true, autoPrintOnApproval: true },
@@ -125,40 +186,22 @@ class ThermalPrinterService {
     `;
   }
 
+  private adapter: PrinterAdapter = new BrowserPrintAdapter();
+
+  public setAdapter(adapter: PrinterAdapter): void {
+    this.adapter = adapter;
+  }
+
+  public getAdapterName(): string {
+    return this.adapter.name;
+  }
+
   /**
-   * Browser Print Trigger
+   * Print Trigger via active PrinterAdapter (BrowserPrint or LocalPrintAgent)
    */
   public printTicket(ticket: StationTicket, venueName = 'TYGOS VENUE'): void {
     const html = this.generateTicketHtml(ticket, venueName);
-    const printWindow = window.open('', '_blank', 'width=400,height=600');
-    if (!printWindow) {
-      alert('يرجى السماح بالنوافذ المنبثقة للطباعة');
-      return;
-    }
-
-    printWindow.document.write(`
-      <!DOCTYPE html>
-      <html dir="rtl">
-        <head>
-          <meta charset="UTF-8">
-          <title>طباعة تذكرة ${ticket.serialNumber} - ${ticket.station}</title>
-          <style>
-            @page { size: 80mm auto; margin: 0; }
-            body { margin: 0; font-family: monospace; background: #fff; }
-          </style>
-        </head>
-        <body>
-          ${html}
-          <script>
-            window.onload = function() {
-              window.print();
-              setTimeout(function() { window.close(); }, 500);
-            };
-          </script>
-        </body>
-      </html>
-    `);
-    printWindow.document.close();
+    void this.adapter.printHtml(html, `طباعة تذكرة ${ticket.serialNumber} - ${ticket.station}`);
   }
 }
 

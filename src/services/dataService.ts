@@ -26,6 +26,13 @@ import {
 // TYPES & INTERFACES
 // ---------------------------------------------------------------------------
 
+export interface DeliveryZone {
+  id: string;
+  nameAr: string;
+  nameEn: string;
+  fee: number;
+}
+
 export interface VenueSettings {
   publicAppUrl: string;
   currency: string;
@@ -39,9 +46,19 @@ export interface VenueSettings {
   numberFormat: 'standard' | 'european';
   autoAcceptOrders: boolean;
   menuThemeColor?: string;
+  logoUrl?: string;
   hideUnavailableMenuItems: boolean;
+  orderHoursStart?: string;
+  orderHoursEnd?: string;
+  minDeliveryOrder?: number;
+  deliveryZones?: DeliveryZone[];
+  welcomeMessageAr?: string;
+  welcomeMessageEn?: string;
   customerDataRetentionDays: number;
   tableCount?: number;
+  loyaltyEnabled?: boolean;
+  loyaltyPointsPerUnit?: number;
+  loyaltyRedeemValue?: number;
 }
 
 export interface RawMaterialItem {

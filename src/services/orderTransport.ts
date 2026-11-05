@@ -11,6 +11,8 @@
  */
 
 import { CustomerOrder, CustomerOrderStatus } from '../domain/qrMenuTypes.ts';
+import { outboxService } from '../sync/outboxService.ts';
+import { DeploymentMode } from '../sync/syncTypes.ts';
 
 export type OrderTransportEventType =
   | 'ORDER_SUBMITTED'
@@ -29,6 +31,17 @@ class OrderTransportService {
   private listeners: Set<(event: OrderTransportEvent) => void> = new Set();
   private channelName = 'tygos_order_transport';
   private storageKeyPrefix = 'tygos_orders_';
+  private deploymentMode: DeploymentMode = 'standalone';
+  private serverBaseUrl = '';
+
+  public setDeploymentConfig(mode: DeploymentMode, serverBaseUrl = ''): void {
+    this.deploymentMode = mode;
+    this.serverBaseUrl = serverBaseUrl;
+  }
+
+  public getDeploymentConfig(): { mode: DeploymentMode; serverBaseUrl: string } {
+    return { mode: this.deploymentMode, serverBaseUrl: this.serverBaseUrl };
+  }
 
   constructor() {
     if (typeof window !== 'undefined') {
@@ -142,6 +155,15 @@ class OrderTransportService {
     orders.unshift(order);
     this.saveOrders(order.establishmentId, orders);
 
+    outboxService.enqueue({
+      tenantId: order.establishmentId,
+      entityType: 'order',
+      entityId: order.id,
+      operation: 'append',
+      payload: order,
+      idempotencyKey: `order:submit:${order.id}`,
+    });
+
     const event: OrderTransportEvent = {
       type: 'ORDER_SUBMITTED',
       order,
@@ -172,6 +194,15 @@ class OrderTransportService {
 
     orders[index] = updated;
     this.saveOrders(establishmentId, orders);
+
+    outboxService.enqueue({
+      tenantId: establishmentId,
+      entityType: 'order',
+      entityId: updated.id,
+      operation: 'update',
+      payload: updated,
+      idempotencyKey: `order:status:${updated.id}:${status}:${updated.updatedAt || updated.approvedAt || updated.readyAt || Date.now()}`,
+    });
 
     const event: OrderTransportEvent = {
       type: status === 'rejected' ? 'ORDER_REJECTED' : 'ORDER_STATUS_CHANGED',
