@@ -30,6 +30,8 @@ import { useAuth } from '../../context/AuthContext.tsx';
 import { useI18n } from '../../i18n/I18nContext.tsx';
 import { useBusiness } from '../../context/BusinessContext.tsx';
 import { MOCK_COST_KPIS, MOCK_TABLES } from '../../data/mockData.ts';
+import { DashboardWidget } from './DashboardWidget.tsx';
+import { QrOperationsReport } from '../reports/QrOperationsReport.tsx';
 
 const TYGOS_MARK_SRC = '/assets/aistudio/1793697201912_bf1cbdeb.png';
 
@@ -163,6 +165,9 @@ export const TenantDashboard: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {/* Live Context KPI Widget */}
+      <DashboardWidget />
 
       {/* KPI Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3.5">
@@ -298,6 +303,9 @@ export const TenantDashboard: React.FC = () => {
           ))}
         </div>
       </div>
+
+      {/* Phase 5 QR & POS Channel, Station Performance & Paradox Reports */}
+      <QrOperationsReport />
 
       {/* Actionable Recommendations Center */}
       <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 shadow-xs space-y-4">

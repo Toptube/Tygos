@@ -41,6 +41,7 @@ export interface VenueSettings {
   menuThemeColor?: string;
   hideUnavailableMenuItems: boolean;
   customerDataRetentionDays: number;
+  tableCount?: number;
 }
 
 export interface RawMaterialItem {
@@ -794,6 +795,9 @@ class DataService {
         currency: 'USD',
         language: 'ar',
         timezone: 'UTC+2',
+        branchesCount: 1,
+        usersCount: 8,
+        lastActivity: 'Just now',
         createdAt: '2026-01-01T00:00:00.000Z',
       };
     }

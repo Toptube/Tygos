@@ -39,6 +39,40 @@ export function formatCurrency(
 }
 
 /**
+ * Format money using establishment settings currency and active language
+ */
+export function formatMoney(
+  amount: number,
+  currency?: string,
+  lang?: LanguageCode
+): string {
+  let resolvedLang: LanguageCode = lang || 'ar';
+  let resolvedCurrency: string = currency || 'USD';
+
+  if (typeof window !== 'undefined') {
+    if (!lang) {
+      const savedLang = localStorage.getItem('tygos_lang') as LanguageCode | null;
+      if (savedLang) resolvedLang = savedLang;
+    }
+    if (!currency) {
+      try {
+        const sessionRaw = localStorage.getItem('tygos_auth_session');
+        const estId = sessionRaw ? JSON.parse(sessionRaw)?.establishment?.id || 'default' : 'default';
+        const settingsRaw = localStorage.getItem(`tygos_${estId}_venue_settings`);
+        if (settingsRaw) {
+          const parsed = JSON.parse(settingsRaw);
+          if (parsed?.currency) resolvedCurrency = parsed.currency;
+        }
+      } catch {
+        // fallback to USD
+      }
+    }
+  }
+
+  return formatCurrency(amount, resolvedCurrency, resolvedLang);
+}
+
+/**
  * Format numbers with optional decimals
  */
 export function formatNumber(

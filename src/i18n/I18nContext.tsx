@@ -5,7 +5,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { TRANSLATIONS } from './translations.ts';
-import { formatCurrency, formatNumber, formatPercent } from './formatters.ts';
+import { formatCurrency, formatMoney, formatNumber, formatPercent } from './formatters.ts';
 
 export type LanguageCode = 'ar' | 'en' | 'fr' | 'nl' | 'tr';
 
@@ -16,6 +16,7 @@ export interface I18nContextType {
   isRtl: boolean;
   t: (key: string, fallback?: string) => string;
   formatCurrency: (amount: number, currency?: string) => string;
+  formatMoney: (amount: number, currency?: string) => string;
   formatNumber: (value: number, decimals?: number) => string;
   formatPercent: (value: number) => string;
 }
@@ -79,6 +80,10 @@ export const I18nProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return formatCurrency(amount, currency, language);
   };
 
+  const boundFormatMoney = (amount: number, currency?: string): string => {
+    return formatMoney(amount, currency, language);
+  };
+
   const boundFormatNumber = (value: number, decimals: number = 0): string => {
     return formatNumber(value, language, decimals);
   };
@@ -96,6 +101,7 @@ export const I18nProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isRtl,
         t,
         formatCurrency: boundFormatCurrency,
+        formatMoney: boundFormatMoney,
         formatNumber: boundFormatNumber,
         formatPercent: boundFormatPercent,
       }}

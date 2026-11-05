@@ -40,7 +40,7 @@ import {
 } from '../../domain/qrMenuTypes.ts';
 import { dataService, VenueSettings } from '../../services/dataService.ts';
 import { orderTransport } from '../../services/orderTransport.ts';
-import { Establishment, Product } from '../../types/index.ts';
+import { Establishment } from '../../types/index.ts';
 import { TYGOS_LOGO_SRC } from '../brand/TygosLogo.tsx';
 
 interface PublicMenuPageProps {
@@ -595,10 +595,10 @@ export const PublicMenuPage: React.FC<PublicMenuPageProps> = ({
                       </div>
 
                       <h3 className="text-sm font-bold text-white truncate">
-                        {isAr ? item.nameAr : item.nameEn}
+                        {isAr ? (item.nameAr || item.nameEn) : (item.nameEn || item.nameAr)}
                       </h3>
                       <p className="text-[11px] text-slate-400 line-clamp-2 mt-0.5 leading-relaxed">
-                        {isAr ? item.descriptionAr : item.descriptionEn}
+                        {isAr ? (item.descriptionAr || item.descriptionEn) : (item.descriptionEn || item.descriptionAr)}
                       </p>
                     </div>
 
@@ -696,21 +696,38 @@ export const PublicMenuPage: React.FC<PublicMenuPageProps> = ({
             )}
 
             <div>
+              {detailItem.badges.length > 0 && (
+                <div className="flex items-center gap-1.5 flex-wrap mb-2">
+                  {detailItem.badges.map((b) => (
+                    <span
+                      key={b}
+                      className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-cyan-500/15 text-cyan-300 border border-cyan-500/30"
+                    >
+                      {b === 'spicy' ? '🌶️ ' + (isAr ? 'حار' : 'Spicy') : b === 'vegan' ? '🌱 ' + (isAr ? 'نباتي' : 'Vegan') : b === 'new' ? '★ ' + (isAr ? 'جديد' : 'New') : '🔥 ' + (isAr ? 'الأكثر طلباً' : 'Bestseller')}
+                    </span>
+                  ))}
+                </div>
+              )}
               <div className="flex items-baseline justify-between gap-2">
-                <h2 className="text-lg font-black text-white">{isAr ? detailItem.nameAr : detailItem.nameEn}</h2>
+                <h2 className="text-lg font-black text-white">
+                  {isAr ? (detailItem.nameAr || detailItem.nameEn) : (detailItem.nameEn || detailItem.nameAr)}
+                </h2>
                 <div className="text-lg font-mono font-black text-cyan-400">${detailItem.price.toFixed(2)}</div>
               </div>
               <p className="text-xs text-slate-300 mt-2 leading-relaxed">
-                {isAr ? detailItem.descriptionAr : detailItem.descriptionEn}
+                {isAr ? (detailItem.descriptionAr || detailItem.descriptionEn) : (detailItem.descriptionEn || detailItem.descriptionAr)}
               </p>
             </div>
 
             {/* Display Ingredients */}
-            {detailItem.displayIngredientsAr.length > 0 && (
+            {(detailItem.displayIngredientsAr.length > 0 || detailItem.displayIngredientsEn.length > 0) && (
               <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-1.5">
                 <span className="text-[11px] font-bold text-slate-400 block">{isAr ? 'المكونات الأساسية المعروضة:' : 'Featured Ingredients:'}</span>
                 <div className="flex flex-wrap gap-1.5">
-                  {(isAr ? detailItem.displayIngredientsAr : detailItem.displayIngredientsEn).map((ing, i) => (
+                  {(isAr
+                    ? (detailItem.displayIngredientsAr.length > 0 ? detailItem.displayIngredientsAr : detailItem.displayIngredientsEn)
+                    : (detailItem.displayIngredientsEn.length > 0 ? detailItem.displayIngredientsEn : detailItem.displayIngredientsAr)
+                  ).map((ing, i) => (
                     <span key={i} className="text-[11px] px-2 py-0.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-200">
                       {ing}
                     </span>
@@ -720,10 +737,12 @@ export const PublicMenuPage: React.FC<PublicMenuPageProps> = ({
             )}
 
             {/* Preparation Method & Prep Time */}
-            {detailItem.prepMethodAr && (
+            {(detailItem.prepMethodAr || detailItem.prepMethodEn) && (
               <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 space-y-1 text-xs text-slate-300">
                 <span className="font-bold text-slate-400 block text-[11px]">{isAr ? 'طريقة التحضير الشهية:' : 'Chef Preparation:'}</span>
-                <p className="leading-relaxed">{isAr ? detailItem.prepMethodAr : detailItem.prepMethodEn}</p>
+                <p className="leading-relaxed">
+                  {isAr ? (detailItem.prepMethodAr || detailItem.prepMethodEn) : (detailItem.prepMethodEn || detailItem.prepMethodAr)}
+                </p>
               </div>
             )}
 

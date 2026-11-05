@@ -9,6 +9,7 @@ import { I18nProvider } from './i18n/I18nContext.tsx';
 import { SyncProvider } from './sync/SyncContext.tsx';
 import { AuthProvider, useAuth } from './context/AuthContext.tsx';
 import { BusinessProvider, useBusiness } from './context/BusinessContext.tsx';
+import { ToastProvider } from './context/ToastContext.tsx';
 import { AppLayout } from './components/layout/AppLayout.tsx';
 import { LandingPage } from './components/landing/LandingPage.tsx';
 import { LoginView } from './components/auth/LoginView.tsx';
@@ -224,13 +225,15 @@ export default function App() {
   return (
     <ThemeProvider>
       <I18nProvider>
-        <SyncProvider>
-          <AuthProvider>
-            <BusinessProvider>
-              <AppContent />
-            </BusinessProvider>
-          </AuthProvider>
-        </SyncProvider>
+        <ToastProvider>
+          <SyncProvider>
+            <AuthProvider>
+              <BusinessProvider>
+                <AppContent />
+              </BusinessProvider>
+            </AuthProvider>
+          </SyncProvider>
+        </ToastProvider>
       </I18nProvider>
     </ThemeProvider>
   );

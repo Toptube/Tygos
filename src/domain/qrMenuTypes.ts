@@ -6,8 +6,6 @@
  * Phase 5 Master Domain Models & Pure Transformers
  */
 
-import { Product } from '../types/index.ts';
-
 export type PrepStation = 'kitchen' | 'bar' | 'grill' | 'pastry' | 'bakery' | 'cashier';
 
 export const PREP_STATIONS: { id: PrepStation; labelAr: string; labelEn: string }[] = [

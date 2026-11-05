@@ -37,6 +37,8 @@ import {
 import { useAuth } from '../../context/AuthContext.tsx';
 import { useI18n } from '../../i18n/I18nContext.tsx';
 import { useBusiness } from '../../context/BusinessContext.tsx';
+import { useToast } from '../../context/ToastContext.tsx';
+import { orderTransport } from '../../services/orderTransport.ts';
 import { TygosLogo, TYGOS_LOGO_SRC } from '../brand/TygosLogo.tsx';
 import { PermanentAppBrandBadge } from '../brand/PermanentAppBrandBadge.tsx';
 import { LanguageSelector } from '../common/LanguageSelector.tsx';
@@ -73,6 +75,29 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
   const [isTourOpen, setIsTourOpen] = useState(false);
+  const { showToast } = useToast();
+
+  React.useEffect(() => {
+    const estId = currentEstablishment?.id || 'default';
+    const unsub = orderTransport.subscribe((event) => {
+      if (event.type === 'ORDER_SUBMITTED' && event.order.establishmentId === estId) {
+        showToast({
+          type: 'warning',
+          title: isAr ? 'طلب جديد من منيو QR' : 'New QR Menu Order',
+          message: isAr
+            ? `طلب جديد من ${event.order.customerName} (${event.order.items.length} أصناف)`
+            : `New order from ${event.order.customerName} (${event.order.items.length} items)`,
+          sound: true,
+          groupKey: 'incoming_qr_order',
+          action: {
+            label: isAr ? 'عرض الطلبات' : 'View Orders',
+            onClick: () => setActiveView('pos'),
+          },
+        });
+      }
+    });
+    return unsub;
+  }, [currentEstablishment?.id, isAr, setActiveView, showToast]);
 
   const pendingRequestsCount = privilegedRequests.filter((r) => r.status === 'pending').length;
 
@@ -366,6 +391,9 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
           >
             <HelpCircle className="w-4 h-4 text-cyan-400" />
           </button>
+
+          {/* Theme Switcher in Header */}
+          <ThemeSwitcher />
 
           {/* Connectivity Status (Medium screens & up) */}
           <div className="hidden md:block">

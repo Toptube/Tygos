@@ -76,13 +76,13 @@ const MARKETING_TEMPLATES = [
 
 export const MenuManagementModule: React.FC = () => {
   const { currentEstablishment } = useAuth();
-  const { products, refreshMaterialsAndProducts } = useBusiness();
+  const { menuProducts: products, refreshMaterialsAndProducts } = useBusiness();
   const { language, t } = useI18n();
   const isAr = language === 'ar';
   const estId = currentEstablishment?.id || 'default';
 
   const [overrides, setOverrides] = useState<MenuItemOverride[]>([]);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<MenuItemProduct | null>(null);
   const [activeTab, setActiveTab] = useState<'editor' | 'preview'>('editor');
   const [searchQuery, setSearchQuery] = useState('');
   const [saveSuccess, setSaveSuccess] = useState(false);
@@ -120,7 +120,7 @@ export const MenuManagementModule: React.FC = () => {
     };
   }, [estId, products.length]);
 
-  const selectProductForEdit = (prod: Product, currentOverrides = overrides) => {
+  const selectProductForEdit = (prod: MenuItemProduct, currentOverrides = overrides) => {
     setSelectedProduct(prod);
     const existing = currentOverrides.find((o) => o.productId === prod.id);
 
@@ -135,8 +135,9 @@ export const MenuManagementModule: React.FC = () => {
     setFormIsAvailable(existing?.isAvailable !== undefined ? existing.isAvailable : prod.isActive);
     setFormBadges(existing?.badges || []);
     setFormAllergens(existing?.allergens || []);
-    setFormImages(existing?.images || (prod.imageUrl ? [prod.imageUrl] : []));
-    setFormPrimaryImage(existing?.primaryImage || prod.imageUrl || '');
+    const fallbackImg = (prod as any).imageUrl || '';
+    setFormImages(existing?.images || (fallbackImg ? [fallbackImg] : []));
+    setFormPrimaryImage(existing?.primaryImage || fallbackImg);
   };
 
   // Image Upload with Client-Side Canvas Compression
@@ -250,7 +251,12 @@ export const MenuManagementModule: React.FC = () => {
 
   const filteredProducts = products.filter((p) => {
     const q = searchQuery.toLowerCase().trim();
-    return !q || p.name.toLowerCase().includes(q) || (p.nameEn && p.nameEn.toLowerCase().includes(q)) || p.category.toLowerCase().includes(q);
+    return (
+      !q ||
+      p.nameAr.toLowerCase().includes(q) ||
+      (p.nameEn && p.nameEn.toLowerCase().includes(q)) ||
+      p.category.toLowerCase().includes(q)
+    );
   });
 
   return (
@@ -354,11 +360,11 @@ export const MenuManagementModule: React.FC = () => {
                     }`}
                   >
                     <div className="min-w-0 pe-2">
-                      <div className="text-xs truncate">{p.name}</div>
+                      <div className="text-xs truncate">{isAr ? p.nameAr : p.nameEn || p.nameAr}</div>
                       <div className="flex items-center gap-2 text-[10px] text-slate-400 mt-0.5">
                         <span>{p.category}</span>
                         <span>·</span>
-                        <span className="font-mono">${p.price.toFixed(2)}</span>
+                        <span className="font-mono">${p.sellingPrice.toFixed(2)}</span>
                       </div>
                     </div>
 
@@ -386,8 +392,8 @@ export const MenuManagementModule: React.FC = () => {
               <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
                 <div>
                   <h2 className="text-base font-black text-slate-900 dark:text-white flex items-center gap-2">
-                    <span>{selectedProduct.name}</span>
-                    <span className="font-mono text-cyan-600 dark:text-cyan-400 text-xs">${selectedProduct.price.toFixed(2)}</span>
+                    <span>{isAr ? selectedProduct.nameAr : selectedProduct.nameEn || selectedProduct.nameAr}</span>
+                    <span className="font-mono text-cyan-600 dark:text-cyan-400 text-xs">${selectedProduct.sellingPrice.toFixed(2)}</span>
                   </h2>
                   <p className="text-xs text-slate-400 mt-0.5">
                     {isAr ? 'مصدر السعر والتكلفة: شاشة المنتجات المركزية' : 'Sourced from master products ledger'}

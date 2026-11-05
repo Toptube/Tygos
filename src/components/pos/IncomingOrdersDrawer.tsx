@@ -27,7 +27,7 @@ import {
 import { useAuth } from '../../context/AuthContext.tsx';
 import { useI18n } from '../../i18n/I18nContext.tsx';
 import { useBusiness } from '../../context/BusinessContext.tsx';
-import { CustomerOrder, CustomerOrderItem } from '../../domain/qrMenuTypes.ts';
+import { CustomerOrder, CustomerOrderItem, PREP_STATIONS } from '../../domain/qrMenuTypes.ts';
 import { orderTransport } from '../../services/orderTransport.ts';
 import { dataService } from '../../services/dataService.ts';
 import { printerService } from '../../services/printerService.ts';
@@ -49,6 +49,7 @@ export const IncomingOrdersDrawer: React.FC<IncomingOrdersDrawerProps> = ({
   const estId = currentEstablishment?.id || 'default';
 
   const [orders, setOrders] = useState<CustomerOrder[]>([]);
+  const [activeTab, setActiveTab] = useState<'pending' | 'stations'>('pending');
   const [rejectingOrderId, setRejectingOrderId] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState('');
   const [audioEnabled, setAudioEnabled] = useState(true);
@@ -88,6 +89,9 @@ export const IncomingOrdersDrawer: React.FC<IncomingOrdersDrawerProps> = ({
   }, [estId, audioEnabled]);
 
   const pendingOrders = orders.filter((o) => o.status === 'pending_approval');
+  const activeStationOrders = orders.filter(
+    (o) => o.status === 'approved' || o.status === 'preparing' || o.status === 'ready'
+  );
 
   // Approve Order: Generates Serial #, updates status, dispatches to KDS & POS
   const handleApprove = async (order: CustomerOrder) => {
@@ -111,7 +115,7 @@ export const IncomingOrdersDrawer: React.FC<IncomingOrdersDrawerProps> = ({
       await dataService.logAudit(
         estId,
         'ORDER_APPROVED',
-        `اعتماد طلب العميل ${serialNumber} بقيمة $${order.total}`,
+        `اعتماد طلب العميل ${serialNumber} بقيمة $${order.totalAmount}`,
         'CUSTOMER_QR_ORDER',
         currentUser?.fullName || currentUser?.username || 'Cashier',
         currentUser?.role || 'cashier'
@@ -205,9 +209,134 @@ export const IncomingOrdersDrawer: React.FC<IncomingOrdersDrawerProps> = ({
           </div>
         </div>
 
+        {/* Mode Switcher Tabs: Pending Approval vs Live Station Tracking */}
+        <div className="px-4 pt-3 pb-2 border-b border-slate-200 dark:border-slate-800 flex items-center gap-2 bg-slate-50 dark:bg-slate-950/60">
+          <button
+            type="button"
+            onClick={() => setActiveTab('pending')}
+            className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-1.5 ${
+              activeTab === 'pending'
+                ? 'bg-cyan-500 text-slate-950 shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-slate-800'
+            }`}
+          >
+            <span>{isAr ? 'بانتظار الاعتماد' : 'Pending Approval'}</span>
+            <span className="font-mono px-1.5 py-0.2 rounded-full bg-slate-950/20 text-[10px]">
+              {pendingOrders.length}
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab('stations')}
+            className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-1.5 ${
+              activeTab === 'stations'
+                ? 'bg-cyan-500 text-slate-950 shadow-xs'
+                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200/60 dark:hover:bg-slate-800'
+            }`}
+          >
+            <span>{isAr ? 'متابعة المحطات الحية' : 'Station Status'}</span>
+            <span className="font-mono px-1.5 py-0.2 rounded-full bg-slate-950/20 text-[10px]">
+              {activeStationOrders.length}
+            </span>
+          </button>
+        </div>
+
         {/* Orders Feed */}
         <div className="flex-1 p-4 overflow-y-auto space-y-4">
-          {pendingOrders.length === 0 ? (
+          {activeTab === 'stations' ? (
+            activeStationOrders.length === 0 ? (
+              <div className="text-center py-24 space-y-3">
+                <Clock className="w-10 h-10 text-slate-400 mx-auto opacity-40" />
+                <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300">
+                  {isAr ? 'لا توجد طلبات قيد التحضير في المحطات حالياً' : 'No active orders in kitchen stations'}
+                </h3>
+              </div>
+            ) : (
+              activeStationOrders.map((order) => {
+                const stationEntries = Object.entries(order.stationStatuses || {});
+                const readyStations = stationEntries
+                  .filter(([, st]) => st === 'ready')
+                  .map(([k]) => PREP_STATIONS.find((p) => p.id === k)?.[isAr ? 'labelAr' : 'labelEn'] || k);
+                const laggingStations = stationEntries
+                  .filter(([, st]) => st !== 'ready')
+                  .map(([k]) => PREP_STATIONS.find((p) => p.id === k)?.[isAr ? 'labelAr' : 'labelEn'] || k);
+                const hasLaggingStation = readyStations.length > 0 && laggingStations.length > 0;
+
+                return (
+                  <div
+                    key={order.id}
+                    className={`p-4 rounded-2xl bg-slate-50 dark:bg-slate-950 border-2 space-y-3 ${
+                      hasLaggingStation
+                        ? 'border-amber-500 shadow-lg shadow-amber-500/10'
+                        : 'border-slate-200 dark:border-slate-800'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono text-sm font-black text-cyan-600 dark:text-cyan-400" dir="ltr">
+                          {order.serialNumber}
+                        </span>
+                        <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                          {order.customerName}
+                        </span>
+                      </div>
+                      <span className="text-[11px] font-mono text-slate-400">
+                        {order.tableNumber ? (isAr ? `طاولة #${order.tableNumber}` : `Table #${order.tableNumber}`) : order.serviceType}
+                      </span>
+                    </div>
+
+                    {/* Lagging Station Alert Banner */}
+                    {hasLaggingStation && (
+                      <div className="p-2.5 rounded-xl bg-amber-500/15 border border-amber-500/40 text-amber-700 dark:text-amber-300 text-xs flex items-start gap-2">
+                        <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-amber-500" />
+                        <span>
+                          {isAr
+                            ? `تنبيه تأخر محطة: (${readyStations.join('، ')}) جاهز بينما (${laggingStations.join('، ')}) لا يزال قيد التحضير!`
+                            : `Station Lag Alert: (${readyStations.join(', ')}) ready while (${laggingStations.join(', ')}) is still preparing!`}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Per-Station Status Pills */}
+                    <div className="space-y-1.5">
+                      <span className="text-[11px] font-bold text-slate-400 block">
+                        {isAr ? 'حالة محطات التحضير:' : 'Preparation Stations:'}
+                      </span>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {stationEntries.map(([stKey, stVal]) => {
+                          const stMeta = PREP_STATIONS.find((p) => p.id === stKey);
+                          const label = stMeta ? (isAr ? stMeta.labelAr : stMeta.labelEn) : stKey;
+                          return (
+                            <div
+                              key={stKey}
+                              className="p-2 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs"
+                            >
+                              <span className="font-bold text-slate-700 dark:text-slate-200 truncate">{label}</span>
+                              <span
+                                className={`px-2 py-0.5 rounded-md text-[10px] font-black ${
+                                  stVal === 'ready'
+                                    ? 'bg-emerald-500/20 text-emerald-500'
+                                    : stVal === 'preparing'
+                                    ? 'bg-amber-500/20 text-amber-500'
+                                    : 'bg-slate-500/20 text-slate-400'
+                                }`}
+                              >
+                                {stVal === 'ready'
+                                  ? (isAr ? 'جاهز ✓' : 'Ready ✓')
+                                  : stVal === 'preparing'
+                                  ? (isAr ? 'قيد التحضير' : 'Preparing')
+                                  : (isAr ? 'قيد الانتظار' : 'Pending')}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            )
+          ) : pendingOrders.length === 0 ? (
             <div className="text-center py-24 space-y-3">
               <UtensilsCrossed className="w-10 h-10 text-slate-400 mx-auto opacity-40" />
               <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300">

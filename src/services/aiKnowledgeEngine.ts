@@ -305,6 +305,150 @@ Instead:
     ],
     lastUpdated: '2026-11-03',
   },
+  {
+    id: 'art-qr-menu-setup',
+    slug: 'qr-menu-setup',
+    module: 'menu_management',
+    category: 'qr_menu',
+    titleAr: 'إعداد المنيو الإلكتروني، الأوصاف التسويقية، والوسوم',
+    titleEn: 'Digital QR Menu Setup, Marketing Copy & Item Badges',
+    summaryAr: 'كيفية تجهيز المنيو العام للعملاء باللغتين العربية والإنجليزية مع الصور والوسوم ومسببات الحساسية.',
+    summaryEn: 'How to configure the public customer QR menu in Arabic & English with photos, badges, and allergens.',
+    contentAr: `تتيح شاشة إدارة المنيو الإلكتروني تخصيص تجربة العرض للعملاء دون المساس ببيانات التكلفة الداخلية:
+1. إدخال الوصف التسويقي والمكونات المعروضة وطريقة التحضير باللغتين العربية والإنجليزية (مع عرض النص الأصلي تلقائياً عند غياب الترجمة).
+2. تفعيل وسوم الصنف (حار، نباتي، جديد، الأكثر طلباً) ومسببات الحساسية.
+3. تعيين محطة التحضير المسؤولة عن كل صنف (مطبخ، مشويات، بار، حلويات).`,
+    contentEn: `The Digital Menu Management screen customizes customer presentation while keeping internal costs isolated:
+1. Enter bilingual (Arabic/English) marketing descriptions, displayed ingredients, and prep methods (automatically falling back to original text if a translation is missing).
+2. Enable item badges (Spicy, Vegan, New, Bestseller) and allergen tags.
+3. Assign the target prep station for each item (Kitchen, Grill, Bar, Pastry).`,
+    stepsAr: [
+      'افتح شاشة "إدارة المنيو الإلكتروني" من القائمة الجانبية.',
+      'اختر الصنف وأضف الصور والوصف التسويقي والمكونات وطريقة التحضير بالعربية والإنجليزية.',
+      'حدد الوسوم المناسبة (حار، نباتي، جديد، الأكثر طلباً) ومحطة التحضير.',
+      'احفظ التعديلات وعاين المنيو العام مباشرة.',
+    ],
+    stepsEn: [
+      'Open "Digital Menu Management" from the sidebar.',
+      'Select an item and add photos, marketing description, ingredients, and prep method in Arabic & English.',
+      'Select item badges (Spicy, Vegan, New, Bestseller) and prep station.',
+      'Save changes and preview the public menu.',
+    ],
+    commonMistakesAr: [
+      'ترك حقل محطة التحضير غير محدد مما يؤخر توجيه التذكرة.',
+      'إهمال تحديد مسببات الحساسية للأصناف التي تحتوي على مكسرات أو ألبان.',
+    ],
+    commonMistakesEn: [
+      'Leaving prep station unassigned.',
+      'Omitting allergen tags on dishes containing nuts or dairy.',
+    ],
+    lastUpdated: '2026-11-05',
+  },
+  {
+    id: 'art-qr-table-printing',
+    slug: 'qr-table-printing',
+    module: 'qr_tables',
+    category: 'qr_menu',
+    titleAr: 'إعداد عدد الطاولات وطباعة ملصقات QR دفعة واحدة',
+    titleEn: 'Configuring Table Count & Batch Printing Table QR Stickers',
+    summaryAr: 'ضبط عدد طاولات الصالة وتوليد وطباعة ملصقات QR تحمل رقم كل طاولة دفعة واحدة.',
+    summaryEn: 'Configure dining room table count and batch-print QR stickers with each table number.',
+    contentAr: `تمكّنك شاشة طاولات وملصقات QR من توليد رموز استجابة سريعة (QR) مخصصة لكل طاولة:
+• تحديد إجمالي عدد الطاولات في المنشأة وحفظه في الإعدادات.
+• طباعة جميع ملصقات الطاولات دفعة واحدة بتنسيق A4 أو حراري مع إظهار رقم الطاولة بوضوح على كل ملصق.
+• اختبار رابط الطلب الخارجي والتوصيل والاستلام.`,
+    contentEn: `The QR Tables & Stickers screen generates table-specific QR codes:
+• Configure and save total table count in establishment settings.
+• Batch-print all table stickers at once (A4 or thermal) with the table number clearly printed on each sticker.
+• Test takeaway and delivery public menu links.`,
+    stepsAr: [
+      'افتح شاشة "طاولات وملصقات QR".',
+      'أدخل عدد الطاولات الفعلي في الصالة واضغط حفظ.',
+      'اضغط على "طباعة جميع ملصقات الطاولات" لطباعتها دفعة واحدة.',
+    ],
+    stepsEn: [
+      'Open "QR Tables & Stickers".',
+      'Enter the establishment table count and save.',
+      'Click "Print All Table Stickers" to batch-print.',
+    ],
+    commonMistakesAr: [
+      'وضع ملصق طاولة في غير مكانه مما يؤدي لوصول الطلب لطاولة خاطئة.',
+    ],
+    commonMistakesEn: [
+      'Placing a printed table sticker on the wrong physical table.',
+    ],
+    lastUpdated: '2026-11-05',
+  },
+  {
+    id: 'art-receiving-qr-orders',
+    slug: 'receiving-qr-orders',
+    module: 'pos',
+    category: 'pos',
+    titleAr: 'استقبال طلبات المنيو الإلكتروني ومتابعة تأخر المحطات',
+    titleEn: 'Receiving QR Orders in Cashier & Station Lag Alerts',
+    summaryAr: 'كيفية اعتماد طلبات QR الواردة للكاشير، متابعة حالة كل محطة، والتعامل مع تنبيهات تأخر المحطات.',
+    summaryEn: 'How to approve incoming QR orders in POS, monitor per-station progress, and handle station lag alerts.',
+    contentAr: `عند إرسال العميل لطلب من المنيو الإلكتروني:
+1. يظهر إشعار فوري مع تنبيه صوتي في شاشة الكاشير.
+2. يراجع الكاشير تفاصيل الطلب (صالة، تيك أواي، توصيل) ويضغط "اعتماد وإرسال للمحطات".
+3. تعرض تذكرة الكاشير حالة كل محطة (قيد التحضير / جاهز) وتصدر تنبيهاً فورياً عند جاهزية محطة وتأخر محطة أخرى.`,
+    contentEn: `When a customer submits a QR Menu order:
+1. An instant toast notification with sound chime alerts the cashier.
+2. The cashier reviews order details (Dine-in, Takeaway, Delivery) and clicks "Approve & Send to Stations".
+3. The cashier ticket displays each station's live status (Preparing / Ready) and alerts when one station lags behind another.`,
+    stepsAr: [
+      'اضغط على زر "طلبات QR الواردة" في شاشة نقطة البيع.',
+      'راجع الأصناف والملاحظات ثم اعتمد الطلب لتوزيعه على المحطات.',
+      'تابع تبويب "متابعة المحطات الحية" لرصد أي محطة متأخرة.',
+    ],
+    stepsEn: [
+      'Click "Incoming QR Orders" in the POS screen.',
+      'Review items and notes, then approve to route tickets to stations.',
+      'Monitor the "Live Station Status" tab to spot any lagging station.',
+    ],
+    commonMistakesAr: [
+      'تأخير اعتماد الطلبات الواردة في أوقات الذروة.',
+    ],
+    commonMistakesEn: [
+      'Delaying approval of incoming QR orders during peak hours.',
+    ],
+    lastUpdated: '2026-11-05',
+  },
+  {
+    id: 'art-kitchen-stations-kds',
+    slug: 'kitchen-stations-kds',
+    module: 'kds',
+    category: 'kds',
+    titleAr: 'إدارة محطات التحضير وشاشات المطبخ (KDS)',
+    titleEn: 'Managing Kitchen Display Stations (KDS) & Ticket Workflow',
+    summaryAr: 'تشغيل شاشات المحطات (المطبخ، المشويات، البار، الحلويات) وتحديث حالة التذاكر لحظياً.',
+    summaryEn: 'Operating station displays (Kitchen, Grill, Bar, Pastry) and updating ticket statuses in real time.',
+    contentAr: `تقوم منظومة Tygos بتقسيم كل طلب معتمد إلى تذاكر مستقلة لكل محطة تحضير:
+• ترى كل محطة الأصناف الخاصة بها فقط مع الكميات وملاحظات العميل ورقم الطاولة.
+• يتم حجب بيانات العميل الحساسة (الهاتف والعنوان) عن تذاكر التحضير.
+• عند إتمام جميع المحطات لتذاكرها، تتحول حالة الطلب تلقائياً إلى "جاهز" لدى الكاشير والعميل.`,
+    contentEn: `Tygos splits every approved order into dedicated tickets per prep station:
+• Each station sees only its assigned items, quantities, prep notes, and table number.
+• Sensitive customer PII (phone and delivery address) is stripped from prep tickets.
+• Once all stations mark their tickets ready, the order automatically becomes "Ready" for both cashier and customer.`,
+    stepsAr: [
+      'افتح شاشة "محطات التحضير (KDS)" واختر المحطة المطلوبة.',
+      'اضغط "بدء التحضير" عند استلام التذكرة.',
+      'اضغط "جاهز للتقديم" فور الانتهاء من تجهيز الأصناف.',
+    ],
+    stepsEn: [
+      'Open "Kitchen Stations (KDS)" and select your station.',
+      'Click "Start Preparing" when beginning the ticket.',
+      'Click "Mark Ready" once items are plated.',
+    ],
+    commonMistakesAr: [
+      'نسيان تحديث حالة التذكرة إلى "جاهز" مما يبقي الطلب قيد التحضير لدى الكاشير.',
+    ],
+    commonMistakesEn: [
+      'Forgetting to mark a ticket Ready, keeping the order in Preparing state.',
+    ],
+    lastUpdated: '2026-11-05',
+  },
 ];
 
 // -------------------------------------------------------------
@@ -521,6 +665,63 @@ export const APP_INTENTS: AppIntentDefinition[] = [
     ],
     defaultActionsEn: [
       { label: 'Open Super Admin Cockpit', action: 'NAV:super_admin' },
+    ],
+  },
+  {
+    id: 'intent-qr-menu-management',
+    category: 'navigation',
+    keywordsAr: ['منيو الكتروني', 'ادارة المنيو', 'صور المنيو', 'وسوم', 'باركود', 'qr'],
+    keywordsEn: ['digital menu', 'qr menu', 'menu management', 'badges', 'qr'],
+    misspellings: ['منيو qr', 'كيو ار'],
+    targetView: 'menu_management',
+    requiredRoles: ['tenant_admin', 'general_manager', 'kitchen_manager', 'marketing_officer', 'super_admin'],
+    descriptionAr: 'إدارة المنيو الإلكتروني للعملاء، الأوصاف التسويقية باللغتين، الصور، ووسوم الأصناف.',
+    descriptionEn: 'Manage customer-facing QR menu, bilingual marketing descriptions, photos, and badges.',
+    defaultActionsAr: [
+      { label: 'فتح إدارة المنيو الإلكتروني', action: 'NAV:menu_management' },
+      { label: 'دليل إعداد المنيو الإلكتروني', action: 'ARTICLE:qr-menu-setup' },
+    ],
+    defaultActionsEn: [
+      { label: 'Open Digital Menu Management', action: 'NAV:menu_management' },
+      { label: 'QR Menu Setup Guide', action: 'ARTICLE:qr-menu-setup' },
+    ],
+  },
+  {
+    id: 'intent-qr-tables',
+    category: 'navigation',
+    keywordsAr: ['طاولات qr', 'ملصقات qr', 'طباعة باركود', 'عدد الطاولات'],
+    keywordsEn: ['qr tables', 'qr stickers', 'print qr', 'table count'],
+    misspellings: ['ملصقات', 'باركود الطاولات'],
+    targetView: 'qr_tables',
+    requiredRoles: ['tenant_admin', 'general_manager', 'cashier', 'waiter', 'super_admin'],
+    descriptionAr: 'ضبط عدد الطاولات وطباعة ملصقات QR لجميع الطاولات دفعة واحدة.',
+    descriptionEn: 'Configure table count and batch-print QR stickers for all tables.',
+    defaultActionsAr: [
+      { label: 'فتح طاولات وملصقات QR', action: 'NAV:qr_tables' },
+      { label: 'دليل طباعة ملصقات QR', action: 'ARTICLE:qr-table-printing' },
+    ],
+    defaultActionsEn: [
+      { label: 'Open QR Tables & Stickers', action: 'NAV:qr_tables' },
+      { label: 'QR Printing Guide', action: 'ARTICLE:qr-table-printing' },
+    ],
+  },
+  {
+    id: 'intent-kds',
+    category: 'navigation',
+    keywordsAr: ['محطات', 'شاشة المطبخ', 'kds', 'تذاكر التحضير', 'المشويات', 'البار'],
+    keywordsEn: ['kds', 'kitchen display', 'stations', 'prep tickets', 'grill', 'bar'],
+    misspellings: ['محطة', 'شاشات المطبخ'],
+    targetView: 'kds',
+    requiredRoles: ['tenant_admin', 'general_manager', 'kitchen_manager', 'bar_manager', 'cashier', 'super_admin'],
+    descriptionAr: 'شاشات محطات التحضير (KDS) لمتابعة وتحديث حالة تذاكر المطبخ والمشويات والبار والحلويات.',
+    descriptionEn: 'Kitchen Display Stations (KDS) for tracking and updating prep tickets across stations.',
+    defaultActionsAr: [
+      { label: 'فتح محطات التحضير (KDS)', action: 'NAV:kds' },
+      { label: 'دليل تشغيل المحطات', action: 'ARTICLE:kitchen-stations-kds' },
+    ],
+    defaultActionsEn: [
+      { label: 'Open Kitchen Stations (KDS)', action: 'NAV:kds' },
+      { label: 'Kitchen Stations SOP', action: 'ARTICLE:kitchen-stations-kds' },
     ],
   },
 ];

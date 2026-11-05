@@ -23,6 +23,7 @@ import QRCode from 'qrcode';
 import { useAuth } from '../../context/AuthContext.tsx';
 import { useI18n } from '../../i18n/I18nContext.tsx';
 import { getPublicMenuUrl } from '../../utils/urlRouter.ts';
+import { dataService } from '../../services/dataService.ts';
 import { TYGOS_LOGO_SRC } from '../brand/TygosLogo.tsx';
 
 interface TableQrItem {
@@ -36,6 +37,7 @@ export const QrTableManagerView: React.FC = () => {
   const { language } = useI18n();
   const isAr = language === 'ar';
 
+  const estId = currentEstablishment?.id || 'default';
   const estCode = currentEstablishment?.code || 'R.0001';
   const venueName = currentEstablishment?.name || 'TYGOS VENUE';
 
@@ -44,6 +46,14 @@ export const QrTableManagerView: React.FC = () => {
   const [mainVenueQr, setMainVenueQr] = useState<string>('');
   const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    dataService.getVenueSettings(estId).then((s) => {
+      if (s.tableCount && s.tableCount >= 1) {
+        setTableCount(s.tableCount);
+      }
+    });
+  }, [estId]);
 
   // Generate QR codes using offline npm qrcode library
   useEffect(() => {
@@ -205,7 +215,11 @@ export const QrTableManagerView: React.FC = () => {
             min={1}
             max={100}
             value={tableCount}
-            onChange={(e) => setTableCount(Math.max(1, Math.min(100, Number(e.target.value))))}
+            onChange={(e) => {
+              const val = Math.max(1, Math.min(100, Number(e.target.value) || 1));
+              setTableCount(val);
+              dataService.saveVenueSettings(estId, { tableCount: val });
+            }}
             className="w-20 px-3 py-1.5 rounded-xl bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-xs font-bold font-mono text-center text-slate-900 dark:text-white"
           />
         </div>
