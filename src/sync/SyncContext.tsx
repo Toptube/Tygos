@@ -14,6 +14,7 @@ import {
 } from './syncTypes.ts';
 import { outboxService } from './outboxService.ts';
 import { orderTransport } from '../services/orderTransport.ts';
+import { deviceRepository } from '../repositories/repositories.ts';
 
 interface SyncContextType {
   status: SyncStatus;
@@ -68,33 +69,18 @@ const SyncContext = createContext<SyncContextType | undefined>(undefined);
 export const SyncProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isOnline, setIsOnline] = useState<boolean>(true);
   const [status, setStatus] = useState<SyncStatus>('synced');
-  const [deploymentMode, setDeploymentMode] = useState<DeploymentMode>(() => {
-    if (typeof window !== 'undefined' && window.localStorage) {
-      return (window.localStorage.getItem('tygos_deployment_mode') as DeploymentMode) || 'standalone';
-    }
-    return 'standalone';
-  });
-  const [serverBaseUrl, setServerBaseUrl] = useState<string>(() => {
-    if (typeof window !== 'undefined' && window.localStorage) {
-      return window.localStorage.getItem('tygos_server_base_url') || '';
-    }
-    return '';
-  });
+  const [deploymentMode, setDeploymentMode] = useState<DeploymentMode>(() =>
+    deviceRepository.getDeploymentMode()
+  );
+  const [serverBaseUrl, setServerBaseUrl] = useState<string>(() =>
+    deviceRepository.getServerBaseUrl()
+  );
   const [registeredDevices, setRegisteredDevices] = useState<RegisteredDevice[]>(() => {
-    if (typeof window !== 'undefined' && window.localStorage) {
-      try {
-        const raw = window.localStorage.getItem('tygos_registered_devices');
-        if (raw) return JSON.parse(raw);
-      } catch {
-        // ignore
-      }
-    }
-    return DEFAULT_DEVICES;
+    const saved = deviceRepository.getRegisteredDevices();
+    return saved.length > 0 ? saved : DEFAULT_DEVICES;
   });
 
-  const tenantId =
-    (typeof window !== 'undefined' && window.localStorage.getItem('tygos_active_est_id')) ||
-    'est-1';
+  const tenantId = deviceRepository.getActiveEstId() || 'est-1';
 
   const [outboxEvents, setOutboxEvents] = useState<OutboxEvent[]>(() =>
     outboxService.getEvents(tenantId)
@@ -111,10 +97,8 @@ export const SyncProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setDeploymentMode(mode);
     setServerBaseUrl(url);
     orderTransport.setDeploymentConfig(mode, url);
-    if (typeof window !== 'undefined' && window.localStorage) {
-      window.localStorage.setItem('tygos_deployment_mode', mode);
-      window.localStorage.setItem('tygos_server_base_url', url);
-    }
+    deviceRepository.setDeploymentMode(mode);
+    deviceRepository.setServerBaseUrl(url);
   };
 
   const registerDevice = (device: Omit<RegisteredDevice, 'id' | 'lastSeenAt'>) => {
@@ -125,17 +109,13 @@ export const SyncProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
     const next = [...registeredDevices, newDev];
     setRegisteredDevices(next);
-    if (typeof window !== 'undefined' && window.localStorage) {
-      window.localStorage.setItem('tygos_registered_devices', JSON.stringify(next));
-    }
+    deviceRepository.saveRegisteredDevices(next);
   };
 
   const removeDevice = (id: string) => {
     const next = registeredDevices.filter((d) => d.id !== id);
     setRegisteredDevices(next);
-    if (typeof window !== 'undefined' && window.localStorage) {
-      window.localStorage.setItem('tygos_registered_devices', JSON.stringify(next));
-    }
+    deviceRepository.saveRegisteredDevices(next);
   };
 
   const pendingQueue: PendingSyncItem[] = outboxEvents

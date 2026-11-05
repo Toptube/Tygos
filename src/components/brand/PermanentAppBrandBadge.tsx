@@ -20,24 +20,23 @@ import {
 import QRCode from 'qrcode';
 import { TYGOS_LOGO_SRC } from './TygosLogo.tsx';
 import { useI18n } from '../../i18n/I18nContext.tsx';
+import { settingsRepository } from '../../repositories/repositories.ts';
 
 /**
  * Dynamically resolves the application URL from localStorage settings or window.location.origin.
  * Never hardcodes any fixed cloud or preview domain!
  */
 export function getResolvedAppUrl(): string {
-  if (typeof window !== 'undefined') {
-    try {
-      const stored = localStorage.getItem('tygos_settings_publicAppUrl');
-      if (stored && stored.trim()) {
-        return stored.trim();
-      }
-      if (window.location && window.location.origin) {
-        return window.location.origin;
-      }
-    } catch {
-      // fallback
+  try {
+    const stored = settingsRepository.getPublicAppUrl();
+    if (stored && stored.trim()) {
+      return stored.trim();
     }
+    if (typeof window !== 'undefined' && window.location && window.location.origin) {
+      return window.location.origin;
+    }
+  } catch {
+    // fallback
   }
   return 'http://localhost:3000';
 }

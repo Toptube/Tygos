@@ -77,6 +77,11 @@ const SystemHealthDashboard = React.lazy(() =>
 const SettingsModule = React.lazy(() =>
   import('./components/settings/SettingsModule.tsx').then((m) => ({ default: m.SettingsModule }))
 );
+const PreLaunchChecklistView = React.lazy(() =>
+  import('./components/settings/PreLaunchChecklistView.tsx').then((m) => ({
+    default: m.PreLaunchChecklistView,
+  }))
+);
 
 const AppContent: React.FC = () => {
   const { currentUser, currentEstablishment, activeView, setActiveView, switchRole } = useAuth();
@@ -203,6 +208,8 @@ const AppContent: React.FC = () => {
         return <SystemHealthDashboard />;
       case 'settings':
         return <SettingsModule />;
+      case 'prelaunch_checklist':
+        return <PreLaunchChecklistView />;
       case 'dashboard':
       default:
         return <TenantDashboard />;

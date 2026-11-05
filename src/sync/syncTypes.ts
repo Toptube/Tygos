@@ -8,6 +8,7 @@
  */
 
 import { PrepStation } from '../domain/qrMenuTypes.ts';
+import { getStorageAdapter } from '../repositories/storageAdapter.ts';
 
 export type DeploymentMode = 'standalone' | 'cloud' | 'local' | 'hybrid';
 
@@ -38,7 +39,8 @@ export interface OutboxEvent<T = unknown> {
     | 'settings'
     | 'stock_movement'
     | 'shift'
-    | 'coupon';
+    | 'coupon'
+    | 'menu_override';
   entityId: string;
   operation: OutboxOperation;
   payload: T;
@@ -91,15 +93,13 @@ export function generateUuid(): string {
  * Returns or creates a persistent client device identifier.
  */
 export function getOrCreateDeviceId(): string {
+  const adapter = getStorageAdapter();
   const key = 'tygos_device_id';
-  if (typeof window !== 'undefined' && window.localStorage) {
-    const existing = window.localStorage.getItem(key);
-    if (existing) return existing;
-    const created = `dev-${generateUuid().slice(0, 8)}`;
-    window.localStorage.setItem(key, created);
-    return created;
-  }
-  return 'dev-server-01';
+  const existing = adapter.getItemSync(key);
+  if (existing) return existing;
+  const created = `dev-${generateUuid().slice(0, 8)}`;
+  adapter.setItemSync(key, created);
+  return created;
 }
 
 /**
@@ -112,13 +112,11 @@ export function generateNextOrderSerial(
   isOffline = false,
   deviceId?: string
 ): string {
+  const adapter = getStorageAdapter();
   const key = `tygos_${establishmentId}_order_seq`;
-  let nextNum = 1;
-  if (typeof window !== 'undefined' && window.localStorage) {
-    const current = parseInt(window.localStorage.getItem(key) || '0', 10);
-    nextNum = (Number.isNaN(current) ? 0 : current) + 1;
-    window.localStorage.setItem(key, String(nextNum));
-  }
+  const current = parseInt(adapter.getItemSync(key) || '0', 10);
+  const nextNum = (Number.isNaN(current) ? 0 : current) + 1;
+  adapter.setItemSync(key, String(nextNum));
   const padded = String(nextNum).padStart(4, '0');
   if (isOffline) {
     const devPrefix = (deviceId || getOrCreateDeviceId()).replace(/^dev-/, '').slice(0, 3).toUpperCase();

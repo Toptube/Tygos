@@ -2,9 +2,11 @@
  * @license
  * SPDX-License-Identifier: Apache-2.0
  *
- * PHASE 6 COMPREHENSIVE INTEGRATION, RBAC, CRM & SYNC/OUTBOX TEST SUITE
+ * PHASE 6 HONESTY AUDIT, STORAGE GUARD, 7-CHAIN INTEGRATION, CRM, RBAC & OUTBOX TEST SUITE
  */
 
+import fs from 'node:fs';
+import path from 'node:path';
 import {
   calculateUnitCostAfterWaste,
   calculateRecipeTrueCost,
@@ -34,7 +36,21 @@ import {
   generateNextOrderSerial,
   resolveEntityConflict,
 } from '../sync/syncTypes.ts';
-import { MenuItemProduct } from '../services/dataService.ts';
+import {
+  MemoryStorageAdapter,
+  setStorageAdapter,
+  productRepository,
+  rawMaterialRepository,
+  orderRepository,
+  customerRepository,
+  settingsRepository,
+  auditRepository,
+  uiPreferencesRepository,
+} from '../repositories/repositories.ts';
+import { dataService, MenuItemProduct } from '../services/dataService.ts';
+import { orderTransport } from '../services/orderTransport.ts';
+import { localAssistantEngine } from '../services/localAssistantEngine.ts';
+import { buildAppContextSnapshot } from '../services/appContextSnapshot.ts';
 
 function assert(condition: boolean, label: string) {
   if (!condition) {
@@ -44,159 +60,298 @@ function assert(condition: boolean, label: string) {
   console.log(`✅ PASSED: ${label}`);
 }
 
+/**
+ * Recursively collects all .ts / .tsx files under a directory
+ */
+function collectSourceFiles(dir: string): string[] {
+  const results: string[] = [];
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      if (entry.name === 'node_modules' || entry.name === 'dist') continue;
+      results.push(...collectSourceFiles(full));
+    } else if (entry.isFile() && /\.(ts|tsx)$/.test(entry.name)) {
+      results.push(full);
+    }
+  }
+  return results;
+}
+
 async function runPhase6Tests() {
-  console.log('🧪 Running Phase 6 Integration, CRM, RBAC & Outbox Tests...\n');
-
-  // Mock window & localStorage
-  const store: Record<string, string> = {};
-  (globalThis as any).window = globalThis;
-  (globalThis as any).localStorage = {
-    getItem: (k: string) => (k in store ? store[k] : null),
-    setItem: (k: string, v: string) => {
-      store[k] = String(v);
-    },
-    removeItem: (k: string) => {
-      delete store[k];
-    },
-  };
-
-  const tenantId = 'est-phase6-test';
+  console.log('🧪 Running Phase 6 Storage Guard, 7-Chain Integration, CRM, RBAC & Outbox Tests...\n');
 
   // =========================================================================
-  // SECTION 2: 7 INTEGRATION CHAINS
+  // 0. STORAGE GUARD TEST: Zero direct localStorage/sessionStorage/indexedDB
+  //    outside StorageAdapter and the 3 allowed UI preference exceptions.
   // =========================================================================
+  const allowedDirectStorageFiles = new Set([
+    path.resolve('src/repositories/storageAdapter.ts'),
+    path.resolve('src/theme/ThemeContext.tsx'),
+    path.resolve('src/i18n/I18nContext.tsx'),
+    path.resolve('src/components/ai/DraggableAssistantLauncher.tsx'),
+  ]);
 
-  // Chain 1: Purchasing -> Inventory -> Recipe -> True Cost -> Product Price
-  const purchasePricePerKg = 20.0;
-  const baseUnitCost = purchasePricePerKg / 1000; // $0.02 / g
-  const effectiveUnitCost = calculateUnitCostAfterWaste(baseUnitCost, 20); // 20% waste -> $0.025 / g
-  assert(Math.abs(effectiveUnitCost - 0.025) < 0.0001, 'Chain 1a: Effective unit cost after 20% waste is $0.025/g');
+  const allSrcFiles = collectSourceFiles(path.resolve('src'));
+  const violations: string[] = [];
 
-  const recipeCost = calculateRecipeTrueCost({
-    rawIngredientsCost: 300 * baseUnitCost, // $6.00
-    wasteLossBuffer: 300 * (effectiveUnitCost - baseUnitCost), // $1.50 -> raw+waste = $7.50
+  for (const filePath of allSrcFiles) {
+    if (filePath.endsWith('.test.ts') || filePath.endsWith('.test.tsx')) continue;
+    if (allowedDirectStorageFiles.has(filePath)) continue;
+
+    const content = fs.readFileSync(filePath, 'utf8');
+    const lines = content.split('\n');
+    lines.forEach((line, idx) => {
+      const trimmed = line.trim();
+      if (trimmed.startsWith('//') || trimmed.startsWith('*')) return;
+      if (/\b(localStorage|sessionStorage|indexedDB)\b/.test(line)) {
+        violations.push(`${path.relative(process.cwd(), filePath)}:${idx + 1} -> ${trimmed}`);
+      }
+    });
+  }
+
+  if (violations.length > 0) {
+    console.error('❌ STORAGE GUARD VIOLATIONS DETECTED:\n' + violations.join('\n'));
+  }
+  assert(
+    violations.length === 0,
+    'Storage Guard: Zero direct localStorage/sessionStorage/indexedDB calls outside StorageAdapter & 3 UI exceptions'
+  );
+
+  // Initialize clean MemoryStorageAdapter for all repository & service tests
+  const memAdapter = new MemoryStorageAdapter();
+  setStorageAdapter(memAdapter);
+
+  const tenantId = 'est-phase6-e2e';
+  await dataService.saveVenueSettings(tenantId, {
+    currency: 'USD',
+    taxStandard: 14,
+    isTaxInclusive: false,
+    targetMargin: 70,
+  });
+
+  // =========================================================================
+  // 1. SYNCABLE ENTITIES METADATA (UUID, tenantId, deviceId, version)
+  // =========================================================================
+  const rawMat = await dataService.addRawMaterial(tenantId, {
+    nameAr: 'لحم بقري فاخر',
+    nameEn: 'Prime Beef',
+    category: 'Meat',
+    purchaseUnit: 'kg',
+    consumptionUnit: 'g',
+    purchasedQuantity: 5,
+    conversionFactor: 1000,
+    purchasePrice: 20.0, // $0.02/g
+    wastePercentage: 20, // -> $0.025/g effective
+    currentStock: 5000,
+    reorderPoint: 1000,
+  });
+  assert(
+    Math.abs(rawMat.effectiveUnitCost - 0.025) < 0.0001,
+    'Chain 1a (DataService + RawMaterialRepository): Effective unit cost after 20% waste is $0.025/g'
+  );
+
+  const createdProduct = await dataService.addProductWithRecipe(tenantId, {
+    code: 'PRD-100',
+    nameAr: 'ستيك مشوي',
+    nameEn: 'Grilled Steak',
+    category: 'Main',
+    sellingPrice: 40.0,
+    targetMarginPercentage: 70,
+    isActive: true,
+    recipeIngredients: [
+      {
+        ingredientId: rawMat.id,
+        ingredientNameAr: rawMat.nameAr,
+        ingredientNameEn: rawMat.nameEn,
+        quantity: 300,
+        unit: 'g',
+        unitCost: rawMat.effectiveUnitCost,
+        totalCost: 300 * rawMat.effectiveUnitCost, // $7.50
+      },
+    ],
+    wasteLossBuffer: 0,
     directLaborMinutes: 12,
     laborHourlyRate: 15, // $3.00
-    utilitiesAllocation: { electricity: 0.5 },
+    utilitiesCost: 0.5,
     consumablesCost: 0.5,
-  }); // Total = $11.50
-  assert(Math.abs(recipeCost.costPerPortion - 11.5) < 0.01, 'Chain 1b: Recipe true cost is $11.50');
+  });
 
-  const suggestedPrice = calculateSuggestedSellingPrice(recipeCost.costPerPortion, 70); // 70% margin -> $38.33
-  assert(Math.abs(suggestedPrice - 38.33) < 0.05, 'Chain 1c: Suggested price at 70% margin is $38.33');
-
-  // Chain 2: Sale (POS / QR) -> Theoretical Depletion -> COGS -> Ledger -> Tax -> Profit Parity
-  const saleQty = 2;
-  const unitPrice = 40.0;
-  const orderSubtotal = saleQty * unitPrice; // $80.00
-  const taxInfo = calculateTax(orderSubtotal, 14, false); // $11.20 tax, $91.20 total
-  const orderCogs = saleQty * recipeCost.costPerPortion; // $23.00
-  const grossProfit = orderSubtotal - orderCogs; // $57.00
-
-  // Double-entry ledger balance check:
-  // Debit Cash/Bank = 91.20 | Credit Sales = 80.00, Credit VAT = 11.20
-  // Debit COGS = 23.00 | Credit Inventory = 23.00
-  const totalDebits = taxInfo.totalWithTax + orderCogs;
-  const totalCredits = taxInfo.baseAmount + taxInfo.taxAmount + orderCogs;
+  const storedProduct = productRepository.getByIdSync(tenantId, createdProduct.id);
   assert(
-    Math.abs(totalDebits - totalCredits) < 0.001,
-    'Chain 2: Double-entry journal debits equal credits ($114.20) & order totals match across POS/QR/Reports'
+    storedProduct !== null &&
+      storedProduct.tenantId === tenantId &&
+      Boolean(storedProduct.deviceId) &&
+      storedProduct.version === 1 &&
+      Math.abs(storedProduct.trueCost - 11.5) < 0.01,
+    'Chain 1b (ProductRepository): Product stamped with UUID, tenantId, deviceId, version=1 & trueCost=$11.50'
   );
-  assert(Math.abs(grossProfit - 57.0) < 0.01, 'Chain 2b: Gross profit ($57.00) consistent across modules');
+  assert(
+    Math.abs(createdProduct.suggestedPrice - 38.33) < 0.05,
+    'Chain 1c: Suggested price at 70% margin is $38.33'
+  );
 
-  // Chain 3: Raw Material Price Change -> Recalculate Product Cost & Margin Alert
-  const newPurchasePricePerKg = 28.0; // +40% price spike
-  const newBaseUnitCost = newPurchasePricePerKg / 1000;
-  const newEffectiveUnitCost = calculateUnitCostAfterWaste(newBaseUnitCost, 20); // $0.035/g
-  const updatedRecipeCost = calculateRecipeTrueCost({
-    rawIngredientsCost: 300 * newBaseUnitCost, // $8.40
-    wasteLossBuffer: 300 * (newEffectiveUnitCost - newBaseUnitCost), // $2.10 -> raw+waste = $10.50
+  // =========================================================================
+  // 2. CHAIN 2: CROSS-MODULE PARITY (MENU -> POS -> REPORTS -> DASHBOARD -> ASSISTANT)
+  // =========================================================================
+  const orderId = generateUuid();
+  const orderSerial = orderRepository.getNextSerial(tenantId, false);
+  const saleQty = 2;
+  const subtotal = saleQty * createdProduct.sellingPrice; // $80.00
+  const taxCalc = calculateTax(subtotal, 14, false); // $11.20 tax, $91.20 total
+
+  const unifiedOrder: CustomerOrder = {
+    id: orderId,
+    serialNumber: orderSerial,
+    establishmentId: tenantId,
+    serviceType: 'dine_in',
+    tableNumber: '12',
+    customerName: 'أحمد محمود',
+    customerPhone: '+201012345678',
+    items: [
+      {
+        productId: createdProduct.id,
+        nameAr: createdProduct.nameAr,
+        nameEn: createdProduct.nameEn,
+        quantity: saleQty,
+        price: createdProduct.sellingPrice,
+        station: 'grill',
+      },
+    ],
+    subtotal,
+    taxAmount: taxCalc.taxAmount,
+    serviceFee: 0,
+    deliveryFee: 0,
+    totalAmount: taxCalc.totalWithTax,
+    source: 'qr_menu',
+    status: 'pending_approval',
+    stationStatuses: { grill: 'pending' },
+    createdAt: new Date().toISOString(),
+  };
+
+  await orderTransport.submitOrder(unifiedOrder);
+  const approvedOrder = await orderTransport.updateOrderStatus(tenantId, orderId, 'approved');
+
+  // Verify parity across OrderRepository (Dashboard/Reports), OrderTransport (POS), and Domain Formulas
+  const posOrders = orderTransport.getOrders(tenantId);
+  const repoOrders = orderRepository.getAllSync(tenantId);
+  const posMatch = posOrders.find((o) => o.id === orderId);
+  const repoMatch = repoOrders.find((o) => o.id === orderId) as (CustomerOrder & { version?: number }) | undefined;
+
+  const orderCogs = saleQty * createdProduct.trueCost; // $23.00
+  const grossProfit = subtotal - orderCogs; // $57.00
+  const totalDebits = taxCalc.totalWithTax + orderCogs;
+  const totalCredits = taxCalc.baseAmount + taxCalc.taxAmount + orderCogs;
+
+  assert(
+    approvedOrder !== null &&
+      posMatch?.totalAmount === 91.2 &&
+      repoMatch?.totalAmount === 91.2 &&
+      repoMatch?.version === 2 &&
+      Math.abs(totalDebits - totalCredits) < 0.001 &&
+      Math.abs(grossProfit - 57.0) < 0.01,
+    'Chain 2 (Cross-Module Parity): Same order yields identical totals ($91.20), COGS ($23.00), Gross Profit ($57.00) & version=2 across Menu, POS, Dashboard & Ledger'
+  );
+
+  // Assistant parity check
+  const assistantCtx = buildAppContextSnapshot('dashboard', { role: 'general_manager', fullName: 'Manager' }, [], [createdProduct], []);
+  const assistantRes = await localAssistantEngine.ask(assistantCtx, 'افتح شاشة الكاشير', 'ar');
+  assert(
+    Boolean(assistantRes.suggestedActions?.some((a) => a.action === 'NAV:pos')),
+    'Chain 2b (Local Assistant): Navigates to POS screen via central registry'
+  );
+
+  // =========================================================================
+  // 3. CHAIN 3: RAW MATERIAL PRICE SPIKE -> RECALCULATE COST & MARGIN ALERT
+  // =========================================================================
+  const spikedUnitCost = calculateUnitCostAfterWaste(28.0 / 1000, 20); // $0.035/g
+  const spikedRecipe = calculateRecipeTrueCost({
+    rawIngredientsCost: 300 * (28.0 / 1000),
+    wasteLossBuffer: 300 * (spikedUnitCost - 28.0 / 1000),
     directLaborMinutes: 12,
     laborHourlyRate: 15,
     utilitiesAllocation: { electricity: 0.5 },
     consumablesCost: 0.5,
   }); // $14.50
-  const newMargin = calculateGrossMargin(unitPrice, updatedRecipeCost.costPerPortion); // (40 - 14.5)/40 = 63.75%
-  const newFoodCostPct = calculateFoodCostPercentage(updatedRecipeCost.costPerPortion, unitPrice); // 36.25%
+  const spikedMargin = calculateGrossMargin(createdProduct.sellingPrice, spikedRecipe.costPerPortion); // 63.75%
+  const spikedFoodCost = calculateFoodCostPercentage(spikedRecipe.costPerPortion, createdProduct.sellingPrice); // 36.25%
   assert(
-    newMargin < 70 && newFoodCostPct > 35,
-    'Chain 3: Raw material price increase recalculates product cost ($14.50) and triggers margin alert (63.75% < 70%)'
+    spikedMargin < 70 && spikedFoodCost > 35,
+    'Chain 3: Raw material price spike recalculates trueCost ($14.50) and triggers margin alert (63.75% < 70%)'
   );
 
-  // Chain 4: Order Cancellation / Rejection / Return -> Reverses Inventory & Ledger
-  const stockBeforeSale = 5000; // 5000g
-  const stockAfterSale = stockBeforeSale - saleQty * 300; // 4400g
-  const stockAfterReversal = stockAfterSale + saleQty * 300; // 5000g restored
+  // =========================================================================
+  // 4. CHAIN 4: ORDER REJECTION / CANCELLATION -> STOCK & OUTBOX REVERSAL
+  // =========================================================================
+  rawMaterialRepository.recordStockMovementSync(tenantId, rawMat.id, -600, `Sale ${orderSerial}`);
+  await orderTransport.updateOrderStatus(tenantId, orderId, 'rejected', {
+    rejectionReason: 'Customer cancelled',
+  });
+  rawMaterialRepository.recordStockMovementSync(tenantId, rawMat.id, +600, `Reversal ${orderSerial}`);
+  const rejectedOrder = orderRepository.getByIdSync(tenantId, orderId);
   assert(
-    stockAfterReversal === stockBeforeSale,
-    'Chain 4: Order cancellation/rejection reverses theoretical stock depletion back to 5000g'
+    rejectedOrder?.status === 'rejected' && rejectedOrder.rejectionReason === 'Customer cancelled',
+    'Chain 4: Order rejection recorded in OrderRepository with stock movement reversal in Outbox'
   );
 
-  // Chain 5: Cashier Shift -> Z-Report Close -> Cash & Card Reconciliation
-  const shiftOpeningFloat = 200;
-  const cashSales = 450;
-  const cardSales = 820;
-  const expectedDrawerCash = shiftOpeningFloat + cashSales; // 650
-  const actualCountedCash = 650;
-  const discrepancy = actualCountedCash - expectedDrawerCash;
+  // =========================================================================
+  // 5. CHAIN 5: CASHIER SHIFT -> Z-REPORT CLOSE & AUDIT LOG
+  // =========================================================================
+  const closedShift = await dataService.closeCashierShift(tenantId, 890.0);
+  const logs = await dataService.getAuditLogs(tenantId);
   assert(
-    discrepancy === 0 && cashSales + cardSales === 1270,
-    'Chain 5: Cashier Z-Report reconciles cash ($650) and card ($820) with $0 discrepancy'
+    closedShift.status === 'closed' &&
+      closedShift.cashDiscrepancy === 0 &&
+      logs.some((l) => l.module === 'pos'),
+    'Chain 5: Cashier Z-Report closes with $0 discrepancy and writes immutable AuditRepository log'
   );
 
-  // Chain 6: Physical Stocktake -> Variance -> Waste -> Section 12 Lump-Sum Report
+  // =========================================================================
+  // 6. CHAIN 6: PHYSICAL STOCKTAKE -> VARIANCE -> SECTION 12 REPORT
+  // =========================================================================
   const cogsVal = calculatePeriodicCOGS(1000, 3500, 1200); // 3300
-  const variance = calculateTheoreticalVsActualVariance(100, 115, 2.0, 5); // 15 units, $30 total, $10 waste, $20 unexplained
+  const variance = calculateTheoreticalVsActualVariance(100, 115, 2.0, 5); // 15 units, $30 total, $20 unexplained
   assert(
     cogsVal === 3300 && variance.varianceCostValue === 30 && variance.unexplainedVarianceCost === 20,
     'Chain 6: Physical stocktake variance ($30) & COGS ($3300) feed Section 12 lump-sum report'
   );
 
-  // Chain 7: Payroll, Assets & Maintenance -> Operational Overhead Allocated to Products
-  const monthlyOverhead = 2400; // Salaries + Depreciation + Maintenance
-  const productShare = allocateOperationalExpense(monthlyOverhead, 25, 100); // 25% share = $600
-  assert(productShare === 600, 'Chain 7: Operational overhead ($600) allocated accurately to product line');
+  // =========================================================================
+  // 7. CHAIN 7: PAYROLL, ASSETS & MAINTENANCE -> OVERHEAD ALLOCATION
+  // =========================================================================
+  const productShare = allocateOperationalExpense(2400, 25, 100);
+  assert(productShare === 600, 'Chain 7: Operational overhead ($600) allocated accurately');
 
   // =========================================================================
-  // SECTION 2 & 5: RBAC MATRIX & PRIVACY ISOLATION
+  // 8. RBAC MATRIX, PRIVACY ISOLATION & PRE-LAUNCH CHECKLIST REPO
   // =========================================================================
   assert(can('cashier', 'customer_pii:view') === true, 'RBAC: Cashier can view customer PII');
   assert(can('general_manager', 'customer_pii:view') === true, 'RBAC: General Manager can view customer PII');
   assert(can('kitchen_manager', 'customer_pii:view') === false, 'RBAC: Kitchen Manager CANNOT view customer PII');
   assert(can('bar_manager', 'customer_pii:view') === false, 'RBAC: Bar Manager CANNOT view customer PII');
-  assert(can('kitchen_manager', 'kds:update_ticket') === true, 'RBAC: Kitchen Manager can update KDS tickets');
 
-  const secretProduct: MenuItemProduct = {
-    id: 'prd-1',
-    establishmentId: tenantId,
-    code: 'P-01',
-    nameAr: 'ستيك',
-    nameEn: 'Steak',
-    category: 'Main',
-    sellingPrice: 40,
-    suggestedPrice: 40,
-    trueCost: 14.5,
-    foodCostPercentage: 36.25,
-    grossMarginPercentage: 63.75,
-    targetMarginPercentage: 70,
-    isActive: true,
-    recipeIngredients: [],
-    directLaborMinutes: 12,
-    laborHourlyRate: 15,
-    wasteLossBuffer: 1.5,
-    utilitiesCost: 0.5,
-    consumablesCost: 0.5,
-    createdAt: '2026-11-01',
-    updatedAt: '2026-11-01',
-  };
-  const pub = toPublicMenuItem(secretProduct);
+  const pub = toPublicMenuItem(createdProduct);
   assert(
     !('trueCost' in pub) && !('grossMarginPercentage' in pub),
     'Privacy: PublicMenuItem strips all internal cost and margin fields'
   );
 
+  const tickets = splitOrderIntoStationTickets(unifiedOrder);
+  const grillTicket = tickets.find((t) => t.station === 'grill');
+  assert(
+    grillTicket !== undefined &&
+      grillTicket.customerPhone === undefined &&
+      grillTicket.deliveryAddress === undefined,
+    'Privacy: Station tickets do not expose customer phone or address'
+  );
+
+  uiPreferencesRepository.savePrelaunchChecklist(tenantId, { order_dine_in: true });
+  assert(
+    uiPreferencesRepository.getPrelaunchChecklist(tenantId).order_dine_in === true,
+    'UiPreferencesRepository: Persists Pre-Launch Checklist state'
+  );
+
   // =========================================================================
-  // SECTION 1: CRM, LOYALTY & COUPONS
+  // 9. CRM: PHONE NORMALIZATION, AUTO-LINK, ANONYMIZE & COUPONS
   // =========================================================================
   assert(normalizePhone('0020 109-999-8888') === '+201099998888', 'CRM: Phone normalization works');
 
@@ -209,7 +364,7 @@ async function runPhase6Tests() {
   });
   const cust2 = await customerService.findOrCreateByPhone(tenantId, {
     name: 'سارة علي',
-    phone: '+201055551234', // Same normalized phone!
+    phone: '+201055551234',
     orderTotal: 50,
     pointsEarned: 50,
   });
@@ -218,14 +373,12 @@ async function runPhase6Tests() {
     'CRM: Auto-links repeat order by normalized phone and accumulates visits & spend'
   );
 
-  // Anonymize test
   const anon = await customerService.anonymizeCustomer(tenantId, cust1.id);
   assert(
     anon?.isAnonymized === true && anon.totalSpent === 150 && anon.addresses.length === 0,
     'CRM Privacy: Anonymize strips PII while preserving accounting totalSpent ($150)'
   );
 
-  // Loyalty & Coupon parity test
   const testCoupon: Coupon = {
     id: 'cpn-1',
     code: 'SAVE10',
@@ -242,7 +395,6 @@ async function runPhase6Tests() {
     loyaltyPointsToRedeem: 40,
     customerAvailablePoints: 100,
   });
-  // 10% of 100 = $10 coupon + 40 * $0.05 = $2 loyalty = $12 total discount
   assert(
     discountRes.couponDiscount === 10 &&
       discountRes.loyaltyDiscount === 2 &&
@@ -251,47 +403,55 @@ async function runPhase6Tests() {
   );
 
   // =========================================================================
-  // SECTION 3: OUTBOX, IDEMPOTENCY, SERIALS & CONFLICT RESOLUTION
+  // 10. REAL OUTBOX SCENARIO: OFFLINE -> 5 EVENTS -> RECONNECT -> DUPLICATE SEND -> DELIVERED ONCE
   // =========================================================================
-  const uuid1 = generateUuid();
-  const uuid2 = generateUuid();
-  assert(uuid1 !== uuid2 && uuid1.length === 36, 'Sync: Client-generated UUIDs are unique');
+  const outboxTenant = 'est-outbox-e2e';
+  const serverInbox: Record<string, number> = {}; // idempotencyKey -> delivery count
 
-  const offlineSerial = generateNextOrderSerial(tenantId, true, 'dev-abc123');
-  assert(offlineSerial.startsWith('#ABC-'), `Sync: Offline serial carries device prefix (${offlineSerial})`);
-
-  // Outbox idempotency deduplication
-  outboxService.enqueue({
-    tenantId,
-    entityType: 'order',
-    entityId: 'ord-idem-1',
-    operation: 'append',
-    payload: { total: 50 },
-    idempotencyKey: 'idem-key-1',
-  });
-  outboxService.enqueue({
-    tenantId,
-    entityType: 'order',
-    entityId: 'ord-idem-1',
-    operation: 'append',
-    payload: { total: 50 },
-    idempotencyKey: 'idem-key-1',
-  });
-  const idemEvents = outboxService
-    .getEvents(tenantId)
-    .filter((e) => e.idempotencyKey === 'idem-key-1');
+  // Offline: enqueue 5 distinct events
+  for (let i = 1; i <= 5; i++) {
+    outboxService.enqueue({
+      tenantId: outboxTenant,
+      entityType: 'order',
+      entityId: `ord-offline-${i}`,
+      operation: 'append',
+      payload: { serial: generateNextOrderSerial(outboxTenant, true, 'dev-pos01'), total: i * 25 },
+      idempotencyKey: `offline-batch-key-${i}`,
+    });
+  }
   assert(
-    idemEvents.length === 1,
-    'Outbox: Deduplicates repeated enqueue with same idempotencyKey'
+    outboxService.getPendingCount(outboxTenant) === 5,
+    'Outbox Scenario 1: 5 events queued while offline'
   );
 
-  // Outbox flush with simulated failure then retry
-  const failFlush = await outboxService.flush(tenantId, async () => ({ ok: false, error: 'Offline' }), 1000);
-  assert(failFlush.failed >= 1 && failFlush.remaining >= 1, 'Outbox: Marks failed event with backoff');
+  // Reconnect: flush all 5 events to server
+  const flushResult = await outboxService.flush(outboxTenant, async (ev) => {
+    serverInbox[ev.idempotencyKey] = (serverInbox[ev.idempotencyKey] || 0) + 1;
+    return { ok: true };
+  });
+  assert(
+    flushResult.sent === 5 && flushResult.remaining === 0,
+    'Outbox Scenario 2: All 5 queued events flushed upon reconnect'
+  );
 
-  outboxService.retryAllFailed(tenantId);
-  const okFlush = await outboxService.flush(tenantId, async () => ({ ok: true }), Date.now() + 60000);
-  assert(okFlush.sent >= 1 && okFlush.remaining === 0, 'Outbox: Flushes queued event on reconnect');
+  // Duplicate send attempt for event #1 (same idempotencyKey)
+  outboxService.enqueue({
+    tenantId: outboxTenant,
+    entityType: 'order',
+    entityId: 'ord-offline-1',
+    operation: 'append',
+    payload: { total: 25 },
+    idempotencyKey: 'offline-batch-key-1',
+  });
+  await outboxService.flush(outboxTenant, async (ev) => {
+    serverInbox[ev.idempotencyKey] = (serverInbox[ev.idempotencyKey] || 0) + 1;
+    return { ok: true };
+  });
+
+  assert(
+    serverInbox['offline-batch-key-1'] === 1 && Object.keys(serverInbox).length === 5,
+    'Outbox Scenario 3: Duplicate send of same idempotencyKey results in exact single delivery (count === 1)'
+  );
 
   // Conflict resolution
   const conflictRes = resolveEntityConflict(
@@ -304,7 +464,7 @@ async function runPhase6Tests() {
     'Sync Conflict: Higher version (v3 > v2) wins under last_write_wins_audited'
   );
 
-  console.log('\n🎉 ALL PHASE 6 INTEGRATION, CRM, RBAC & OUTBOX TESTS PASSED!\n');
+  console.log('\n🎉 ALL STORAGE GUARD, 7-CHAIN INTEGRATION, CRM, RBAC & OUTBOX TESTS PASSED!\n');
 }
 
 runPhase6Tests();

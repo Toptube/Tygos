@@ -6,9 +6,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { DEMO_USERS, MOCK_ESTABLISHMENTS } from '../data/mockData.ts';
 import { BusinessType, Establishment, EstablishmentStatus, MaintenanceSession, User, UserRole } from '../types/index.ts';
-
-const ESTABLISHMENTS_STORAGE_KEY = 'tygos_establishments';
-const SESSION_STORAGE_KEY = 'tygos_auth_session';
+import { settingsRepository } from '../repositories/repositories.ts';
 
 interface RegistrationData {
   ownerName: string;
@@ -58,90 +56,48 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // Load persistent establishments or seed with MOCK_ESTABLISHMENTS
   const [establishments, setEstablishments] = useState<Establishment[]>(() => {
-    try {
-      const stored = localStorage.getItem(ESTABLISHMENTS_STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed;
-        }
-      }
-    } catch {
-      // Fallback
+    const stored = settingsRepository.getEstablishments<Establishment>();
+    if (Array.isArray(stored) && stored.length > 0) {
+      return stored;
     }
     return MOCK_ESTABLISHMENTS;
   });
 
   // Load session or default to initial tenant admin
   const [currentUser, setCurrentUser] = useState<User | null>(() => {
-    try {
-      const stored = localStorage.getItem(SESSION_STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (parsed?.user) return parsed.user;
-      }
-    } catch {
-      // Fallback
-    }
-    return DEMO_USERS.tenant_admin;
+    const stored = settingsRepository.getAuthSession<{ user?: User }>();
+    return stored?.user || DEMO_USERS.tenant_admin;
   });
 
   const [currentEstablishment, setCurrentEstablishment] = useState<Establishment | null>(() => {
-    try {
-      const stored = localStorage.getItem(SESSION_STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (parsed?.establishment) return parsed.establishment;
-      }
-    } catch {
-      // Fallback
-    }
-    return MOCK_ESTABLISHMENTS[0];
+    const stored = settingsRepository.getAuthSession<{ establishment?: Establishment }>();
+    return stored?.establishment || MOCK_ESTABLISHMENTS[0];
   });
 
   const [activeView, setActiveView] = useState<string>(() => {
-    try {
-      const stored = localStorage.getItem(SESSION_STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (parsed?.activeView) return parsed.activeView;
-      }
-    } catch {
-      // Fallback
-    }
-    return 'dashboard';
+    const stored = settingsRepository.getAuthSession<{ activeView?: string }>();
+    return stored?.activeView || 'dashboard';
   });
 
   const [activeSupportSession, setActiveSupportSession] = useState<MaintenanceSession | null>(null);
   const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
   const [registeredSuccessEst, setRegisteredSuccessEst] = useState<Establishment | null>(null);
 
-  // Sync establishments to localStorage
+  // Sync establishments via SettingsRepository
   useEffect(() => {
-    try {
-      localStorage.setItem(ESTABLISHMENTS_STORAGE_KEY, JSON.stringify(establishments));
-    } catch {
-      // Ignore storage errors
-    }
+    settingsRepository.saveEstablishments(establishments);
   }, [establishments]);
 
-  // Sync active session to localStorage
+  // Sync active session via SettingsRepository
   useEffect(() => {
-    try {
-      if (currentUser) {
-        localStorage.setItem(
-          SESSION_STORAGE_KEY,
-          JSON.stringify({
-            user: currentUser,
-            establishment: currentEstablishment,
-            activeView: activeView === 'login' ? 'dashboard' : activeView,
-          })
-        );
-      } else {
-        localStorage.removeItem(SESSION_STORAGE_KEY);
-      }
-    } catch {
-      // Ignore storage errors
+    if (currentUser) {
+      settingsRepository.saveAuthSession({
+        user: currentUser,
+        establishment: currentEstablishment,
+        activeView: activeView === 'login' ? 'dashboard' : activeView,
+      });
+    } else {
+      settingsRepository.clearAuthSession();
     }
   }, [currentUser, currentEstablishment, activeView]);
 
@@ -200,11 +156,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setCurrentUser(null);
     setCurrentEstablishment(null);
     setActiveView('landing');
-    try {
-      localStorage.removeItem(SESSION_STORAGE_KEY);
-    } catch {
-      // Ignore
-    }
+    settingsRepository.clearAuthSession();
   };
 
   const switchRole = (role: UserRole) => {

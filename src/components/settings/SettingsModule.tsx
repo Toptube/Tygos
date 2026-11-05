@@ -36,7 +36,11 @@ import { DeploymentMode, DeviceRole } from '../../sync/syncTypes.ts';
 export const SettingsModule: React.FC = () => {
   const { language, setLanguage, t } = useI18n();
   const isAr = language === 'ar';
-  const { currentEstablishment } = useAuth();
+  const { currentEstablishment, currentUser, setActiveView } = useAuth();
+  const isOwnerOrManager =
+    currentUser?.role === 'tenant_admin' ||
+    currentUser?.role === 'general_manager' ||
+    currentUser?.role === 'super_admin';
   const { refreshMaterialsAndProducts } = useBusiness();
   const estId = currentEstablishment?.id || 'default';
 
@@ -202,14 +206,26 @@ export const SettingsModule: React.FC = () => {
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={handleSaveSettings}
-          className="px-5 py-2 text-xs font-bold rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 shadow-md shadow-cyan-900/30 transition-all cursor-pointer flex items-center gap-2 self-start sm:self-auto"
-        >
-          {savedSuccess ? <Check className="w-4 h-4" /> : <Settings className="w-4 h-4" />}
-          <span>{savedSuccess ? (isAr ? 'تم الحفظ بنجاح!' : 'Saved!') : (isAr ? 'حفظ الإعدادات' : 'Save Settings')}</span>
-        </button>
+        <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+          {isOwnerOrManager && (
+            <button
+              type="button"
+              onClick={() => setActiveView('prelaunch_checklist')}
+              className="px-3.5 py-2 text-xs font-bold rounded-xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer flex items-center gap-1.5"
+            >
+              <Check className="w-3.5 h-3.5 text-emerald-500" />
+              <span>{isAr ? 'قائمة الفحص قبل التشغيل' : 'Pre-Launch Checklist'}</span>
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={handleSaveSettings}
+            className="px-5 py-2 text-xs font-bold rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 shadow-md shadow-cyan-900/30 transition-all cursor-pointer flex items-center gap-2"
+          >
+            {savedSuccess ? <Check className="w-4 h-4" /> : <Settings className="w-4 h-4" />}
+            <span>{savedSuccess ? (isAr ? 'تم الحفظ بنجاح!' : 'Saved!') : (isAr ? 'حفظ الإعدادات' : 'Save Settings')}</span>
+          </button>
+        </div>
       </div>
 
       {backupMessage && (

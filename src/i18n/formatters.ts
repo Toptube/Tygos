@@ -4,6 +4,7 @@
  */
 
 import { LanguageCode } from './I18nContext.tsx';
+import { settingsRepository, getStorageAdapter } from '../repositories/repositories.ts';
 
 /**
  * Currency symbols mapping
@@ -49,23 +50,18 @@ export function formatMoney(
   let resolvedLang: LanguageCode = lang || 'ar';
   let resolvedCurrency: string = currency || 'USD';
 
-  if (typeof window !== 'undefined') {
-    if (!lang) {
-      const savedLang = localStorage.getItem('tygos_lang') as LanguageCode | null;
-      if (savedLang) resolvedLang = savedLang;
-    }
-    if (!currency) {
-      try {
-        const sessionRaw = localStorage.getItem('tygos_auth_session');
-        const estId = sessionRaw ? JSON.parse(sessionRaw)?.establishment?.id || 'default' : 'default';
-        const settingsRaw = localStorage.getItem(`tygos_${estId}_venue_settings`);
-        if (settingsRaw) {
-          const parsed = JSON.parse(settingsRaw);
-          if (parsed?.currency) resolvedCurrency = parsed.currency;
-        }
-      } catch {
-        // fallback to USD
-      }
+  if (!lang) {
+    const savedLang = getStorageAdapter().getItemSync('tygos_lang') as LanguageCode | null;
+    if (savedLang) resolvedLang = savedLang;
+  }
+  if (!currency) {
+    try {
+      const session = settingsRepository.getAuthSession<{ establishment?: { id?: string } }>();
+      const estId = session?.establishment?.id || 'default';
+      const venueSettings = settingsRepository.getVenueSettings<{ currency?: string }>(estId);
+      if (venueSettings?.currency) resolvedCurrency = venueSettings.currency;
+    } catch {
+      // fallback to USD
     }
   }
 

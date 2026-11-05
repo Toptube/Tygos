@@ -13,6 +13,7 @@ import {
   generateUuid,
   getOrCreateDeviceId,
 } from './syncTypes.ts';
+import { getStorageAdapter } from '../repositories/storageAdapter.ts';
 
 export type OutboxDispatcher = (event: OutboxEvent) => Promise<{ ok: boolean; error?: string }>;
 
@@ -24,9 +25,8 @@ class OutboxService {
   }
 
   public getEvents(tenantId: string): OutboxEvent[] {
-    if (typeof window === 'undefined' || !window.localStorage) return [];
     try {
-      const raw = window.localStorage.getItem(this.getStorageKey(tenantId));
+      const raw = getStorageAdapter().getItemSync(this.getStorageKey(tenantId));
       return raw ? JSON.parse(raw) : [];
     } catch {
       return [];
@@ -34,9 +34,8 @@ class OutboxService {
   }
 
   private saveEvents(tenantId: string, events: OutboxEvent[]): void {
-    if (typeof window === 'undefined' || !window.localStorage) return;
     try {
-      window.localStorage.setItem(this.getStorageKey(tenantId), JSON.stringify(events));
+      getStorageAdapter().setItemSync(this.getStorageKey(tenantId), JSON.stringify(events));
       this.notify();
     } catch {
       // ignore quota error

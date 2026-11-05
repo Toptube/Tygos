@@ -23,6 +23,7 @@ import {
   CheckCircle2,
   AlertTriangle,
 } from 'lucide-react';
+import { uiPreferencesRepository } from '../../repositories/repositories.ts';
 import { useAuth } from '../../context/AuthContext.tsx';
 import { useI18n } from '../../i18n/I18nContext.tsx';
 import { useToast } from '../../context/ToastContext.tsx';
@@ -217,19 +218,13 @@ export const CrmModule: React.FC = () => {
   };
 
   const handleReorderToPos = (cust: CustomerProfile, order?: CustomerOrder | null) => {
-    // Store quick-fill payload for POS
-    if (typeof window !== 'undefined' && window.sessionStorage) {
-      window.sessionStorage.setItem(
-        'tygos_pos_prefill_customer',
-        JSON.stringify({
-          customerId: cust.id,
-          customerName: cust.name,
-          customerPhone: cust.phone,
-          deliveryAddress: cust.addresses[0]?.description || '',
-          items: order?.items || [],
-        })
-      );
-    }
+    uiPreferencesRepository.setPosPrefillCustomer({
+      customerId: cust.id,
+      customerName: cust.name,
+      customerPhone: cust.phone,
+      deliveryAddress: cust.addresses[0]?.description || '',
+      items: order?.items || [],
+    });
     setActiveView('pos');
     showToast({
       type: 'info',

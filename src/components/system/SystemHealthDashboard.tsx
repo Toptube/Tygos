@@ -23,6 +23,7 @@ import {
   Zap,
 } from 'lucide-react';
 import { useI18n } from '../../i18n/I18nContext.tsx';
+import { uiPreferencesRepository } from '../../repositories/repositories.ts';
 import { useAuth } from '../../context/AuthContext.tsx';
 
 export const SystemHealthDashboard: React.FC = () => {
@@ -35,19 +36,10 @@ export const SystemHealthDashboard: React.FC = () => {
   const [storageUsedBytes, setStorageUsedBytes] = useState(1420000); // ~1.42 MB
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Measure local storage footprint
+  // Measure local storage footprint via UiPreferencesRepository
   useEffect(() => {
-    try {
-      let totalBytes = 0;
-      for (const key in localStorage) {
-        if (Object.prototype.hasOwnProperty.call(localStorage, key)) {
-          totalBytes += (localStorage[key].length + key.length) * 2;
-        }
-      }
-      setStorageUsedBytes(totalBytes || 1420000);
-    } catch {
-      // Fallback
-    }
+    const totalBytes = uiPreferencesRepository.getStorageUsageBytes();
+    setStorageUsedBytes(totalBytes || 1420000);
   }, []);
 
   const handleRefreshMetrics = () => {

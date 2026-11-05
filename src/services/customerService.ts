@@ -165,16 +165,8 @@ export function calculateOrderDiscounts(params: {
 }
 
 class CustomerService {
-  private repo = new TenantRepository<CustomerProfile>(
-    defaultStorageAdapter,
-    'customers',
-    'customer'
-  );
-  private couponRepo = new TenantRepository<Coupon>(
-    defaultStorageAdapter,
-    'coupons',
-    'coupon'
-  );
+  private repo = new TenantRepository<CustomerProfile>('customers', 'customer');
+  private couponRepo = new TenantRepository<Coupon>('coupons', 'coupon');
 
   public async getCustomers(tenantId: string): Promise<CustomerProfile[]> {
     const list = await this.repo.getAll(tenantId);

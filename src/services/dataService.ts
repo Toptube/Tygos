@@ -18,6 +18,15 @@ import {
 } from '../domain/formulas.ts';
 import { UserRole, Establishment } from '../types/index.ts';
 import {
+  rawMaterialRepository,
+  productRepository,
+  settingsRepository,
+  auditRepository,
+  menuOverridesRepository,
+  orderRepository,
+} from '../repositories/repositories.ts';
+import { generateUuid } from '../sync/syncTypes.ts';
+import {
   MenuItemOverride,
   formatOrderSerialNumber,
 } from '../domain/qrMenuTypes.ts';
@@ -215,20 +224,11 @@ export const TEMPLATES_DATA = {
 // ---------------------------------------------------------------------------
 
 class DataService {
-  private getStorageKey(estId: string, resource: string): string {
-    return `tygos_${estId || 'default'}_${resource}`;
-  }
-
   // --- RAW MATERIALS (INGREDIENTS) ---
 
   async getRawMaterials(estId: string): Promise<RawMaterialItem[]> {
-    // // INTEGRATION POINT: Replace with GET /api/v1/establishments/{estId}/ingredients
-    try {
-      const data = localStorage.getItem(this.getStorageKey(estId, 'ingredients'));
-      if (data) return JSON.parse(data);
-    } catch {
-      // Fallback
-    }
+    const existing = rawMaterialRepository.getAllSync(estId, false);
+    if (existing.length > 0) return existing;
 
     // Default seed
     const seeded = this.generateSeedMaterials(estId);
@@ -237,12 +237,7 @@ class DataService {
   }
 
   async saveRawMaterials(estId: string, items: RawMaterialItem[]): Promise<void> {
-    // // INTEGRATION POINT: Replace with POST/PUT /api/v1/establishments/{estId}/ingredients
-    try {
-      localStorage.setItem(this.getStorageKey(estId, 'ingredients'), JSON.stringify(items));
-    } catch (e) {
-      console.warn('Storage limit reached or failed', e);
-    }
+    rawMaterialRepository.saveAllSync(estId, items, true);
   }
 
   async addRawMaterial(
@@ -299,13 +294,8 @@ class DataService {
   // --- PRODUCTS & RECIPES ---
 
   async getProducts(estId: string): Promise<MenuItemProduct[]> {
-    // // INTEGRATION POINT: Replace with GET /api/v1/establishments/{estId}/products
-    try {
-      const data = localStorage.getItem(this.getStorageKey(estId, 'products'));
-      if (data) return JSON.parse(data);
-    } catch {
-      // Fallback
-    }
+    const existing = productRepository.getAllSync(estId, false);
+    if (existing.length > 0) return existing;
 
     const seeded = this.generateSeedProducts(estId);
     await this.saveProducts(estId, seeded);
@@ -313,12 +303,7 @@ class DataService {
   }
 
   async saveProducts(estId: string, items: MenuItemProduct[]): Promise<void> {
-    // // INTEGRATION POINT: Replace with POST/PUT /api/v1/establishments/{estId}/products
-    try {
-      localStorage.setItem(this.getStorageKey(estId, 'products'), JSON.stringify(items));
-    } catch (e) {
-      console.warn('Storage failed', e);
-    }
+    productRepository.saveAllSync(estId, items, true);
   }
 
   async addProductWithRecipe(
@@ -371,12 +356,8 @@ class DataService {
   // --- CASHIER SHIFTS ---
 
   async getActiveShift(estId: string): Promise<CashierShiftRecord | null> {
-    try {
-      const data = localStorage.getItem(this.getStorageKey(estId, 'active_shift'));
-      if (data) return JSON.parse(data);
-    } catch {
-      // Fallback
-    }
+    const existing = settingsRepository.getActiveShift<CashierShiftRecord>(estId);
+    if (existing) return existing;
 
     return {
       id: `shift-${Date.now()}`,
@@ -421,12 +402,7 @@ class DataService {
       zReportNumber: `Z-2026-${Math.floor(1000 + Math.random() * 9000)}`,
     };
 
-    try {
-      localStorage.setItem(this.getStorageKey(estId, 'last_closed_shift'), JSON.stringify(closedShift));
-      localStorage.removeItem(this.getStorageKey(estId, 'active_shift'));
-    } catch {
-      // Ignore
-    }
+    settingsRepository.closeActiveShift(estId, closedShift);
 
     await this.logAudit(
       estId,
@@ -531,35 +507,22 @@ class DataService {
     username: string = 'User',
     userRole: UserRole = 'tenant_admin'
   ): Promise<void> {
-    try {
-      const key = this.getStorageKey(estId, 'audit_logs');
-      const existing: AuditLogEntry[] = JSON.parse(localStorage.getItem(key) || '[]');
-      const entry: AuditLogEntry = {
-        id: `aud-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
-        establishmentId: estId,
-        timestamp: new Date().toISOString(),
-        username,
-        userRole,
-        action,
-        module,
-        detailsAr,
-        detailsEn: action,
-      };
-      existing.unshift(entry);
-      localStorage.setItem(key, JSON.stringify(existing.slice(0, 100)));
-    } catch {
-      // Ignore
-    }
+    const entry: AuditLogEntry = {
+      id: `aud-${generateUuid().slice(0, 8)}`,
+      establishmentId: estId,
+      timestamp: new Date().toISOString(),
+      username,
+      userRole,
+      action,
+      module,
+      detailsAr,
+      detailsEn: action,
+    };
+    auditRepository.appendLog(estId, entry, 100);
   }
 
   async getAuditLogs(estId: string): Promise<AuditLogEntry[]> {
-    try {
-      const data = localStorage.getItem(this.getStorageKey(estId, 'audit_logs'));
-      if (data) return JSON.parse(data);
-    } catch {
-      // Fallback
-    }
-    return [];
+    return auditRepository.getLogs<AuditLogEntry>(estId);
   }
 
   // --- LOCAL JSON BACKUP & RESTORE ---
@@ -690,52 +653,25 @@ class DataService {
   // ---------------------------------------------------------------------------
 
   public async getMenuItemOverrides(estId: string): Promise<MenuItemOverride[]> {
-    const key = `tygos_${estId}_menu_overrides`;
-    try {
-      const data = localStorage.getItem(key);
-      if (data) return JSON.parse(data);
-    } catch {
-      // ignore
-    }
-    return [];
+    return menuOverridesRepository.getAllSync(estId, false);
   }
 
   public async saveMenuItemOverride(estId: string, override: MenuItemOverride): Promise<void> {
-    const key = `tygos_${estId}_menu_overrides`;
     const list = await this.getMenuItemOverrides(estId);
-    const idx = list.findIndex((m) => m.productId === override.productId);
-    if (idx !== -1) {
-      list[idx] = { ...list[idx], ...override };
-    } else {
-      list.push(override);
-    }
-    try {
-      localStorage.setItem(key, JSON.stringify(list));
-    } catch {
-      // ignore
-    }
+    const existing = list.find((m) => m.productId === override.productId);
+    const merged: MenuItemOverride & { id: string } = {
+      ...(existing || {}),
+      ...override,
+      id: (existing as any)?.id || override.productId,
+    };
+    menuOverridesRepository.upsertSync(estId, merged);
   }
 
   public async getNextOrderSerialNumber(estId: string): Promise<string> {
-    const key = `tygos_${estId}_last_order_serial`;
-    let lastNum = 0;
-    try {
-      const stored = localStorage.getItem(key);
-      if (stored) lastNum = parseInt(stored, 10) || 0;
-    } catch {
-      // ignore
-    }
-    const nextNum = lastNum + 1;
-    try {
-      localStorage.setItem(key, nextNum.toString());
-    } catch {
-      // ignore
-    }
-    return formatOrderSerialNumber(nextNum);
+    return orderRepository.getNextSerial(estId, false);
   }
 
   public async getVenueSettings(estId: string): Promise<VenueSettings> {
-    const key = `tygos_${estId}_venue_settings`;
     const defaultUrl = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000';
     const defaults: VenueSettings = {
       publicAppUrl: defaultUrl,
@@ -753,44 +689,21 @@ class DataService {
       hideUnavailableMenuItems: false,
       customerDataRetentionDays: 90,
     };
-    try {
-      const stored = localStorage.getItem(key);
-      if (stored) return { ...defaults, ...JSON.parse(stored) };
-    } catch {
-      // ignore
-    }
-    return defaults;
+    const stored = settingsRepository.getVenueSettings<VenueSettings>(estId);
+    return stored ? { ...defaults, ...stored } : defaults;
   }
 
   public async saveVenueSettings(estId: string, partial: Partial<VenueSettings>): Promise<VenueSettings> {
-    const key = `tygos_${estId}_venue_settings`;
     const current = await this.getVenueSettings(estId);
     const updated = { ...current, ...partial };
-    try {
-      localStorage.setItem(key, JSON.stringify(updated));
-    } catch {
-      // ignore
-    }
-    if (updated.publicAppUrl && typeof window !== 'undefined') {
-      try {
-        localStorage.setItem('tygos_settings_publicAppUrl', updated.publicAppUrl);
-      } catch {
-        // ignore
-      }
-    }
+    settingsRepository.saveVenueSettings(estId, updated);
     return updated;
   }
 
   public async getEstablishmentByCode(code: string): Promise<Establishment | null> {
-    if (typeof window === 'undefined') return null;
-    try {
-      const raw = localStorage.getItem('tygos_registered_establishments');
-      const list: Establishment[] = raw ? JSON.parse(raw) : [];
-      const match = list.find((e) => e.code.toLowerCase() === code.toLowerCase());
-      if (match) return match;
-    } catch {
-      // ignore
-    }
+    const list = settingsRepository.getRegisteredEstablishments<Establishment>();
+    const match = list.find((e) => e.code.toLowerCase() === code.toLowerCase());
+    if (match) return match;
     // Fallback seed establishment
     if (code.toUpperCase().includes('R.0001') || code.toUpperCase() === 'R.0001' || code === 'default') {
       return {

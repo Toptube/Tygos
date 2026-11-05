@@ -10,6 +10,7 @@
  */
 
 import { StationTicket, CustomerOrder } from '../domain/qrMenuTypes.ts';
+import { settingsRepository } from '../repositories/repositories.ts';
 
 export interface StationPrinterConfig {
   stationId: string;
@@ -90,25 +91,12 @@ export const DEFAULT_PRINTER_CONFIGS: StationPrinterConfig[] = [
 ];
 
 class ThermalPrinterService {
-  private storageKey = 'tygos_printer_configs';
-
   public getConfigs(): StationPrinterConfig[] {
-    if (typeof window === 'undefined') return DEFAULT_PRINTER_CONFIGS;
-    try {
-      const raw = localStorage.getItem(this.storageKey);
-      return raw ? JSON.parse(raw) : DEFAULT_PRINTER_CONFIGS;
-    } catch {
-      return DEFAULT_PRINTER_CONFIGS;
-    }
+    return settingsRepository.getPrinterConfigs<StationPrinterConfig>() || DEFAULT_PRINTER_CONFIGS;
   }
 
   public saveConfigs(configs: StationPrinterConfig[]): void {
-    if (typeof window === 'undefined') return;
-    try {
-      localStorage.setItem(this.storageKey, JSON.stringify(configs));
-    } catch {
-      // ignore
-    }
+    settingsRepository.savePrinterConfigs(configs);
   }
 
   public updateConfig(stationId: string, updates: Partial<StationPrinterConfig>): void {
