@@ -18,7 +18,7 @@ import {
   Globe2,
 } from 'lucide-react';
 import QRCode from 'qrcode';
-import { TYGOS_LOGO_SRC } from './TygosLogo.tsx';
+import { TYGOS_LOGO_SRC, TYGOS_DARK_LOGO_SRC } from './TygosLogo.tsx';
 import { useI18n } from '../../i18n/I18nContext.tsx';
 import { settingsRepository } from '../../repositories/repositories.ts';
 
@@ -407,9 +407,9 @@ const AppShareModal: React.FC<AppShareModalProps> = ({
         <div className="flex flex-col items-center text-center pt-2">
           <div className="relative mb-2">
             <img
-              src={TYGOS_LOGO_SRC}
+              src={TYGOS_DARK_LOGO_SRC}
               alt="TYGOS Emblem"
-              className="w-16 h-16 object-contain relative z-10 drop-shadow-xl"
+              className="w-20 h-20 object-contain rounded-2xl relative z-10 drop-shadow-xl border border-cyan-500/30"
             />
           </div>
           <h2 className="text-xl font-black tracking-tight text-slate-900 dark:text-white">

@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none">
+  <defs>
+    <linearGradient id="tygosGrad" x1="12" y1="16" x2="114" y2="112" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#00E5FF" />
+      <stop offset="55%" stop-color="#0091FF" />
+      <stop offset="100%" stop-color="#39FF14" />
+    </linearGradient>
+    <linearGradient id="tygosGold" x1="20" y1="20" x2="90" y2="110" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFD600" />
+      <stop offset="100%" stop-color="#FF6D00" />
+    </linearGradient>
+  </defs>
+  <!-- Circuit lines -->
+  <path d="M22 24H66" stroke="url(#tygosGold)" stroke-width="4" stroke-linecap="round" />
+  <circle cx="18" cy="24" r="4.5" stroke="#FFD600" stroke-width="3" />
+  <path d="M14 36H48L56 28H68" stroke="#00E5FF" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+  <circle cx="10" cy="36" r="4" stroke="#00E5FF" stroke-width="2.5" />
+  <path d="M22 46H44L52 38H64" stroke="#00E5FF" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+  <circle cx="18" cy="46" r="4" stroke="#00E5FF" stroke-width="2.5" />
+  <!-- T Mark & Tiger Silhouette -->
+  <path d="M36 52H68L54 104H38L50 64H32L36 52Z" fill="url(#tygosGrad)" />
+  <path d="M72 16L84 26C96 28 106 38 110 50L116 56L108 64C112 72 110 82 102 88L94 84C98 76 96 66 88 62C80 58 72 64 68 74L58 102C68 82 76 54 90 42C82 38 74 36 68 38L72 16Z" fill="url(#tygosGrad)" />
+  <!-- Tiger Eye -->
+  <path d="M88 38L100 44L92 48Z" fill="url(#tygosGold)" />
+  <!-- Bottom Swoosh -->
+  <path d="M46 112C62 104 76 90 88 76" stroke="url(#tygosGold)" stroke-width="4.5" stroke-linecap="round" />
+</svg>
