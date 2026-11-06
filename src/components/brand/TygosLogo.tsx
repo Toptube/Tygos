@@ -40,21 +40,18 @@ export const TygosLogo: React.FC<TygosLogoProps> = ({
   if (variant === 'responsive-header') {
     return (
       <div className={`inline-flex items-center gap-2 select-none shrink-0 ${className}`}>
-        <img
-          src={TYGOS_LOGO_SRC}
-          alt="Tygos"
-          referrerPolicy="no-referrer"
-          className="w-8 h-8 sm:w-9 sm:h-9 object-contain select-none shrink-0"
-        />
+        <div className="w-8 h-8 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-1 flex items-center justify-center shrink-0 shadow-2xs">
+          <img
+            src={TYGOS_LOGO_SRC}
+            alt="Tygos"
+            referrerPolicy="no-referrer"
+            className="w-full h-full object-contain select-none"
+          />
+        </div>
         <div className="hidden sm:flex flex-col text-start">
-          <span className="text-base sm:text-lg font-black tracking-tight text-slate-900 dark:text-white leading-none">
+          <span className="text-base font-black tracking-tight text-slate-900 dark:text-white leading-none">
             Tygos
           </span>
-          {showSubtitle && (
-            <span className="text-[9px] uppercase tracking-wider text-cyan-500 dark:text-cyan-400 font-semibold mt-0.5">
-              Hospitality
-            </span>
-          )}
         </div>
       </div>
     );

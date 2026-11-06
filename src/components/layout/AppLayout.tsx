@@ -39,7 +39,10 @@ import {
   GitBranch,
   ArrowRight,
   ArrowLeft,
+  Bell,
+  MoreHorizontal,
 } from 'lucide-react';
+import { getScreenTitle } from '../../i18n/glossary.ts';
 import { useAuth } from '../../context/AuthContext.tsx';
 import { useI18n } from '../../i18n/I18nContext.tsx';
 import { useBusiness } from '../../context/BusinessContext.tsx';
@@ -80,6 +83,7 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
+  const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const [isTourOpen, setIsTourOpen] = useState(false);
   const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({});
   const { showToast } = useToast();
@@ -309,9 +313,15 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
     admin: { ar: 'الإدارة والإعدادات', en: 'Administration & Settings' },
   };
 
-  const allowedNav = navItems.filter((item) => item.roles.includes(role));
+  const allowedNav = navItems
+    .filter((item) => item.roles.includes(role))
+    .map((item) => ({
+      ...item,
+      label: getScreenTitle(item.id, isAr),
+    }));
   const currentRoleLabel = roleLabels[role]?.[language === 'ar' ? 'ar' : 'en'] || role;
-  const currentActiveNav = navItems.find((n) => n.id === activeView);
+  const currentScreenTitle = getScreenTitle(activeView, isAr);
+  const currentActiveNav = allowedNav.find((item) => item.id === activeView);
 
   return (
     <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-[#070b14] text-slate-900 dark:text-slate-100 transition-colors overflow-x-hidden" dir={dir}>
@@ -335,98 +345,52 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
         </div>
       )}
 
-      {/* 2. Top Header Bar (Responsive Mobile-First Architecture) */}
-      <header className="h-16 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0b101e] sticky top-0 z-40 px-3 sm:px-6 flex items-center justify-between gap-2 sm:gap-4">
-        {/* Zone 1: Navigation Trigger & Clickable Logo */}
-        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+      {/* 2. Calm, Simple Top Header Bar (56px, Single-Line, <= 2 Action Icons + More Menu) */}
+      <header className="h-14 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0b101e] sticky top-0 z-40 px-3 sm:px-5 flex items-center justify-between gap-2 shrink-0">
+        {/* Start Zone: Menu Trigger (Mobile) + Single Neutral Logo + Current Screen Name */}
+        <div className="flex items-center gap-2.5 min-w-0">
           <Button
             type="button"
+            variant="ghost"
+            size="sm"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
-            aria-label="Toggle Navigation Drawer"
+            className="lg:hidden min-w-[40px] min-h-[40px] p-2 rounded-xl"
+            aria-label={isAr ? 'القائمة' : 'Menu'}
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </Button>
 
-          {/* Clickable Logo Mark that always returns to Dashboard */}
+          {/* Single Clickable Logo Mark on Neutral Surface -> Returns to Home */}
           <Button
             type="button"
+            variant="ghost"
+            size="sm"
             onClick={() => setActiveView(role === 'super_admin' ? 'super_admin' : 'dashboard')}
-            className="cursor-pointer flex items-center text-start group"
-            title={isAr ? 'العودة للوحة القيادة الرئيسية' : 'Return to Executive Dashboard'}
+            className="p-0.5 rounded-xl shrink-0"
+            title={isAr ? 'العودة للرئيسية' : 'Return to Home'}
           >
-            <TygosLogo variant="responsive-header" showSubtitle />
+            <TygosLogo variant="symbol" />
           </Button>
 
-          {/* Current Page Title on Mobile / Tablet */}
-          {currentActiveNav && (
-            <span className="lg:hidden text-xs font-bold text-slate-700 dark:text-slate-300 truncate max-w-[110px] sm:max-w-none ps-1 border-s border-slate-200 dark:border-slate-800">
-              {currentActiveNav.label}
-            </span>
-          )}
-
-          {/* Partition Identifier (Desktop) */}
-          {currentEstablishment && role !== 'super_admin' && (
-            <div className="hidden lg:flex items-center gap-2 ms-2 ps-3 border-s border-slate-200 dark:border-slate-800">
-              <span className="font-mono text-xs font-bold text-cyan-600 dark:text-cyan-400" dir="ltr">
-                {currentEstablishment.code}
-              </span>
-              <span className="text-xs text-slate-500 truncate max-w-[160px]">
-                {currentEstablishment.name}
-              </span>
-            </div>
-          )}
+          {/* Current Screen Title (1 short title) */}
+          <h1 className="text-sm sm:text-base font-black text-slate-900 dark:text-white truncate">
+            {currentScreenTitle}
+          </h1>
         </div>
 
-        {/* Zone 2: Universal Search Affordance & Permanent App Brand Link */}
-        <div className="hidden lg:flex items-center gap-3 flex-1 max-w-xl mx-2">
-          <PermanentAppBrandBadge variant="header-pill" />
+        {/* End Zone: ONLY 2 Icons (Notifications + More Menu ⋯) */}
+        <div className="flex items-center gap-1.5 shrink-0">
+          {/* 1. Notifications / Alerts */}
           <Button
             type="button"
-            onClick={() => setIsSearchOpen(true)}
-            className="flex-1 flex items-center justify-between px-3.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400 hover:border-cyan-500/50 transition-colors cursor-pointer"
-          >
-            <div className="flex items-center gap-2">
-              <Search className="w-3.5 h-3.5 text-cyan-500" />
-              <span>{t('common.search', 'Search across system (⌘K)...')}</span>
-            </div>
-            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400" dir="ltr">
-              ⌘K
-            </span>
-          </Button>
-        </div>
-
-        {/* Medium screens Search only */}
-        <div className="hidden md:flex lg:hidden items-center flex-1 max-w-xs mx-2">
-          <PermanentAppBrandBadge variant="header-pill" />
-        </div>
-
-        {/* Zone 3: Essential Actions & Utilities (Clean on Mobile) */}
-        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-          {/* Hands-Free Voice Navigation */}
-          <VoiceNavigatorButton />
-
-          {/* Tygos AI Assistant Trigger */}
-          <Button
-            type="button"
-            onClick={() => setIsAssistantOpen(true)}
-            className="flex items-center gap-1.5 p-2 sm:px-2.5 sm:py-1.5 text-xs font-bold rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-xs cursor-pointer transition-transform hover:scale-[1.02]"
-            title={isAr ? 'مساعد TYGOS الذكي' : 'TYGOS AI Assistant'}
-          >
-            <div className="w-4 h-4 rounded-sm p-0.5 flex items-center justify-center">
-              <img src={TYGOS_LOGO_SRC} alt="Tygos" className="w-full h-full object-contain" />
-            </div>
-            <span className="hidden sm:inline">TYGOS</span>
-          </Button>
-
-          {/* Security & Audit Notification */}
-          <Button
-            type="button"
+            variant="secondary"
+            size="sm"
             onClick={() => setIsAuditReportModalOpen(true)}
-            className="relative p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-850 transition-colors cursor-pointer"
-            title={isAr ? 'سجل التدقيق الأمني' : 'Security Audit Trail'}
+            className="relative min-w-[40px] min-h-[40px] p-2 rounded-xl"
+            aria-label={isAr ? 'التنبيهات وسجل العمليات' : 'Notifications & Activity Log'}
+            title={isAr ? 'التنبيهات وسجل العمليات' : 'Notifications & Activity Log'}
           >
-            <Shield className="w-4 h-4 text-purple-400" />
+            <Bell className="w-4 h-4 text-slate-600 dark:text-slate-300" />
             {pendingRequestsCount > 0 && (
               <span className="absolute -top-1 -end-1 w-4 h-4 bg-rose-500 text-white text-[9px] font-mono font-bold rounded-full flex items-center justify-center">
                 {pendingRequestsCount}
@@ -434,96 +398,169 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
             )}
           </Button>
 
-          {/* Guided Tour Trigger (Hidden on tiny screens, inside drawer) */}
-          <Button
-            type="button"
-            onClick={() => setIsTourOpen(true)}
-            className="hidden sm:flex p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-850 transition-colors cursor-pointer"
-            title={isAr ? 'الجولة الإرشادية بالنظام' : 'Guided Tour'}
-          >
-            <Compass className="w-4 h-4 text-emerald-400" />
-          </Button>
-
-          {/* Help Center */}
-          <Button
-            type="button"
-            onClick={() => setIsHelpOpen(true)}
-            className="hidden sm:flex p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-850 transition-colors cursor-pointer"
-            title={isAr ? 'دليل التشغيل والمعرفة (SOP)' : 'Help & Knowledge Center'}
-          >
-            <HelpCircle className="w-4 h-4 text-cyan-400" />
-          </Button>
-
-          {/* Theme Switcher in Header */}
-          <ThemeSwitcher />
-
-          {/* Connectivity Status (Medium screens & up) */}
-          <div className="hidden md:block">
-            <ConnectivityStatus />
-          </div>
-
-          {/* Role Simulator Switcher (Large screens) */}
-          <div className="relative hidden xl:block">
+          {/* 2. More Menu (⋯) */}
+          <div className="relative">
             <Button
               type="button"
-              onClick={() => setRoleDropdownOpen(!roleDropdownOpen)}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-bold rounded-xl bg-cyan-50 dark:bg-cyan-950/40 text-cyan-700 dark:text-cyan-300 border border-cyan-500/30 hover:bg-cyan-100 dark:hover:bg-cyan-950/60 transition-colors cursor-pointer"
-              title={isAr ? 'محاكاة الأدوار والصلاحيات' : 'Simulate roles'}
+              variant="secondary"
+              size="sm"
+              onClick={() => setMoreMenuOpen(!moreMenuOpen)}
+              className="min-w-[40px] min-h-[40px] p-2 rounded-xl"
+              aria-label={isAr ? 'المزيد' : 'More'}
+              title={isAr ? 'المزيد' : 'More'}
+              data-testid="header-more-button"
             >
-              <Sparkles className="w-3.5 h-3.5 text-cyan-500" />
-              <span>{currentRoleLabel}</span>
-              <ChevronDown className="w-3 h-3 opacity-60" />
+              <MoreHorizontal className="w-4 h-4 text-slate-700 dark:text-slate-200" />
             </Button>
 
-            {roleDropdownOpen && (
-              <div className="absolute end-0 mt-2 w-64 bg-white dark:bg-[#0b101e] border border-slate-200 dark:border-slate-800 rounded-xl shadow-2xl p-2 z-50 text-xs max-h-96 overflow-y-auto animate-fade-in">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-2 py-1 block">
-                  {t('auth.quickRoles', 'Simulate Role-Based Dashboards')}
-                </span>
-                {Object.entries(roleLabels).map(([rKey, rObj]) => {
-                  const label = isAr ? rObj.ar : rObj.en;
-                  return (
-                    <Button
-                      key={rKey}
-                      type="button"
-                      onClick={() => {
-                        switchRole(rKey as UserRole);
-                        setRoleDropdownOpen(false);
-                      }}
-                      className={`w-full text-start px-2.5 py-2 rounded-lg text-xs font-medium flex items-center justify-between transition-colors cursor-pointer ${
-                        role === rKey
-                          ? 'bg-cyan-500 text-slate-950 font-bold'
-                          : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
-                      }`}
-                    >
-                      <span>{label}</span>
-                      {role === rKey && <span className="text-[10px]">✓</span>}
-                    </Button>
-                  );
-                })}
+            {moreMenuOpen && (
+              <div
+                className="fixed inset-x-3 top-16 sm:inset-x-auto sm:end-4 sm:w-80 bg-white dark:bg-[#0b101e] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl p-3.5 z-50 text-xs space-y-3 max-h-[80vh] overflow-y-auto animate-fade-in"
+                data-testid="header-more-menu"
+              >
+                <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
+                  <span className="font-black text-slate-900 dark:text-white">
+                    {isAr ? 'خيارات سريعة' : 'Quick Options'}
+                  </span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setMoreMenuOpen(false)}
+                    aria-label={isAr ? 'إغلاق' : 'Close'}
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+
+                {/* Theme, Language & Voice */}
+                <div className="flex items-center justify-between gap-2 p-2 rounded-xl bg-slate-50 dark:bg-slate-900">
+                  <span className="font-bold text-slate-600 dark:text-slate-300">
+                    {isAr ? 'المظهر واللغة' : 'Theme & Language'}
+                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <VoiceNavigatorButton />
+                    <LanguageSelector variant="header" />
+                    <ThemeSwitcher />
+                  </div>
+                </div>
+
+                {/* Quick Actions: Search, Help & Tour, Activity Log */}
+                <div className="grid grid-cols-2 gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setIsSearchOpen(true);
+                      setMoreMenuOpen(false);
+                    }}
+                    className="justify-start"
+                  >
+                    <Search className="w-3.5 h-3.5" />
+                    <span>{isAr ? 'بحث سريع' : 'Search'}</span>
+                  </Button>
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setIsAuditReportModalOpen(true);
+                      setMoreMenuOpen(false);
+                    }}
+                    className="justify-start"
+                  >
+                    <Shield className="w-3.5 h-3.5" />
+                    <span>{isAr ? 'سجل العمليات' : 'Activity Log'}</span>
+                  </Button>
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setIsHelpOpen(true);
+                      setMoreMenuOpen(false);
+                    }}
+                    className="justify-start"
+                  >
+                    <HelpCircle className="w-3.5 h-3.5" />
+                    <span>{isAr ? 'المساعدة' : 'Help'}</span>
+                  </Button>
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setIsTourOpen(true);
+                      setMoreMenuOpen(false);
+                    }}
+                    className="justify-start"
+                  >
+                    <Compass className="w-3.5 h-3.5" />
+                    <span>{isAr ? 'جولة سريعة' : 'Quick Tour'}</span>
+                  </Button>
+                </div>
+
+                {/* Role Switcher */}
+                <div className="space-y-1">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => setRoleDropdownOpen(!roleDropdownOpen)}
+                    className="w-full justify-between"
+                  >
+                    <span>
+                      {isAr ? 'الدور الحالي:' : 'Role:'} {currentRoleLabel}
+                    </span>
+                    <ChevronDown className="w-3.5 h-3.5" />
+                  </Button>
+                  {roleDropdownOpen && (
+                    <div className="p-1.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 max-h-44 overflow-y-auto space-y-1">
+                      {Object.entries(roleLabels).map(([rKey, rObj]) => (
+                        <Button
+                          key={rKey}
+                          type="button"
+                          size="xs"
+                          variant={role === rKey ? 'primary' : 'ghost'}
+                          selected={role === rKey}
+                          onClick={() => {
+                            switchRole(rKey as UserRole);
+                            setRoleDropdownOpen(false);
+                            setMoreMenuOpen(false);
+                          }}
+                          className="w-full justify-between"
+                        >
+                          <span>{isAr ? rObj.ar : rObj.en}</span>
+                        </Button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* App Link */}
+                <PermanentAppBrandBadge variant="card" />
+
+                {/* Sign Out */}
+                <Button
+                  type="button"
+                  variant="danger"
+                  size="sm"
+                  onClick={() => {
+                    setMoreMenuOpen(false);
+                    logout();
+                  }}
+                  className="w-full"
+                >
+                  <LogOut className="w-4 h-4 rtl:rotate-180" />
+                  <span>{isAr ? 'تسجيل الخروج' : 'Sign Out'}</span>
+                </Button>
               </div>
             )}
           </div>
-
-          {/* Language Selector (Hidden on mobile header, in drawer) */}
-          <div className="hidden sm:block">
-            <LanguageSelector variant="header" />
-          </div>
-
-          {/* Theme Switcher (Hidden on mobile header, in drawer) */}
-          <div className="hidden sm:block">
-            <ThemeSwitcher />
-          </div>
-
-          {/* Sign Out Action */}
-          <Button
-            type="button"
-            onClick={logout}
-            className="p-2 rounded-xl text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 border border-slate-200 dark:border-slate-800 transition-colors cursor-pointer"
-            title={t('auth.logout', 'Sign Out')}
-          >
-            <LogOut className="w-4 h-4 rtl:rotate-180" />
-          </Button>
         </div>
       </header>
 

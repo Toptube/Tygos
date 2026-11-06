@@ -4,7 +4,7 @@
  */
 
 import { LanguageCode } from './I18nContext.tsx';
-import { settingsRepository, getStorageAdapter } from '../repositories/repositories.ts';
+import { settingsRepository, getStorageAdapter, uiPreferencesRepository } from '../repositories/repositories.ts';
 
 /**
  * Currency symbols mapping
@@ -19,16 +19,29 @@ const CURRENCY_SYMBOLS: Record<string, Record<LanguageCode, string>> = {
   GBP: { ar: '£', en: '£', fr: '£', nl: '£', tr: '£' },
 };
 
+function getNumberLocale(lang: LanguageCode): string {
+  try {
+    if (lang === 'ar' && uiPreferencesRepository.getDigitStyle() === 'eastern') {
+      return 'ar-EG';
+    }
+  } catch {
+    // Fallback to Western digits
+  }
+  return 'en-US';
+}
+
 /**
- * Format currency with tabular numerals
+ * Format currency with tabular numerals (0-9 by default, e.g. "4,680.50 ج.م")
  */
 export function formatCurrency(
   amount: number,
   currency: string = 'EGP',
-  lang: LanguageCode = 'ar'
+  lang: LanguageCode = 'ar',
+  digitStyle?: 'western' | 'eastern'
 ): string {
   const symbol = CURRENCY_SYMBOLS[currency]?.[lang] || currency;
-  const formattedNumber = amount.toLocaleString(lang === 'ar' ? 'ar-EG' : 'en-US', {
+  const locale = digitStyle === 'eastern' ? 'ar-EG' : digitStyle === 'western' ? 'en-US' : getNumberLocale(lang);
+  const formattedNumber = amount.toLocaleString(locale, {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
@@ -45,7 +58,8 @@ export function formatCurrency(
 export function formatMoney(
   amount: number,
   currency?: string,
-  lang?: LanguageCode
+  lang?: LanguageCode,
+  digitStyle?: 'western' | 'eastern'
 ): string {
   let resolvedLang: LanguageCode = lang || 'ar';
   let resolvedCurrency: string = currency || 'EGP';
@@ -61,11 +75,11 @@ export function formatMoney(
       const venueSettings = settingsRepository.getVenueSettings<{ currency?: string }>(estId);
       if (venueSettings?.currency) resolvedCurrency = venueSettings.currency;
     } catch {
-      // fallback to USD
+      // fallback to EGP
     }
   }
 
-  return formatCurrency(amount, resolvedCurrency, resolvedLang);
+  return formatCurrency(amount, resolvedCurrency, resolvedLang, digitStyle);
 }
 
 /**
@@ -74,9 +88,11 @@ export function formatMoney(
 export function formatNumber(
   value: number,
   lang: LanguageCode = 'ar',
-  decimals: number = 0
+  decimals: number = 0,
+  digitStyle?: 'western' | 'eastern'
 ): string {
-  return value.toLocaleString(lang === 'ar' ? 'ar-EG' : 'en-US', {
+  const locale = digitStyle === 'eastern' ? 'ar-EG' : digitStyle === 'western' ? 'en-US' : getNumberLocale(lang);
+  return value.toLocaleString(locale, {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
   });

@@ -49,6 +49,9 @@ export const SettingsModule: React.FC = () => {
   // State
   const [currency, setCurrency] = useState('EGP');
   const [clickSound, setClickSound] = useState(() => uiPreferencesRepository.getClickSoundEnabled());
+  const [digitStyle, setDigitStyle] = useState<'western' | 'eastern'>(() =>
+    uiPreferencesRepository.getDigitStyle()
+  );
   const [taxStandard, setTaxStandard] = useState('14.0');
   const [taxReduced, setTaxReduced] = useState('5.0');
   const [serviceCharge, setServiceCharge] = useState('12.0');
@@ -304,6 +307,43 @@ export const SettingsModule: React.FC = () => {
           >
             {clickSound ? (isAr ? 'مفعّل' : 'Enabled') : (isAr ? 'معطّل' : 'Disabled')}
           </Button>
+        </div>
+
+        <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <div className="text-xs font-bold text-slate-800 dark:text-slate-200">
+              {isAr ? 'شكل الأرقام في الشاشات والتقارير' : 'Digit Style'}
+            </div>
+            <div className="text-[11px] text-slate-500">
+              {isAr ? 'اختيار الأرقام القياسية (0-9) أو العربية الشرقية (٠-٩)' : 'Choose Western (0-9) or Eastern Arabic (٠-٩) digits'}
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              size="sm"
+              variant={digitStyle === 'western' ? 'primary' : 'outline'}
+              selected={digitStyle === 'western'}
+              onClick={() => {
+                setDigitStyle('western');
+                uiPreferencesRepository.setDigitStyle('western');
+              }}
+            >
+              0-9 (4,680.50 ج.م)
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant={digitStyle === 'eastern' ? 'primary' : 'outline'}
+              selected={digitStyle === 'eastern'}
+              onClick={() => {
+                setDigitStyle('eastern');
+                uiPreferencesRepository.setDigitStyle('eastern');
+              }}
+            >
+              ٠-٩
+            </Button>
+          </div>
         </div>
       </div>
 

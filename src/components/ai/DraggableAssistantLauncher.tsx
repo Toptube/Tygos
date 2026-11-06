@@ -18,10 +18,10 @@ interface DraggableAssistantLauncherProps {
   activeView?: string;
 }
 
-const BUTTON_SIZE = 58;
-const MIN_TOP = 68;
-const MIN_BOTTOM = 24;
-const MIN_SIDE = 14;
+const BUTTON_SIZE = 44;
+const MIN_TOP = 64;
+const MIN_BOTTOM = 76;
+const MIN_SIDE = 4;
 
 export const DraggableAssistantLauncher: React.FC<DraggableAssistantLauncherProps> = ({
   onClick,
@@ -246,13 +246,13 @@ export const DraggableAssistantLauncher: React.FC<DraggableAssistantLauncherProp
         }
       }}
     >
-      <div className={`relative group ${activeView === 'pos' ? 'opacity-95 scale-95' : ''}`}>
-        <div className="relative w-14 h-14 rounded-2xl bg-gradient-to-tr from-slate-950 via-slate-900 to-cyan-950 border-2 border-cyan-400/70 p-2 flex items-center justify-center shadow-xl shadow-cyan-950/60 hover:border-cyan-300 transition-colors">
+      <div className="relative group">
+        <div className="relative w-11 h-11 rounded-xl bg-white/95 dark:bg-slate-900/95 border border-slate-300 dark:border-slate-700 p-1.5 flex items-center justify-center shadow-lg opacity-75 hover:opacity-100 focus-within:opacity-100 transition-all">
           <img
             src={TYGOS_LOGO_SRC}
             alt="TYGOS"
             referrerPolicy="no-referrer"
-            className="w-full h-full object-contain pointer-events-none drop-shadow-md"
+            className="w-full h-full object-contain pointer-events-none"
             draggable={false}
           />
         </div>

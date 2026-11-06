@@ -542,6 +542,15 @@ export class UiPreferencesRepository {
     this.adapter.setItemSync('tygos_assistant_launcher_pos_pct', JSON.stringify(pos));
   }
 
+  public getDigitStyle(): 'western' | 'eastern' {
+    const val = this.adapter.getItemSync('tygos_digit_style');
+    return val === 'eastern' ? 'eastern' : 'western';
+  }
+
+  public setDigitStyle(style: 'western' | 'eastern'): void {
+    this.adapter.setItemSync('tygos_digit_style', style);
+  }
+
   public getStorageUsageBytes(): number {
     let totalBytes = 0;
     for (const key of this.adapter.keysSync()) {

@@ -6,13 +6,23 @@
  * Defaults to Egyptian Pound (EGP / ج.م) as primary currency.
  */
 
+import { uiPreferencesRepository } from '../repositories/repositories.ts';
+
 export function formatMoney(
   amount: number,
   currency: string = 'EGP',
   language: string = 'ar'
 ): string {
   const num = Number.isFinite(amount) ? amount : 0;
-  const formatted = num.toLocaleString('en-US', {
+  let locale = 'en-US';
+  try {
+    if (language === 'ar' && uiPreferencesRepository.getDigitStyle() === 'eastern') {
+      locale = 'ar-EG';
+    }
+  } catch {
+    // Fallback to Western digits
+  }
+  const formatted = num.toLocaleString(locale, {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });

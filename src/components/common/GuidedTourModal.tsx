@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { useI18n } from '../../i18n/I18nContext.tsx';
 import { useAuth } from '../../context/AuthContext.tsx';
+import { getScreenTitle, getScreenSubtitle } from '../../i18n/glossary.ts';
 
 interface GuidedTourModalProps {
   isOpen: boolean;
@@ -49,12 +50,12 @@ export const GuidedTourModal: React.FC<GuidedTourModalProps> = ({ isOpen, onClos
       icon: LayoutDashboard,
       module: 'dashboard',
       color: 'from-cyan-500 to-blue-600',
-      titleAr: '1. لوحة القيادة التنفيذية ومسار التدفق المترابط',
-      titleEn: '1. Executive Dashboard & Interconnected Lifecycle',
-      descAr: 'مركز المتابعة اللحظي للمبيعات، إشغال الطاولات، السيولة النقدية، وقيمة المخزون، مع مسار تتبع مترابط يبدأ من كود الفاتورة حتى قائمة الدخل.',
-      descEn: 'Real-time command center monitoring sales, table turns, cash liquidity, and warehouse assets with an end-to-end operational trace pipeline.',
-      featureAr: 'تفكيك مسببات الأرباح وتوصيات إدارية مدعومة بالأدلة الحسابية.',
-      featureEn: 'Live profit decomposition and evidence-based management recommendations.',
+      titleAr: `1. ${getScreenTitle('dashboard', true)} — نظرة على اليوم`,
+      titleEn: `1. ${getScreenTitle('dashboard', false)} — Today’s Overview`,
+      descAr: `${getScreenSubtitle('dashboard', true)}، مع متابعة رحلة الطلب من البيع للربح خطوة بخطوة.`,
+      descEn: `${getScreenSubtitle('dashboard', false)}, with a step-by-step order journey from sale to profit.`,
+      featureAr: 'يمكنك فتح المساعد السريع في أي وقت من الزر العائم بأسفل الشاشة.',
+      featureEn: 'You can open the quick assistant anytime from the floating button at the bottom of the screen.',
     },
     {
       id: 'step-pos',

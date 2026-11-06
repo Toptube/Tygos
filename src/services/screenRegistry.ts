@@ -12,6 +12,7 @@
  */
 
 import { UserRole } from '../types/index.ts';
+import { SCREEN_GLOSSARY } from '../i18n/glossary.ts';
 
 export interface ScreenQuickAction {
   id: string;
@@ -39,7 +40,7 @@ export interface ScreenDefinition {
   quickActions: ScreenQuickAction[];
 }
 
-export const SCREEN_REGISTRY: ScreenDefinition[] = [
+const RAW_SCREEN_REGISTRY: ScreenDefinition[] = [
   {
     id: 'dashboard',
     viewId: 'dashboard',
@@ -471,6 +472,20 @@ export const SCREEN_REGISTRY: ScreenDefinition[] = [
     ],
   },
 ];
+
+export const SCREEN_REGISTRY: ScreenDefinition[] = RAW_SCREEN_REGISTRY.map((screen) => {
+  const g = SCREEN_GLOSSARY[screen.viewId];
+  if (!g) return screen;
+  return {
+    ...screen,
+    nameAr: g.titleAr,
+    nameEn: g.titleEn,
+    shortLabelAr: g.titleAr,
+    shortLabelEn: g.titleEn,
+    descriptionAr: g.subtitleAr,
+    descriptionEn: g.subtitleEn,
+  };
+});
 
 /**
  * Searches the registry for matching screens based on user query.

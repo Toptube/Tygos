@@ -53,12 +53,33 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+export function migrateDemoEstablishment(est: Establishment): Establishment {
+  const isDemo =
+    est.id === 'est-1' ||
+    est.id === 'est-2' ||
+    est.id === 'est-3' ||
+    est.id === 'default' ||
+    est.name === 'The Royal Mirage Fine Dining';
+  if (!isDemo) return est;
+
+  const updated: Establishment = {
+    ...est,
+    currency: est.currency === 'USD' ? 'EGP' : est.currency,
+  };
+  if (est.id === 'est-1' && est.name === 'The Royal Mirage Fine Dining') {
+    updated.name = 'السراب الملكي · مطعم راقٍ';
+    updated.city = 'القاهرة';
+    updated.country = 'مصر';
+  }
+  return updated;
+}
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // Load persistent establishments or seed with MOCK_ESTABLISHMENTS
   const [establishments, setEstablishments] = useState<Establishment[]>(() => {
     const stored = settingsRepository.getEstablishments<Establishment>();
     if (Array.isArray(stored) && stored.length > 0) {
-      return stored;
+      return stored.map(migrateDemoEstablishment);
     }
     return MOCK_ESTABLISHMENTS;
   });
@@ -71,7 +92,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const [currentEstablishment, setCurrentEstablishment] = useState<Establishment | null>(() => {
     const stored = settingsRepository.getAuthSession<{ establishment?: Establishment }>();
-    return stored?.establishment || MOCK_ESTABLISHMENTS[0];
+    const est = stored?.establishment || MOCK_ESTABLISHMENTS[0];
+    return est ? migrateDemoEstablishment(est) : null;
   });
 
   const [activeView, setActiveView] = useState<string>(() => {
