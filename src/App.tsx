@@ -91,6 +91,11 @@ const PreLaunchChecklistView = React.lazy(() =>
     default: m.PreLaunchChecklistView,
   }))
 );
+const UserRolesManagementModule = React.lazy(() =>
+  import('./components/users/UserRolesManagementModule.tsx').then((m) => ({
+    default: m.UserRolesManagementModule,
+  }))
+);
 
 const AppContent: React.FC = () => {
   const { currentUser, currentEstablishment, activeView, setActiveView, switchRole } = useAuth();
@@ -223,6 +228,8 @@ const AppContent: React.FC = () => {
         return <SystemHealthDashboard />;
       case 'settings':
         return <SettingsModule />;
+      case 'users_roles':
+        return <UserRolesManagementModule />;
       case 'prelaunch_checklist':
         return <PreLaunchChecklistView />;
       case 'dashboard':

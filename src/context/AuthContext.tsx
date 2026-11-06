@@ -6,7 +6,8 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { DEMO_USERS, MOCK_ESTABLISHMENTS } from '../data/mockData.ts';
 import { BusinessType, Establishment, EstablishmentStatus, MaintenanceSession, User, UserRole } from '../types/index.ts';
-import { settingsRepository } from '../repositories/repositories.ts';
+import { userRepository, settingsRepository } from '../repositories/repositories.ts';
+import { getDefaultViewsForRole } from '../i18n/glossary.ts';
 
 interface RegistrationData {
   ownerName: string;
@@ -49,6 +50,11 @@ interface AuthContextType {
   setIsSearchOpen: (open: boolean) => void;
   registeredSuccessEst: Establishment | null;
   setRegisteredSuccessEst: (est: Establishment | null) => void;
+  users: User[];
+  addUser: (userData: Omit<User, 'id'> & { password?: string }) => User;
+  updateUser: (id: string, updates: Partial<User>) => void;
+  deleteUser: (id: string) => boolean;
+  resetUserPassword: (userId: string, newPass: string) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -105,6 +111,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isSearchOpen, setIsSearchOpen] = useState<boolean>(false);
   const [registeredSuccessEst, setRegisteredSuccessEst] = useState<Establishment | null>(null);
 
+  // Load persistent staff users for current venue
+  const [users, setUsers] = useState<User[]>(() => {
+    const estId = currentEstablishment?.id || 'est-1';
+    const stored = userRepository.getUsersSync(estId);
+    if (Array.isArray(stored) && stored.length > 0) {
+      return stored;
+    }
+    return Object.values(DEMO_USERS).map((u) => ({
+      ...u,
+      establishmentId: estId,
+      establishmentCode: currentEstablishment?.code || 'R.0001',
+      establishmentName: currentEstablishment?.name || 'السراب الملكي · مطعم راقٍ',
+      permittedViews: u.permittedViews || getDefaultViewsForRole(u.role),
+      status: u.status || 'active',
+    }));
+  });
+
+  // Sync users via UserRepository
+  useEffect(() => {
+    const estId = currentEstablishment?.id || 'est-1';
+    userRepository.saveUsersSync(estId, users);
+  }, [users, currentEstablishment]);
+
   // Sync establishments via SettingsRepository
   useEffect(() => {
     settingsRepository.saveEstablishments(establishments);
@@ -122,6 +151,62 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       settingsRepository.clearAuthSession();
     }
   }, [currentUser, currentEstablishment, activeView]);
+
+  const addUser = (userData: Omit<User, 'id'> & { password?: string }): User => {
+    const estId = currentEstablishment?.id || 'est-1';
+    const newUser: User = {
+      ...userData,
+      id: `usr-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      establishmentId: estId,
+      establishmentCode: currentEstablishment?.code || 'R.0001',
+      establishmentName: currentEstablishment?.name || 'السراب الملكي · مطعم راقٍ',
+      permittedViews: userData.permittedViews || getDefaultViewsForRole(userData.role),
+      status: userData.status || 'active',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    setUsers((prev) => [newUser, ...prev]);
+    return newUser;
+  };
+
+  const updateUser = (id: string, updates: Partial<User>) => {
+    setUsers((prev) =>
+      prev.map((u) => {
+        if (u.id === id) {
+          const updated = { ...u, ...updates, updatedAt: new Date().toISOString() };
+          if (currentUser?.id === id) {
+            setCurrentUser(updated);
+          }
+          return updated;
+        }
+        return u;
+      })
+    );
+  };
+
+  const deleteUser = (id: string): boolean => {
+    if (currentUser?.id === id) {
+      return false; // Can't delete currently active user
+    }
+    setUsers((prev) => prev.filter((u) => u.id !== id));
+    return true;
+  };
+
+  const resetUserPassword = (userId: string, newPass: string): boolean => {
+    setUsers((prev) =>
+      prev.map((u) => {
+        if (u.id === userId) {
+          const updated = { ...u, password: newPass, updatedAt: new Date().toISOString() };
+          if (currentUser?.id === userId) {
+            setCurrentUser(updated);
+          }
+          return updated;
+        }
+        return u;
+      })
+    );
+    return true;
+  };
 
   const login = (prefix: string, number: string, identifier: string, _pass: string): boolean => {
     // Check if logging in as Super Admin
@@ -141,22 +226,42 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     setCurrentEstablishment(foundEst);
 
-    // Look for matching user in demo users or build a personalized tenant admin session
-    const matchedDemoUser = Object.values(DEMO_USERS).find(
-      (u) =>
-        u.username.toLowerCase() === identifier.toLowerCase() ||
-        u.email.toLowerCase() === identifier.toLowerCase()
-    );
+    // Look for matching user in persistent users first, then demo users
+    const matchedUser =
+      users.find(
+        (u) =>
+          u.username.toLowerCase() === identifier.toLowerCase() ||
+          u.email.toLowerCase() === identifier.toLowerCase()
+      ) ||
+      Object.values(DEMO_USERS).find(
+        (u) =>
+          u.username.toLowerCase() === identifier.toLowerCase() ||
+          u.email.toLowerCase() === identifier.toLowerCase()
+      );
 
-    if (matchedDemoUser) {
-      setCurrentUser({
-        ...matchedDemoUser,
+    if (matchedUser) {
+      const activeUser: User = {
+        ...matchedUser,
         establishmentId: foundEst.id,
         establishmentCode: foundEst.code,
         establishmentName: foundEst.name,
-      });
+        permittedViews: matchedUser.permittedViews || getDefaultViewsForRole(matchedUser.role),
+      };
+      setCurrentUser(activeUser);
+
+      // Route user to their primary workplace
+      const allowed = activeUser.permittedViews || [];
+      if (activeUser.role === 'cashier' || (allowed.includes('pos') && !allowed.includes('dashboard'))) {
+        setActiveView('pos');
+      } else if (allowed.includes('dashboard')) {
+        setActiveView('dashboard');
+      } else if (allowed.length > 0) {
+        setActiveView(allowed[0]);
+      } else {
+        setActiveView('dashboard');
+      }
     } else {
-      setCurrentUser({
+      const fallbackUser: User = {
         id: `usr-${Date.now()}`,
         username: identifier || 'tenant_owner',
         fullName: foundEst.ownerName || 'Business Owner',
@@ -167,10 +272,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         email: foundEst.email,
         phone: foundEst.phone,
         branchName: `${foundEst.name} - HQ`,
-      });
+        permittedViews: getDefaultViewsForRole('tenant_admin'),
+      };
+      setCurrentUser(fallbackUser);
+      setActiveView('dashboard');
     }
 
-    setActiveView('dashboard');
     return true;
   };
 
@@ -182,39 +289,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const switchRole = (role: UserRole) => {
-    const user = DEMO_USERS[role] || {
-      ...DEMO_USERS.tenant_admin,
-      role,
-      fullName: `Simulated ${role.replace('_', ' ').toUpperCase()}`,
-      username: `user_${role}`,
-      establishmentId: currentEstablishment?.id || 'est-1',
-      establishmentCode: currentEstablishment?.code || 'R.0001',
-      establishmentName: currentEstablishment?.name || 'The Royal Mirage Fine Dining',
-    };
+    const foundInList = users.find((u) => u.role === role);
+    const user: User = foundInList
+      ? { ...foundInList, permittedViews: foundInList.permittedViews || getDefaultViewsForRole(role) }
+      : {
+          ...(DEMO_USERS[role] || DEMO_USERS.tenant_admin),
+          role,
+          fullName: DEMO_USERS[role]?.fullName || `Simulated ${role.replace('_', ' ').toUpperCase()}`,
+          username: DEMO_USERS[role]?.username || `user_${role}`,
+          establishmentId: currentEstablishment?.id || 'est-1',
+          establishmentCode: currentEstablishment?.code || 'R.0001',
+          establishmentName: currentEstablishment?.name || 'السراب الملكي · مطعم راقٍ',
+          permittedViews: DEMO_USERS[role]?.permittedViews || getDefaultViewsForRole(role),
+        };
 
     setCurrentUser(user);
 
-    // Auto-navigate to the primary role workplace
+    // Auto-navigate to primary workplace based on permittedViews
+    const allowed = user.permittedViews || getDefaultViewsForRole(role);
     if (role === 'super_admin') {
       setActiveView('super_admin');
-    } else if (role === 'cashier' || role === 'waiter') {
+    } else if (role === 'cashier' && allowed.includes('pos')) {
       setActiveView('pos');
-    } else if (role === 'kitchen_manager' || role === 'bar_manager') {
+    } else if (allowed.includes('pos') && !allowed.includes('dashboard')) {
+      setActiveView('pos');
+    } else if (allowed.includes('kds') && !allowed.includes('dashboard')) {
       setActiveView('kds');
-    } else if (role === 'marketing_officer') {
-      setActiveView('menu_management');
-    } else if (role === 'cost_accountant') {
-      setActiveView('cost_control');
-    } else if (role === 'financial_manager' || role === 'financial_accountant') {
-      setActiveView('finance');
-    } else if (role === 'tax_accountant') {
-      setActiveView('tax');
-    } else if (role === 'store_manager') {
-      setActiveView('inventory');
-    } else if (role === 'hr_manager') {
-      setActiveView('hr');
-    } else if (role === 'public_relations') {
-      setActiveView('crm');
+    } else if (allowed.includes('dashboard')) {
+      setActiveView('dashboard');
+    } else if (allowed.length > 0) {
+      setActiveView(allowed[0]);
     } else {
       setActiveView('dashboard');
     }
@@ -348,6 +452,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsSearchOpen,
         registeredSuccessEst,
         setRegisteredSuccessEst,
+        users,
+        addUser,
+        updateUser,
+        deleteUser,
+        resetUserPassword,
       }}
     >
       {children}

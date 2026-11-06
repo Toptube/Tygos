@@ -40,6 +40,7 @@ export interface OutboxEvent<T = unknown> {
     | 'stock_movement'
     | 'shift'
     | 'coupon'
+    | 'user'
     | 'menu_override';
   entityId: string;
   operation: OutboxOperation;

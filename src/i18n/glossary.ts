@@ -171,6 +171,13 @@ export const SCREEN_GLOSSARY: Record<string, GlossaryEntry> = {
     titleEn: 'Temporary Access',
     subtitleEn: 'Manager approval for sensitive actions',
   },
+  users_roles: {
+    id: 'users_roles',
+    titleAr: 'أدوار المستخدمين',
+    subtitleAr: 'تحديد أدوار الموظفين والشاشات المسموح بها',
+    titleEn: 'User Roles',
+    subtitleEn: 'Manage staff roles and permitted screens',
+  },
   super_admin: {
     id: 'super_admin',
     titleAr: 'إدارة المنشآت',
@@ -235,4 +242,56 @@ export function getScreenSubtitle(viewId: string, isAr: boolean): string {
   const entry = SCREEN_GLOSSARY[viewId];
   if (!entry) return '';
   return isAr ? entry.subtitleAr : entry.subtitleEn;
+}
+
+export function getDefaultViewsForRole(role: string): string[] {
+  switch (role) {
+    case 'super_admin':
+      return [
+        'super_admin', 'dashboard', 'pos', 'kds', 'tables_management', 'order_trace',
+        'menu_management', 'qr_tables', 'menu', 'cost_control', 'inventory', 'purchasing',
+        'treasury', 'finance', 'tax', 'hr', 'crm', 'chat', 'health', 'settings', 'users_roles'
+      ];
+    case 'tenant_admin':
+      return [
+        'dashboard', 'pos', 'kds', 'tables_management', 'order_trace',
+        'menu_management', 'qr_tables', 'menu', 'cost_control', 'inventory', 'purchasing',
+        'treasury', 'finance', 'tax', 'hr', 'crm', 'chat', 'health', 'settings', 'users_roles'
+      ];
+    case 'general_manager':
+      return [
+        'dashboard', 'pos', 'kds', 'tables_management', 'order_trace',
+        'menu_management', 'qr_tables', 'menu', 'cost_control', 'inventory', 'purchasing',
+        'treasury', 'finance', 'hr', 'crm', 'chat', 'health', 'users_roles'
+      ];
+    case 'financial_manager':
+      return [
+        'dashboard', 'order_trace', 'cost_control', 'purchasing',
+        'treasury', 'finance', 'tax', 'crm', 'chat', 'health', 'users_roles'
+      ];
+    case 'cashier':
+      return ['pos', 'tables_management', 'kds', 'order_trace', 'qr_tables', 'treasury', 'crm', 'chat'];
+    case 'waiter':
+      return ['pos', 'tables_management', 'crm', 'chat'];
+    case 'kitchen_manager':
+      return ['kds', 'menu', 'inventory', 'chat'];
+    case 'bar_manager':
+      return ['kds', 'menu', 'inventory', 'chat'];
+    case 'store_manager':
+      return ['inventory', 'purchasing', 'dashboard', 'chat'];
+    case 'cost_accountant':
+      return ['dashboard', 'menu', 'cost_control', 'inventory', 'finance', 'chat'];
+    case 'financial_accountant':
+      return ['dashboard', 'purchasing', 'treasury', 'finance', 'tax', 'chat'];
+    case 'tax_accountant':
+      return ['tax', 'finance', 'chat'];
+    case 'hr_manager':
+      return ['hr', 'chat'];
+    case 'marketing_officer':
+      return ['menu_management', 'qr_tables', 'crm', 'chat'];
+    case 'public_relations':
+      return ['crm', 'tables_management', 'chat'];
+    default:
+      return ['pos', 'chat'];
+  }
 }

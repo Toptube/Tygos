@@ -471,6 +471,34 @@ const RAW_SCREEN_REGISTRY: ScreenDefinition[] = [
       { id: 'open_qr_tables', labelAr: 'ملصقات الطاولات', labelEn: 'Table QRs', actionCode: 'NAV:qr_tables' },
     ],
   },
+  {
+    id: 'users_roles',
+    viewId: 'users_roles',
+    category: 'system',
+    nameAr: 'أدوار المستخدمين',
+    nameEn: 'User Roles',
+    shortLabelAr: 'أدوار المستخدمين',
+    shortLabelEn: 'User Roles',
+    descriptionAr: 'تحديد أدوار الموظفين والشاشات المسموح بها',
+    descriptionEn: 'Manage staff roles and permitted screens',
+    iconName: 'Users',
+    allowedRoles: ['super_admin', 'tenant_admin', 'general_manager', 'financial_manager'],
+    keywordsAr: ['مستخدمين', 'مستخدم', 'صلاحيات', 'أدوار', 'كاشير', 'باسورد', 'كلمة سر', 'موظف'],
+    keywordsEn: ['users', 'roles', 'permissions', 'cashier', 'password', 'staff', 'access'],
+    commonStepsAr: [
+      'اختر المستخدم لعرض صلاحياته وشاشاته الحالية.',
+      'عدل الشاشات المسموح بها للمستخدم واحفظ التعديل.',
+      'غيّر كلمة المرور للمستخدم مباشرة دون الحاجة لكلمة مروره القديمة.',
+    ],
+    commonStepsEn: [
+      'Select a user to review their current permissions and screens.',
+      'Toggle allowed screens and save updates.',
+      'Reset user password directly without knowing their previous password.',
+    ],
+    quickActions: [
+      { id: 'open_users_roles', labelAr: 'أدوار المستخدمين', labelEn: 'User Roles', actionCode: 'NAV:users_roles' },
+    ],
+  },
 ];
 
 export const SCREEN_REGISTRY: ScreenDefinition[] = RAW_SCREEN_REGISTRY.map((screen) => {

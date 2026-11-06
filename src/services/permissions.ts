@@ -39,7 +39,11 @@ export type PermissionAction =
   | 'pos:cancel_sent_item'
   | 'pos:refund_paid_order'
   | 'order:trace'
-  | 'tables:manage';
+  | 'tables:manage'
+  | 'users:view'
+  | 'users:manage'
+  | 'users:reset_password'
+  | 'users:delete';
 
 const ADMIN_ROLES: UserRole[] = ['super_admin', 'tenant_admin', 'general_manager'];
 
@@ -85,6 +89,7 @@ const ROLE_PERMISSIONS: Record<UserRole, PermissionAction[]> = {
     'finance:view', 'finance:edit',
     'settings:view',
     'customer_pii:view',
+    'users:view', 'users:manage', 'users:reset_password', 'users:delete',
   ],
   financial_accountant: [
     'menu:view',

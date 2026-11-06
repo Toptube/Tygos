@@ -586,6 +586,23 @@ export class LocalPublicMenuProvider implements PublicMenuProvider {
   }
 }
 
+/**
+ * 10. UserRepository (Staff accounts, roles, credentials, and custom screen permissions)
+ */
+export class UserRepository<T extends { id: string } & Partial<SyncEntityMetadata> = any> extends TenantRepository<T> {
+  constructor() {
+    super('staff_users', 'user');
+  }
+
+  public getUsersSync(tenantId: string): T[] {
+    return this.getAllSync(tenantId, false);
+  }
+
+  public saveUsersSync(tenantId: string, users: T[]): void {
+    this.saveAllSync(tenantId, users, true);
+  }
+}
+
 // Singleton default repositories
 export const defaultStorageAdapter: StorageAdapter = getStorageAdapter();
 export const productRepository = new ProductRepository();
@@ -597,4 +614,5 @@ export const settingsRepository = new SettingsRepository();
 export const auditRepository = new AuditRepository();
 export const deviceRepository = new DeviceRepository();
 export const uiPreferencesRepository = new UiPreferencesRepository();
+export const userRepository = new UserRepository();
 export const publicMenuProvider: PublicMenuProvider = new LocalPublicMenuProvider();

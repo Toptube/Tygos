@@ -294,6 +294,13 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
       group: 'admin',
       roles: ['tenant_admin', 'super_admin'],
     },
+    {
+      id: 'users_roles',
+      label: isAr ? 'أدوار المستخدمين' : 'User Roles & Permissions',
+      icon: Users,
+      group: 'admin',
+      roles: ['super_admin', 'tenant_admin', 'general_manager', 'financial_manager'],
+    },
   ];
 
   if (role === 'super_admin') {
@@ -314,11 +321,28 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
   };
 
   const allowedNav = navItems
-    .filter((item) => item.roles.includes(role))
+    .filter((item) => {
+      if (
+        currentUser?.permittedViews &&
+        Array.isArray(currentUser.permittedViews) &&
+        currentUser.permittedViews.length > 0
+      ) {
+        return currentUser.permittedViews.includes(item.id);
+      }
+      return item.roles.includes(role);
+    })
     .map((item) => ({
       ...item,
       label: getScreenTitle(item.id, isAr),
     }));
+
+  const allowedNavIds = allowedNav.map((item) => item.id).join(',');
+  React.useEffect(() => {
+    if (allowedNav.length > 0 && !allowedNav.some((item) => item.id === activeView)) {
+      setActiveView(allowedNav[0].id);
+    }
+  }, [allowedNavIds, activeView, setActiveView]);
+
   const currentRoleLabel = roleLabels[role]?.[language === 'ar' ? 'ar' : 'en'] || role;
   const currentScreenTitle = getScreenTitle(activeView, isAr);
   const currentActiveNav = allowedNav.find((item) => item.id === activeView);
