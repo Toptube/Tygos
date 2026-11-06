@@ -4,6 +4,7 @@
  */
 
 import React, { useState } from 'react';
+import { Button } from '../common/Button.tsx';
 import {
   Package,
   Layers,
@@ -75,22 +76,22 @@ export const InventoryModule: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-2">
-          <button
+          <Button
             onClick={() => setTransferModal(true)}
             className="px-3.5 py-2 text-xs font-semibold rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white transition-colors flex items-center gap-1.5 cursor-pointer"
           >
             <ArrowRightLeft className="w-4 h-4" />
             <span>{t('inventory.transfer')}</span>
-          </button>
+          </Button>
         </div>
       </div>
 
       {toastMessage && (
         <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs rounded-xl flex items-center justify-between animate-fade-in">
           <span>{toastMessage}</span>
-          <button onClick={() => setToastMessage('')} className="text-slate-400 hover:text-white cursor-pointer">
+          <Button onClick={() => setToastMessage('')} className="text-slate-400 hover:text-white cursor-pointer">
             <X className="w-3.5 h-3.5" />
-          </button>
+          </Button>
         </div>
       )}
 
@@ -146,7 +147,7 @@ export const InventoryModule: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            <button
+            <Button
               onClick={() => setSelectedWarehouseId('all')}
               className={`px-3 py-1.5 text-xs font-semibold rounded-lg cursor-pointer ${
                 selectedWarehouseId === 'all'
@@ -155,7 +156,7 @@ export const InventoryModule: React.FC = () => {
               }`}
             >
               {t('common.all')}
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -249,9 +250,9 @@ export const InventoryModule: React.FC = () => {
                 <ArrowRightLeft className="w-4 h-4 text-cyan-400" />
                 <span>{t('inventory.transfer')}</span>
               </h3>
-              <button onClick={() => setTransferModal(false)} className="text-slate-400 hover:text-white cursor-pointer">
+              <Button onClick={() => setTransferModal(false)} className="text-slate-400 hover:text-white cursor-pointer">
                 <X className="w-4 h-4" />
-              </button>
+              </Button>
             </div>
 
             <div className="space-y-3 my-4 text-xs">
@@ -303,18 +304,18 @@ export const InventoryModule: React.FC = () => {
             </div>
 
             <div className="pt-3 border-t border-slate-200 dark:border-slate-800 flex justify-end gap-2">
-              <button
+              <Button
                 onClick={() => setTransferModal(false)}
                 className="px-3.5 py-2 text-xs font-medium text-slate-500 hover:text-white cursor-pointer"
               >
                 {t('common.cancel')}
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={handleExecuteTransfer}
                 className="px-4 py-2 text-xs font-bold text-white bg-cyan-600 hover:bg-cyan-500 rounded-lg cursor-pointer"
               >
                 {t('inventory.dispatchTransfer')}
-              </button>
+              </Button>
             </div>
           </div>
         </div>

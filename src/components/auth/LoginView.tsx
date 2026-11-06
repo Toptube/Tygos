@@ -4,6 +4,7 @@
  */
 
 import React, { useState } from 'react';
+import { Button } from '../common/Button.tsx';
 import { Eye, EyeOff, ArrowRight, UserPlus, Sparkles, Building2, HelpCircle, X, Check } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.tsx';
 import { useI18n } from '../../i18n/I18nContext.tsx';
@@ -106,14 +107,14 @@ export const LoginView: React.FC<{
       {/* Top Bar with Back to Landing, Permanent App URL Badge, & Language Switcher */}
       <div className="w-full max-w-md flex items-center justify-between gap-2 mb-3 z-20">
         {onBackToLanding ? (
-          <button
+          <Button
             type="button"
             onClick={onBackToLanding}
             className="text-xs text-slate-400 hover:text-cyan-300 flex items-center gap-1.5 transition-colors cursor-pointer"
           >
             <ArrowRight className="w-3.5 h-3.5 ltr:rotate-180" />
             <span className="hidden sm:inline">{isAr ? 'الرئيسية التعريفية' : 'Platform'}</span>
-          </button>
+          </Button>
         ) : (
           <div />
         )}
@@ -142,14 +143,14 @@ export const LoginView: React.FC<{
               <label className="block text-xs font-bold uppercase tracking-wider text-slate-400">
                 {t('auth.establishmentCode', 'Establishment Number')}
               </label>
-              <button
+              <Button
                 type="button"
                 onClick={() => setIsForgotModalOpen(true)}
                 className="text-[11px] text-cyan-400 hover:text-cyan-300 transition-colors cursor-pointer flex items-center gap-1"
               >
                 <HelpCircle className="w-3 h-3" />
                 <span>{t('auth.forgotEstablishment', 'Forgot my establishment number?')}</span>
-              </button>
+              </Button>
             </div>
 
             {/* Quick establishment chips saved on device */}
@@ -159,7 +160,7 @@ export const LoginView: React.FC<{
                   const [p, n] = est.code.split('.');
                   const isSelected = typeCode === (p || est.prefix) && number === (n || est.number);
                   return (
-                    <button
+                    <Button
                       key={est.id}
                       type="button"
                       onClick={() => {
@@ -174,7 +175,7 @@ export const LoginView: React.FC<{
                     >
                       <span className="font-mono text-cyan-400" dir="ltr">{est.code}</span>
                       <span className="ms-1.5 opacity-80">{est.name.split(' ')[0]}</span>
-                    </button>
+                    </Button>
                   );
                 })}
               </div>
@@ -259,14 +260,14 @@ export const LoginView: React.FC<{
                 dir="ltr"
                 className="w-full px-3.5 py-2.5 pe-11 bg-slate-950 border border-slate-800 rounded-xl text-sm text-slate-100 focus:border-cyan-500 focus:outline-none"
               />
-              <button
+              <Button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute end-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200"
                 tabIndex={-1}
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-              </button>
+              </Button>
             </div>
           </div>
 
@@ -285,12 +286,12 @@ export const LoginView: React.FC<{
           </div>
 
           {/* Submit */}
-          <button
+          <Button
             type="submit"
             className="w-full py-3 px-4 rounded-xl font-bold text-sm bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 shadow-lg shadow-cyan-500/20 transition-all cursor-pointer"
           >
             {t('auth.enterWorkspace', 'Log In to Workspace')}
-          </button>
+          </Button>
         </form>
 
         {/* Register New Facility prompt */}
@@ -298,14 +299,14 @@ export const LoginView: React.FC<{
           <p className="text-xs text-slate-400 mb-2.5">
             {t('auth.newEstablishmentPrompt', 'New hospitality establishment?')}
           </p>
-          <button
+          <Button
             type="button"
             onClick={onOpenRegister}
             className="w-full py-2.5 px-4 rounded-xl text-xs font-bold border border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/10 transition-colors flex items-center justify-center gap-2 cursor-pointer"
           >
             <UserPlus className="w-4 h-4" />
             <span>{t('auth.register', 'Register New Establishment')}</span>
-          </button>
+          </Button>
         </div>
 
         {/* Interactive Role Switcher for Phase 2 & 4 preview */}
@@ -318,7 +319,7 @@ export const LoginView: React.FC<{
           </div>
           <div className="grid grid-cols-2 gap-1.5">
             {quickRoles.map((qr) => (
-              <button
+              <Button
                 key={qr.role}
                 type="button"
                 onClick={() => switchRole(qr.role)}
@@ -328,7 +329,7 @@ export const LoginView: React.FC<{
                   {qr.title}
                 </div>
                 <div className="text-[10px] text-slate-500 truncate">{qr.hint}</div>
-              </button>
+              </Button>
             ))}
           </div>
         </div>
@@ -348,13 +349,13 @@ export const LoginView: React.FC<{
                   {t('auth.savedOnDevice', 'Registered establishments on this device')}
                 </h3>
               </div>
-              <button
+              <Button
                 type="button"
                 onClick={() => setIsForgotModalOpen(false)}
                 className="p-1 rounded-lg text-slate-400 hover:text-slate-100"
               >
                 <X className="w-4 h-4" />
-              </button>
+              </Button>
             </div>
 
             <p className="text-xs text-slate-400 my-3">
@@ -368,7 +369,7 @@ export const LoginView: React.FC<{
                 establishments.map((est) => {
                   const [p, n] = est.code.split('.');
                   return (
-                    <button
+                    <Button
                       key={est.id}
                       type="button"
                       onClick={() => {
@@ -391,7 +392,7 @@ export const LoginView: React.FC<{
                           {est.code}
                         </span>
                       </div>
-                    </button>
+                    </Button>
                   );
                 })
               ) : (
@@ -402,13 +403,13 @@ export const LoginView: React.FC<{
             </div>
 
             <div className="mt-4 pt-3 border-t border-slate-800 flex justify-end">
-              <button
+              <Button
                 type="button"
                 onClick={() => setIsForgotModalOpen(false)}
                 className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-200 cursor-pointer"
               >
                 {t('common.close', 'Close')}
-              </button>
+              </Button>
             </div>
           </div>
         </div>

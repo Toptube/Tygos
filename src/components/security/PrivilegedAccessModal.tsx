@@ -4,6 +4,7 @@
  */
 
 import React, { useState } from 'react';
+import { Button } from '../common/Button.tsx';
 import {
   X,
   Shield,
@@ -114,12 +115,12 @@ export const PrivilegedAccessModal: React.FC = () => {
             </div>
           </div>
 
-          <button
+          <Button
             onClick={() => setIsAccessModalOpen(false)}
             className="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
-          </button>
+          </Button>
         </div>
 
         {/* Content Body */}
@@ -188,35 +189,35 @@ export const PrivilegedAccessModal: React.FC = () => {
                               onChange={(e) => setRejectionReason(e.target.value)}
                               className="px-2 py-1 bg-slate-900 border border-rose-500/40 rounded text-xs text-white"
                             />
-                            <button
+                            <Button
                               onClick={() => handleConfirmReject(req.id)}
                               className="px-2.5 py-1 bg-rose-600 hover:bg-rose-500 text-white rounded font-bold"
                             >
                               {isAr ? 'تأكيد' : 'Confirm'}
-                            </button>
-                            <button
+                            </Button>
+                            <Button
                               onClick={() => setRejectId(null)}
                               className="px-2 py-1 bg-slate-800 text-slate-400 rounded"
                             >
                               {isAr ? 'إلغاء' : 'Cancel'}
-                            </button>
+                            </Button>
                           </div>
                         ) : (
                           <>
-                            <button
+                            <Button
                               onClick={() => approvePrivilegedAccessRequest(req.id)}
                               className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold flex items-center gap-1.5 cursor-pointer shadow-xs"
                             >
                               <CheckCircle className="w-3.5 h-3.5" />
                               <span>{isAr ? 'قبول ومنح جلسة' : 'Approve & Issue'}</span>
-                            </button>
-                            <button
+                            </Button>
+                            <Button
                               onClick={() => setRejectId(req.id)}
                               className="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-rose-950/60 hover:text-rose-300 text-slate-300 font-medium flex items-center gap-1 cursor-pointer"
                             >
                               <XCircle className="w-3.5 h-3.5" />
                               <span>{isAr ? 'رفض' : 'Reject'}</span>
-                            </button>
+                            </Button>
                           </>
                         )}
                       </div>
@@ -277,7 +278,7 @@ export const PrivilegedAccessModal: React.FC = () => {
               </label>
               <div className="flex gap-2">
                 {[15, 30, 60, 120].map((mins) => (
-                  <button
+                  <Button
                     key={mins}
                     type="button"
                     onClick={() => setDuration(mins)}
@@ -288,12 +289,12 @@ export const PrivilegedAccessModal: React.FC = () => {
                     }`}
                   >
                     {mins} {isAr ? 'دقيقة' : 'mins'}
-                  </button>
+                  </Button>
                 ))}
               </div>
             </div>
 
-            <button
+            <Button
               type="submit"
               disabled={!reason.trim()}
               className={`w-full py-2.5 rounded-xl font-bold transition-colors cursor-pointer ${
@@ -303,7 +304,7 @@ export const PrivilegedAccessModal: React.FC = () => {
               }`}
             >
               {isAr ? 'إرسال طلب التصريح الأمني للمشرف' : 'Submit Timed Request to Supervisor'}
-            </button>
+            </Button>
           </form>
         </div>
       </div>

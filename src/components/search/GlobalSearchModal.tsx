@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { Button } from '../common/Button.tsx';
 import { Search, X, Utensils, Users, Building, Package, DollarSign, ArrowRight, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.tsx';
 import { useI18n } from '../../i18n/I18nContext.tsx';
@@ -78,12 +79,12 @@ export const GlobalSearchModal: React.FC = () => {
             className="w-full bg-transparent text-sm text-slate-100 placeholder-slate-500 focus:outline-none"
           />
           {query && (
-            <button
+            <Button
               onClick={() => setQuery('')}
               className="p-1 text-slate-400 hover:text-white rounded cursor-pointer"
             >
               <X className="w-4 h-4" />
-            </button>
+            </Button>
           )}
           <span className="text-[10px] text-slate-500 border border-slate-700 px-1.5 py-0.5 rounded font-mono" dir="ltr">
             {t('search.pressEsc', 'ESC')}
@@ -99,41 +100,41 @@ export const GlobalSearchModal: React.FC = () => {
                 {t('search.shortcuts', 'Quick Navigation Shortcuts')}
               </span>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                <button
+                <Button
                   onClick={() => navigateTo('pos')}
                   className="flex items-center gap-2.5 p-2 rounded-lg bg-slate-800/60 hover:bg-slate-800 text-xs text-start transition-colors cursor-pointer"
                 >
                   <Utensils className="w-4 h-4 text-cyan-400 shrink-0" />
                   <span>{t('navigation.pos', 'Point of Sale')}</span>
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={() => navigateTo('cost_control')}
                   className="flex items-center gap-2.5 p-2 rounded-lg bg-slate-800/60 hover:bg-slate-800 text-xs text-start transition-colors cursor-pointer"
                 >
                   <DollarSign className="w-4 h-4 text-emerald-400 shrink-0" />
                   <span>{t('navigation.costControl', 'Cost Control')}</span>
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={() => navigateTo('inventory')}
                   className="flex items-center gap-2.5 p-2 rounded-lg bg-slate-800/60 hover:bg-slate-800 text-xs text-start transition-colors cursor-pointer"
                 >
                   <Package className="w-4 h-4 text-amber-400 shrink-0" />
                   <span>{t('navigation.inventory', 'Inventory Warehouses')}</span>
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={() => navigateTo('crm')}
                   className="flex items-center gap-2.5 p-2 rounded-lg bg-slate-800/60 hover:bg-slate-800 text-xs text-start transition-colors cursor-pointer"
                 >
                   <Users className="w-4 h-4 text-blue-400 shrink-0" />
                   <span>{t('crm.guestDirectory', 'Guest Directory')}</span>
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={() => navigateTo('super_admin')}
                   className="flex items-center gap-2.5 p-2 rounded-lg bg-slate-800/60 hover:bg-slate-800 text-xs text-start transition-colors cursor-pointer"
                 >
                   <Building className="w-4 h-4 text-purple-400 shrink-0" />
                   <span>{t('admin.controlCenter', 'Super Admin Center')}</span>
-                </button>
+                </Button>
               </div>
             </div>
           )}

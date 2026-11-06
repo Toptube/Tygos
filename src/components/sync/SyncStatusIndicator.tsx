@@ -4,6 +4,7 @@
  */
 
 import React, { useState } from 'react';
+import { Button } from '../common/Button.tsx';
 import { Wifi, WifiOff, RefreshCw, CheckCircle2, Clock, X, Database } from 'lucide-react';
 import { useSync } from '../../sync/SyncContext.tsx';
 import { useI18n } from '../../i18n/I18nContext.tsx';
@@ -48,14 +49,14 @@ export const SyncStatusIndicator: React.FC = () => {
 
   return (
     <div className="relative">
-      <button
+      <Button
         onClick={() => setIsOpen(!isOpen)}
         className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium rounded-lg border transition-colors cursor-pointer ${badge.color}`}
         title={t('sync.engineTitle', 'Offline-first sync status')}
       >
         {badge.icon}
         <span className="hidden sm:inline">{badge.label}</span>
-      </button>
+      </Button>
 
       {isOpen && (
         <div className="absolute end-0 mt-2 w-80 sm:w-96 bg-slate-900 border border-slate-800 rounded-xl shadow-2xl p-4 z-50 text-slate-200">
@@ -64,12 +65,12 @@ export const SyncStatusIndicator: React.FC = () => {
               <Database className="w-4 h-4 text-cyan-400" />
               <h4 className="text-sm font-semibold">{t('sync.engineTitle', 'Tygos Sync Engine (Phase 2)')}</h4>
             </div>
-            <button
+            <Button
               onClick={() => setIsOpen(false)}
               className="text-slate-400 hover:text-white p-1 rounded cursor-pointer"
             >
               <X className="w-4 h-4" />
-            </button>
+            </Button>
           </div>
 
           {/* Toggle Online/Offline State */}
@@ -82,7 +83,7 @@ export const SyncStatusIndicator: React.FC = () => {
                 {isOnline ? t('sync.online', 'Online (Connected)') : t('sync.offline', 'Offline (Local In-Memory Cache)')}
               </p>
             </div>
-            <button
+            <Button
               onClick={toggleOnlineStatus}
               className={`px-3 py-1 text-xs font-semibold rounded-md border transition-colors cursor-pointer ${
                 isOnline
@@ -91,7 +92,7 @@ export const SyncStatusIndicator: React.FC = () => {
               }`}
             >
               {isOnline ? t('sync.simulateOffline', 'Simulate Offline') : t('sync.goOnline', 'Go Online')}
-            </button>
+            </Button>
           </div>
 
           {/* Pending Sync Items Queue */}
@@ -100,13 +101,13 @@ export const SyncStatusIndicator: React.FC = () => {
               <span className="text-xs uppercase tracking-wider text-slate-400 font-semibold">
                 {t('sync.pendingQueue', 'Pending Local Queue')} ({pendingCount})
               </span>
-              <button
+              <Button
                 onClick={triggerManualSync}
                 className="text-[11px] text-cyan-400 hover:text-cyan-300 flex items-center gap-1 font-medium cursor-pointer"
               >
                 <RefreshCw className="w-3 h-3" />
                 {t('sync.forceSync', 'Force Sync Now')}
-              </button>
+              </Button>
             </div>
 
             {pendingQueue.length === 0 ? (

@@ -4,6 +4,7 @@
  */
 
 import React, { useState } from 'react';
+import { Button } from '../common/Button.tsx';
 import {
   MessageSquare,
   Send,
@@ -217,24 +218,24 @@ export const InternalChatModule: React.FC = () => {
 
                     {/* Quick Reaction Bar on Hover */}
                     <div className="absolute top-1 end-2 hidden group-hover:flex items-center gap-1 bg-slate-900/90 text-white px-2 py-0.5 rounded-full text-xs shadow-md">
-                      <button
+                      <Button
                         onClick={() => handleAddReaction(msg.id, '👍')}
                         className="hover:scale-125 transition-transform cursor-pointer"
                       >
                         👍
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         onClick={() => handleAddReaction(msg.id, '🔥')}
                         className="hover:scale-125 transition-transform cursor-pointer"
                       >
                         🔥
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         onClick={() => handleAddReaction(msg.id, '✅')}
                         className="hover:scale-125 transition-transform cursor-pointer"
                       >
                         ✅
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 </div>
@@ -254,7 +255,7 @@ export const InternalChatModule: React.FC = () => {
               onChange={(e) => setInputText(e.target.value)}
               className="flex-1 px-3.5 py-2.5 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-900 dark:text-slate-100 focus:outline-none focus:border-cyan-500"
             />
-            <button
+            <Button
               type="submit"
               disabled={!inputText.trim()}
               className={`p-2.5 rounded-xl transition-colors cursor-pointer ${
@@ -264,7 +265,7 @@ export const InternalChatModule: React.FC = () => {
               }`}
             >
               <Send className={`w-4 h-4 ${dir === 'rtl' ? 'rotate-180' : ''}`} />
-            </button>
+            </Button>
           </form>
         </div>
       </div>

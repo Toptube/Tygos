@@ -7,6 +7,7 @@
  */
 
 import React, { useState } from 'react';
+import { Button } from '../common/Button.tsx';
 import {
   Settings,
   DollarSign,
@@ -29,6 +30,7 @@ import {
 import { useI18n } from '../../i18n/I18nContext.tsx';
 import { useAuth } from '../../context/AuthContext.tsx';
 import { dataService, VenueSettings, DeliveryZone } from '../../services/dataService.ts';
+import { uiPreferencesRepository } from '../../repositories/repositories.ts';
 import { useBusiness } from '../../context/BusinessContext.tsx';
 import { useSync } from '../../sync/SyncContext.tsx';
 import { DeploymentMode, DeviceRole } from '../../sync/syncTypes.ts';
@@ -45,7 +47,8 @@ export const SettingsModule: React.FC = () => {
   const estId = currentEstablishment?.id || 'default';
 
   // State
-  const [currency, setCurrency] = useState('USD');
+  const [currency, setCurrency] = useState('EGP');
+  const [clickSound, setClickSound] = useState(() => uiPreferencesRepository.getClickSoundEnabled());
   const [taxStandard, setTaxStandard] = useState('14.0');
   const [taxReduced, setTaxReduced] = useState('5.0');
   const [serviceCharge, setServiceCharge] = useState('12.0');
@@ -208,23 +211,23 @@ export const SettingsModule: React.FC = () => {
 
         <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
           {isOwnerOrManager && (
-            <button
+            <Button
               type="button"
               onClick={() => setActiveView('prelaunch_checklist')}
               className="px-3.5 py-2 text-xs font-bold rounded-xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer flex items-center gap-1.5"
             >
               <Check className="w-3.5 h-3.5 text-emerald-500" />
               <span>{isAr ? 'قائمة الفحص قبل التشغيل' : 'Pre-Launch Checklist'}</span>
-            </button>
+            </Button>
           )}
-          <button
+          <Button
             type="button"
             onClick={handleSaveSettings}
             className="px-5 py-2 text-xs font-bold rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 shadow-md shadow-cyan-900/30 transition-all cursor-pointer flex items-center gap-2"
           >
             {savedSuccess ? <Check className="w-4 h-4" /> : <Settings className="w-4 h-4" />}
             <span>{savedSuccess ? (isAr ? 'تم الحفظ بنجاح!' : 'Saved!') : (isAr ? 'حفظ الإعدادات' : 'Save Settings')}</span>
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -277,6 +280,30 @@ export const SettingsModule: React.FC = () => {
               <option value="european">{isAr ? 'أوروبي (1.234,50)' : 'European (1.234,50)'}</option>
             </select>
           </div>
+        </div>
+
+        <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+          <div>
+            <div className="text-xs font-bold text-slate-800 dark:text-slate-200">
+              {isAr ? 'صوت نقرة الأزرار الخفيف' : 'Subtle Button Click Sound'}
+            </div>
+            <div className="text-[11px] text-slate-500">
+              {isAr ? 'تشغيل صوت لمسي خفيف عند الضغط على أزرار النظام' : 'Play subtle tactile audio feedback on button press'}
+            </div>
+          </div>
+          <Button
+            type="button"
+            size="sm"
+            variant={clickSound ? 'primary' : 'outline'}
+            selected={clickSound}
+            onClick={() => {
+              const next = !clickSound;
+              setClickSound(next);
+              uiPreferencesRepository.setClickSoundEnabled(next);
+            }}
+          >
+            {clickSound ? (isAr ? 'مفعّل' : 'Enabled') : (isAr ? 'معطّل' : 'Disabled')}
+          </Button>
         </div>
       </div>
 
@@ -421,13 +448,13 @@ export const SettingsModule: React.FC = () => {
                 placeholder="https://example.com"
                 className="w-full px-3 py-2 text-xs font-mono rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:outline-none"
               />
-              <button
+              <Button
                 type="button"
                 onClick={() => setPublicAppUrl(window.location.origin)}
                 className="px-3 py-2 text-xs font-semibold rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 shrink-0 cursor-pointer"
               >
                 {isAr ? 'الافتراضي' : 'Reset Origin'}
-              </button>
+              </Button>
             </div>
             <p className="text-[10px] text-slate-500 mt-1">
               {isAr
@@ -566,13 +593,13 @@ export const SettingsModule: React.FC = () => {
                   <span className="font-mono font-bold text-cyan-600 dark:text-cyan-400">
                     {z.fee} {currency}
                   </span>
-                  <button
+                  <Button
                     type="button"
                     onClick={() => setDeliveryZones(deliveryZones.filter((item) => item.id !== z.id))}
                     className="text-rose-500 text-xs cursor-pointer"
                   >
                     ×
-                  </button>
+                  </Button>
                 </div>
               ))}
             </div>
@@ -591,7 +618,7 @@ export const SettingsModule: React.FC = () => {
                 placeholder={isAr ? 'الرسوم' : 'Fee'}
                 className="w-24 px-3 py-1.5 text-xs font-mono rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800"
               />
-              <button
+              <Button
                 type="button"
                 onClick={() => {
                   if (!newZoneName.trim()) return;
@@ -609,7 +636,7 @@ export const SettingsModule: React.FC = () => {
                 className="px-3 py-1.5 rounded-xl bg-cyan-600 text-white text-xs font-bold cursor-pointer"
               >
                 {isAr ? 'إضافة منطقة' : 'Add Zone'}
-              </button>
+              </Button>
             </div>
           </div>
 
@@ -711,13 +738,13 @@ export const SettingsModule: React.FC = () => {
                   <span className="mx-2 text-slate-400">·</span>
                   <span className="font-mono text-cyan-600 dark:text-cyan-400">{dev.role}</span>
                 </div>
-                <button
+                <Button
                   type="button"
                   onClick={() => removeDevice(dev.id)}
                   className="text-xs text-rose-500 cursor-pointer"
                 >
                   {isAr ? 'حذف' : 'Remove'}
-                </button>
+                </Button>
               </div>
             ))}
           </div>
@@ -739,7 +766,7 @@ export const SettingsModule: React.FC = () => {
               <option value="bar">{isAr ? 'بار' : 'Bar'}</option>
               <option value="kds_display">{isAr ? 'شاشة عرض' : 'KDS Display'}</option>
             </select>
-            <button
+            <Button
               type="button"
               onClick={() => {
                 if (!newDevName.trim()) return;
@@ -753,7 +780,7 @@ export const SettingsModule: React.FC = () => {
               className="px-3 py-1.5 rounded-xl bg-cyan-600 text-white text-xs font-bold cursor-pointer"
             >
               {isAr ? 'تسجيل جهاز' : 'Register Device'}
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -774,14 +801,14 @@ export const SettingsModule: React.FC = () => {
         </p>
 
         <div className="flex flex-wrap gap-2.5 pt-1">
-          <button
+          <Button
             type="button"
             onClick={handleExportBackup}
             className="px-4 py-2 text-xs font-bold rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white flex items-center gap-2 cursor-pointer transition-colors"
           >
             <Download className="w-4 h-4" />
             <span>{isAr ? 'تصدير نسخة احتياطية (JSON)' : 'Export JSON Backup'}</span>
-          </button>
+          </Button>
 
           <label className="px-4 py-2 text-xs font-bold rounded-xl bg-slate-100 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 hover:border-cyan-500 text-slate-700 dark:text-slate-300 flex items-center gap-2 cursor-pointer transition-colors">
             <Upload className="w-4 h-4 text-cyan-500" />
@@ -789,14 +816,14 @@ export const SettingsModule: React.FC = () => {
             <input type="file" accept=".json" onChange={handleImportBackup} className="hidden" />
           </label>
 
-          <button
+          <Button
             type="button"
             onClick={handleResetDemoData}
             className="px-4 py-2 text-xs font-bold rounded-xl border border-rose-500/30 text-rose-500 hover:bg-rose-500/10 flex items-center gap-2 cursor-pointer transition-colors ms-auto"
           >
             <RotateCcw className="w-4 h-4" />
             <span>{isAr ? 'استعادة القالب النموذجي' : 'Reload Model Template'}</span>
-          </button>
+          </Button>
         </div>
       </div>
     </div>

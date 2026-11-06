@@ -12,6 +12,7 @@
  */
 
 import React, { createContext, useContext, useState, useCallback, useRef } from 'react';
+import { Button } from '../components/common/Button.tsx';
 import {
   CheckCircle2,
   XCircle,
@@ -247,7 +248,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                   </p>
                 )}
                 {toast.action && (
-                  <button
+                  <Button
                     type="button"
                     onClick={() => {
                       toast.action?.onClick();
@@ -256,17 +257,17 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                     className="mt-2 px-2.5 py-1 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-[11px] font-bold transition-colors cursor-pointer"
                   >
                     {toast.action.label}
-                  </button>
+                  </Button>
                 )}
               </div>
-              <button
+              <Button
                 type="button"
                 onClick={() => dismissToast(toast.id)}
                 className="p-1 rounded-lg text-slate-400 hover:text-white transition-colors cursor-pointer shrink-0"
                 aria-label="Close"
               >
                 <X className="w-4 h-4" />
-              </button>
+              </Button>
             </div>
           );
         })}

@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import { Button } from '../common/Button.tsx';
 import {
   X,
   Sliders,
@@ -65,20 +66,20 @@ export const CostSimulationWorkspace: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            <button
+            <Button
               onClick={resetSimulation}
               className="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors flex items-center gap-1.5 text-xs font-medium cursor-pointer"
               title={isAr ? 'إعادة ضبط' : 'Reset'}
             >
               <RotateCcw className="w-4 h-4" />
               <span className="hidden sm:inline">{isAr ? 'إعادة ضبط' : 'Reset'}</span>
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => setIsSimulationModalOpen(false)}
               className="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -325,12 +326,12 @@ export const CostSimulationWorkspace: React.FC = () => {
             </span>
           </div>
 
-          <button
+          <Button
             onClick={() => setIsSimulationModalOpen(false)}
             className="w-full sm:w-auto px-5 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold transition-colors cursor-pointer"
           >
             {isAr ? 'إغلاق المحاكاة' : 'Close Workspace'}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

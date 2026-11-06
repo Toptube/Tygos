@@ -24,7 +24,7 @@ const CURRENCY_SYMBOLS: Record<string, Record<LanguageCode, string>> = {
  */
 export function formatCurrency(
   amount: number,
-  currency: string = 'USD',
+  currency: string = 'EGP',
   lang: LanguageCode = 'ar'
 ): string {
   const symbol = CURRENCY_SYMBOLS[currency]?.[lang] || currency;
@@ -48,7 +48,7 @@ export function formatMoney(
   lang?: LanguageCode
 ): string {
   let resolvedLang: LanguageCode = lang || 'ar';
-  let resolvedCurrency: string = currency || 'USD';
+  let resolvedCurrency: string = currency || 'EGP';
 
   if (!lang) {
     const savedLang = getStorageAdapter().getItemSync('tygos_lang') as LanguageCode | null;

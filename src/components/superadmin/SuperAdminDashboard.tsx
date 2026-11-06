@@ -4,6 +4,7 @@
  */
 
 import React, { useState } from 'react';
+import { Button } from '../common/Button.tsx';
 import {
   Building2,
   Users,
@@ -103,13 +104,13 @@ export const SuperAdminDashboard: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-3">
-          <button
+          <Button
             onClick={() => setActiveView('dashboard')}
             className="px-3.5 py-2 text-xs font-medium rounded-lg border border-slate-300 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition-colors flex items-center gap-2 cursor-pointer"
           >
             <ExternalLink className="w-3.5 h-3.5 rtl:rotate-180" />
             <span>{t('navigation.dashboard')}</span>
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -280,44 +281,44 @@ export const SuperAdminDashboard: React.FC = () => {
                   <td className="py-3 px-4 text-end">
                     <div className="flex items-center justify-end gap-1">
                       {/* Temporary Support Session Action */}
-                      <button
+                      <Button
                         onClick={() => setSupportModalEst(est)}
                         title={t('admin.supportSession')}
                         className="p-1.5 rounded text-cyan-600 dark:text-cyan-400 hover:bg-cyan-50 dark:hover:bg-cyan-950/40 transition-colors cursor-pointer"
                       >
                         <Wrench className="w-3.5 h-3.5" />
-                      </button>
+                      </Button>
 
                       {/* View Logs Action */}
-                      <button
+                      <Button
                         onClick={() => setLogsModalEst(est)}
                         title={t('admin.logs')}
                         className="p-1.5 rounded text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                       >
                         <FileSpreadsheet className="w-3.5 h-3.5" />
-                      </button>
+                      </Button>
 
                       {/* Status Toggle Actions */}
                       {est.status === 'active' ? (
-                        <button
+                        <Button
                           onClick={() => handleStatusChange(est.id, 'suspended')}
                           title="Suspend"
                           className="p-1.5 rounded text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/40 transition-colors cursor-pointer"
                         >
                           <Ban className="w-3.5 h-3.5" />
-                        </button>
+                        </Button>
                       ) : (
-                        <button
+                        <Button
                           onClick={() => handleStatusChange(est.id, 'active')}
                           title="Activate"
                           className="p-1.5 rounded text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 transition-colors cursor-pointer"
                         >
                           <CheckCircle className="w-3.5 h-3.5" />
-                        </button>
+                        </Button>
                       )}
 
                       {/* Delete with Strong Confirmation */}
-                      <button
+                      <Button
                         onClick={() => {
                           setDeleteModalEst(est);
                           setDeleteConfirmationInput('');
@@ -326,7 +327,7 @@ export const SuperAdminDashboard: React.FC = () => {
                         className="p-1.5 rounded text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                      </Button>
                     </div>
                   </td>
                 </tr>
@@ -359,12 +360,12 @@ export const SuperAdminDashboard: React.FC = () => {
                   </p>
                 </div>
               </div>
-              <button
+              <Button
                 onClick={() => setSupportModalEst(null)}
                 className="text-slate-400 hover:text-slate-600 dark:hover:text-white cursor-pointer"
               >
                 <X className="w-4 h-4" />
-              </button>
+              </Button>
             </div>
 
             <div className="space-y-4 my-4 text-xs">
@@ -387,7 +388,7 @@ export const SuperAdminDashboard: React.FC = () => {
                 </label>
                 <div className="grid grid-cols-4 gap-2">
                   {[15, 30, 60, 120].map((mins) => (
-                    <button
+                    <Button
                       key={mins}
                       type="button"
                       onClick={() => setSupportDuration(mins)}
@@ -398,7 +399,7 @@ export const SuperAdminDashboard: React.FC = () => {
                       }`}
                     >
                       {mins} {t('admin.minutes')}
-                    </button>
+                    </Button>
                   ))}
                 </div>
               </div>
@@ -424,19 +425,19 @@ export const SuperAdminDashboard: React.FC = () => {
             </div>
 
             <div className="flex items-center justify-end gap-2 pt-4 border-t border-slate-200 dark:border-slate-800">
-              <button
+              <Button
                 onClick={() => setSupportModalEst(null)}
                 className="px-4 py-2 text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white cursor-pointer"
               >
                 {t('common.cancel')}
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={handleLaunchSupport}
                 className="px-4 py-2 text-xs font-bold text-white bg-cyan-600 hover:bg-cyan-500 rounded-lg transition-colors flex items-center gap-1.5 cursor-pointer"
               >
                 <Clock className="w-3.5 h-3.5" />
                 <span>{t('admin.launchSupport')} ({supportDuration} {t('admin.minutes')})</span>
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -476,13 +477,13 @@ export const SuperAdminDashboard: React.FC = () => {
             </div>
 
             <div className="flex items-center justify-end gap-2">
-              <button
+              <Button
                 onClick={() => setDeleteModalEst(null)}
                 className="px-3 py-1.5 text-xs font-medium text-slate-500 hover:text-slate-900 dark:hover:text-white cursor-pointer"
               >
                 {t('common.cancel')}
-              </button>
-              <button
+              </Button>
+              <Button
                 disabled={deleteConfirmationInput !== deleteModalEst.code}
                 onClick={handleConfirmDelete}
                 className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all ${
@@ -492,7 +493,7 @@ export const SuperAdminDashboard: React.FC = () => {
                 }`}
               >
                 {t('admin.confirmDelete')}
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -506,12 +507,12 @@ export const SuperAdminDashboard: React.FC = () => {
               <h3 className="text-sm font-bold text-slate-900 dark:text-white">
                 {t('admin.logs')} · {logsModalEst.name} (<span dir="ltr">{logsModalEst.code}</span>)
               </h3>
-              <button
+              <Button
                 onClick={() => setLogsModalEst(null)}
                 className="text-slate-400 hover:text-slate-600 dark:hover:text-white cursor-pointer"
               >
                 <X className="w-4 h-4" />
-              </button>
+              </Button>
             </div>
 
             <div className="py-4 space-y-2 text-xs max-h-60 overflow-y-auto">
@@ -539,12 +540,12 @@ export const SuperAdminDashboard: React.FC = () => {
             </div>
 
             <div className="pt-3 border-t border-slate-200 dark:border-slate-800 flex justify-end">
-              <button
+              <Button
                 onClick={() => setLogsModalEst(null)}
                 className="px-4 py-1.5 text-xs font-semibold bg-slate-200 dark:bg-slate-800 rounded-lg text-slate-700 dark:text-slate-300 cursor-pointer"
               >
                 {t('common.close')}
-              </button>
+              </Button>
             </div>
           </div>
         </div>

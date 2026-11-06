@@ -4,6 +4,7 @@
  */
 
 import React, { useState } from 'react';
+import { Button } from '../common/Button.tsx';
 import {
   Users,
   Briefcase,
@@ -58,7 +59,7 @@ export const HrModule: React.FC = () => {
         </div>
 
         <div className="flex p-1 bg-slate-100 dark:bg-slate-950 rounded-lg">
-          <button
+          <Button
             onClick={() => setActiveTab('employees')}
             className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors cursor-pointer ${
               activeTab === 'employees'
@@ -67,8 +68,8 @@ export const HrModule: React.FC = () => {
             }`}
           >
             {t('hr.staffDirectory', 'Staff Directory')}
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={() => setActiveTab('payroll')}
             className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors cursor-pointer ${
               activeTab === 'payroll'
@@ -77,8 +78,8 @@ export const HrModule: React.FC = () => {
             }`}
           >
             {t('hr.payrollRun', 'Monthly Payroll Run')}
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={() => setActiveTab('shifts')}
             className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors cursor-pointer ${
               activeTab === 'shifts'
@@ -87,7 +88,7 @@ export const HrModule: React.FC = () => {
             }`}
           >
             {t('hr.shifts', 'Floor Shifts & Attendance')}
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -148,7 +149,7 @@ export const HrModule: React.FC = () => {
             </div>
 
             <div className="flex items-center gap-1.5">
-              <button
+              <Button
                 onClick={() => setLaborFilter('all')}
                 className={`px-2.5 py-1 text-xs font-semibold rounded-lg cursor-pointer ${
                   laborFilter === 'all'
@@ -157,8 +158,8 @@ export const HrModule: React.FC = () => {
                 }`}
               >
                 {t('hr.allStaff', 'All Staff')}
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => setLaborFilter('direct')}
                 className={`px-2.5 py-1 text-xs font-semibold rounded-lg cursor-pointer ${
                   laborFilter === 'direct'
@@ -167,8 +168,8 @@ export const HrModule: React.FC = () => {
                 }`}
               >
                 {t('hr.directStaff', 'Direct Labor')}
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => setLaborFilter('indirect')}
                 className={`px-2.5 py-1 text-xs font-semibold rounded-lg cursor-pointer ${
                   laborFilter === 'indirect'
@@ -177,7 +178,7 @@ export const HrModule: React.FC = () => {
                 }`}
               >
                 {t('hr.indirectStaff', 'Indirect Labor')}
-              </button>
+              </Button>
             </div>
           </div>
 

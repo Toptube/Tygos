@@ -18,13 +18,20 @@ export const PREP_STATIONS: { id: PrepStation; labelAr: string; labelEn: string 
 ];
 
 export type CustomerOrderStatus =
+  | 'draft'
   | 'pending_approval'
   | 'approved'
+  | 'sent'
   | 'preparing'
   | 'ready'
+  | 'served'
   | 'out_for_delivery'
+  | 'paid'
+  | 'closed'
   | 'completed'
-  | 'rejected';
+  | 'rejected'
+  | 'cancelled'
+  | 'refunded';
 
 export type ServiceType = 'dine_in' | 'takeaway' | 'delivery';
 
@@ -79,6 +86,7 @@ export interface CustomerOrderItem {
   quantity: number;
   notes?: string;
   station: PrepStation;
+  lineStatus?: 'new' | 'sent' | 'preparing' | 'ready';
 }
 
 export interface CustomerOrder {
@@ -116,6 +124,15 @@ export interface CustomerOrder {
   completedAt?: string;
   stationStatuses: Partial<Record<PrepStation, 'pending' | 'preparing' | 'ready'>>;
   source: 'qr_menu' | 'pos';
+  isAddition?: boolean;
+  additionCount?: number;
+  shiftId?: string;
+  guestCount?: number;
+  paymentMethod?: 'cash' | 'card' | 'wallet' | 'credit' | 'split';
+  tipAmount?: number;
+  paidAmount?: number;
+  changeDue?: number;
+  journalEntryId?: string;
 }
 
 export interface StationTicket {

@@ -9,6 +9,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { Button } from '../common/Button.tsx';
 import {
   Sparkles,
   Image as ImageIcon,
@@ -281,7 +282,7 @@ export const MenuManagementModule: React.FC = () => {
 
         {/* View Switcher Tabs */}
         <div className="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 self-start">
-          <button
+          <Button
             type="button"
             onClick={() => setActiveTab('editor')}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
@@ -289,8 +290,8 @@ export const MenuManagementModule: React.FC = () => {
             }`}
           >
             {isAr ? 'محرر المنيو' : 'Menu Editor'}
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
             onClick={() => setActiveTab('preview')}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-1 cursor-pointer ${
@@ -299,7 +300,7 @@ export const MenuManagementModule: React.FC = () => {
           >
             <Smartphone className="w-3.5 h-3.5" />
             <span>{isAr ? 'معاينة الموبايل' : 'Mobile Preview'}</span>
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -349,7 +350,7 @@ export const MenuManagementModule: React.FC = () => {
                 const comp = getItemCompleteness(p.id);
                 const isSelected = selectedProduct?.id === p.id;
                 return (
-                  <button
+                  <Button
                     key={p.id}
                     type="button"
                     onClick={() => selectProductForEdit(p)}
@@ -379,7 +380,7 @@ export const MenuManagementModule: React.FC = () => {
                     >
                       {isAr ? comp.textAr : comp.textEn}
                     </span>
-                  </button>
+                  </Button>
                 );
               })}
             </div>
@@ -402,18 +403,18 @@ export const MenuManagementModule: React.FC = () => {
 
                 {/* Quick Copywriting Templates Dropdown */}
                 <div className="relative group">
-                  <button
+                  <Button
                     type="button"
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border border-purple-300 dark:border-purple-500/30 text-xs font-bold cursor-pointer"
                   >
                     <Wand2 className="w-3.5 h-3.5" />
                     <span>{isAr ? 'قوالب وصف تسويقي جاهزة' : 'Copywriting Templates'}</span>
                     <ChevronDown className="w-3 h-3" />
-                  </button>
+                  </Button>
                   <div className="absolute end-0 mt-1 w-64 p-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl z-20 hidden group-hover:block space-y-1">
                     <span className="text-[10px] font-bold text-slate-400 px-2 block uppercase">{isAr ? 'اختر قالباً للتطبيق الفوري:' : 'Select a template:'}</span>
                     {MARKETING_TEMPLATES.map((tpl, i) => (
-                      <button
+                      <Button
                         key={i}
                         type="button"
                         onClick={() => applyTemplate(tpl)}
@@ -421,7 +422,7 @@ export const MenuManagementModule: React.FC = () => {
                       >
                         <div className="font-bold">{isAr ? tpl.titleAr : tpl.category}</div>
                         <div className="text-[10px] text-slate-400 line-clamp-1">{tpl.descAr}</div>
-                      </button>
+                      </Button>
                     ))}
                   </div>
                 </div>
@@ -443,15 +444,15 @@ export const MenuManagementModule: React.FC = () => {
                     return (
                       <div key={idx} className="relative w-24 h-24 rounded-2xl overflow-hidden border-2 border-slate-200 dark:border-slate-800 group">
                         <img src={imgUrl} alt="Dish" className="w-full h-full object-cover" />
-                        <button
+                        <Button
                           type="button"
                           onClick={() => removeImage(idx)}
                           className="absolute top-1 end-1 p-1 rounded-md bg-rose-600 text-white opacity-0 group-hover:opacity-100 transition-opacity"
                           title={isAr ? 'حذف الصورة' : 'Remove image'}
                         >
                           <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                           type="button"
                           onClick={() => setFormPrimaryImage(imgUrl)}
                           className={`absolute bottom-1 inset-x-1 py-0.5 text-[9px] font-bold rounded text-center ${
@@ -459,7 +460,7 @@ export const MenuManagementModule: React.FC = () => {
                           }`}
                         >
                           {isPrimary ? (isAr ? 'الرئيسية ✓' : 'Primary ✓') : (isAr ? 'اجعلها رئيسية' : 'Make Primary')}
-                        </button>
+                        </Button>
                       </div>
                     );
                   })}
@@ -570,7 +571,7 @@ export const MenuManagementModule: React.FC = () => {
                   <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
                     {isAr ? 'الإتاحة في منيو الـ QR:' : 'Available on QR Menu:'}
                   </label>
-                  <button
+                  <Button
                     type="button"
                     onClick={() => setFormIsAvailable(!formIsAvailable)}
                     className={`w-full p-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer border ${
@@ -581,7 +582,7 @@ export const MenuManagementModule: React.FC = () => {
                   >
                     {formIsAvailable ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
                     <span>{formIsAvailable ? (isAr ? 'متاح للطلب الآن' : 'Available') : (isAr ? 'معلق / غير متاح' : 'Unavailable')}</span>
-                  </button>
+                  </Button>
                 </div>
               </div>
 
@@ -600,7 +601,7 @@ export const MenuManagementModule: React.FC = () => {
                     ].map((b) => {
                       const isChecked = formBadges.includes(b.id as any);
                       return (
-                        <button
+                        <Button
                           key={b.id}
                           type="button"
                           onClick={() => {
@@ -615,7 +616,7 @@ export const MenuManagementModule: React.FC = () => {
                           }`}
                         >
                           {isAr ? b.labelAr : b.labelEn}
-                        </button>
+                        </Button>
                       );
                     })}
                   </div>
@@ -629,7 +630,7 @@ export const MenuManagementModule: React.FC = () => {
                     {['gluten', 'dairy', 'nuts', 'eggs', 'soy', 'fish'].map((alg) => {
                       const isChecked = formAllergens.includes(alg as AllergenTag);
                       return (
-                        <button
+                        <Button
                           key={alg}
                           type="button"
                           onClick={() => {
@@ -644,7 +645,7 @@ export const MenuManagementModule: React.FC = () => {
                           }`}
                         >
                           {alg}
-                        </button>
+                        </Button>
                       );
                     })}
                   </div>
@@ -662,14 +663,14 @@ export const MenuManagementModule: React.FC = () => {
                   )}
                 </div>
 
-                <button
+                <Button
                   type="button"
                   onClick={handleSave}
                   className="px-6 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold transition-all shadow-md flex items-center gap-2 cursor-pointer"
                 >
                   <Check className="w-4 h-4" />
                   <span>{isAr ? 'حفظ إعدادات هذا الصنف' : 'Save Item Settings'}</span>
-                </button>
+                </Button>
               </div>
             </div>
           ) : (

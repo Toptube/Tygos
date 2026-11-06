@@ -9,6 +9,7 @@
  */
 
 import React, { useState, useMemo } from 'react';
+import { Button } from '../common/Button.tsx';
 import {
   X,
   ArrowRight,
@@ -240,18 +241,18 @@ export const AddProductWizardModal: React.FC<AddProductWizardModalProps> = ({
                 </p>
               </div>
             </div>
-            <button
+            <Button
               type="button"
               onClick={onClose}
               className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
             >
               <X className="w-5 h-5" />
-            </button>
+            </Button>
           </div>
 
           {/* Step Progress Bar */}
           <div className="grid grid-cols-3 border-b border-slate-200 dark:border-slate-800 text-center text-xs font-bold">
-            <button
+            <Button
               type="button"
               onClick={() => setStep(1)}
               className={`py-2.5 transition-colors cursor-pointer border-b-2 ${
@@ -259,8 +260,8 @@ export const AddProductWizardModal: React.FC<AddProductWizardModalProps> = ({
               }`}
             >
               1. {isAr ? 'بيانات الصنف' : 'Basic Info'}
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
               onClick={() => setStep(2)}
               className={`py-2.5 transition-colors cursor-pointer border-b-2 ${
@@ -268,8 +269,8 @@ export const AddProductWizardModal: React.FC<AddProductWizardModalProps> = ({
               }`}
             >
               2. {isAr ? 'تركيب الوصفة' : 'BOM Recipe'}
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
               onClick={() => setStep(3)}
               className={`py-2.5 transition-colors cursor-pointer border-b-2 ${
@@ -277,7 +278,7 @@ export const AddProductWizardModal: React.FC<AddProductWizardModalProps> = ({
               }`}
             >
               3. {isAr ? 'التكلفة والربحية' : 'True Cost & Margin'}
-            </button>
+            </Button>
           </div>
 
           {/* Modal Body */}
@@ -408,14 +409,14 @@ export const AddProductWizardModal: React.FC<AddProductWizardModalProps> = ({
                     />
                   </div>
 
-                  <button
+                  <Button
                     type="button"
                     onClick={() => setIsChildMaterialModalOpen(true)}
                     className="px-3 py-2 text-xs font-bold rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-500/20 flex items-center justify-center gap-1.5 transition-colors cursor-pointer shrink-0"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>{isAr ? 'خامة جديدة' : 'New Ingredient'}</span>
-                  </button>
+                  </Button>
                 </div>
 
                 {/* Available Ingredients Quick Chips */}
@@ -428,7 +429,7 @@ export const AddProductWizardModal: React.FC<AddProductWizardModalProps> = ({
                       {filteredMaterials.map((mat) => {
                         const isAdded = recipeItems.some((r) => r.ingredientId === mat.id);
                         return (
-                          <button
+                          <Button
                             key={mat.id}
                             type="button"
                             disabled={isAdded}
@@ -443,7 +444,7 @@ export const AddProductWizardModal: React.FC<AddProductWizardModalProps> = ({
                             <span className="font-mono text-[10px] opacity-70">
                               (${mat.effectiveUnitCost.toFixed(3)}/{mat.consumptionUnit})
                             </span>
-                          </button>
+                          </Button>
                         );
                       })}
                     </div>
@@ -495,13 +496,13 @@ export const AddProductWizardModal: React.FC<AddProductWizardModalProps> = ({
                             <span className="font-mono font-bold text-slate-700 dark:text-slate-300 w-14 text-end" dir="ltr">
                               ${item.totalCost.toFixed(2)}
                             </span>
-                            <button
+                            <Button
                               type="button"
                               onClick={() => handleRemoveIngredientRow(item.ingredientId)}
                               className="p-1 rounded text-slate-400 hover:text-rose-500"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
-                            </button>
+                            </Button>
                           </div>
                         </div>
                       ))}
@@ -642,13 +643,13 @@ export const AddProductWizardModal: React.FC<AddProductWizardModalProps> = ({
                     <span className="text-lg font-black font-mono text-cyan-600 dark:text-cyan-400" dir="ltr">
                       ${liveCostAnalysis.suggestedPrice.toFixed(2)}
                     </span>
-                    <button
+                    <Button
                       type="button"
                       onClick={() => setSellingPrice(liveCostAnalysis.suggestedPrice.toFixed(2))}
                       className="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-cyan-500 text-slate-950 hover:bg-cyan-400 cursor-pointer"
                     >
                       {isAr ? 'اعتماد' : 'Apply'}
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -658,42 +659,42 @@ export const AddProductWizardModal: React.FC<AddProductWizardModalProps> = ({
           {/* Modal Footer Controls */}
           <div className="p-4 sm:p-5 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-900/50">
             {step > 1 ? (
-              <button
+              <Button
                 type="button"
                 onClick={() => setStep((step - 1) as 1 | 2)}
                 className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center gap-1.5 transition-colors cursor-pointer"
               >
                 <ArrowLeft className="w-4 h-4 rtl:rotate-180" />
                 <span>{t('common.back', 'Back')}</span>
-              </button>
+              </Button>
             ) : (
-              <button
+              <Button
                 type="button"
                 onClick={onClose}
                 className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
               >
                 {t('common.cancel', 'Cancel')}
-              </button>
+              </Button>
             )}
 
             {step < 3 ? (
-              <button
+              <Button
                 type="button"
                 onClick={() => setStep((step + 1) as 2 | 3)}
                 className="px-5 py-2 text-xs font-bold text-white bg-cyan-600 hover:bg-cyan-500 rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer shadow-md shadow-cyan-900/30"
               >
                 <span>{t('common.continue', 'Continue')}</span>
                 <ArrowRight className="w-4 h-4 rtl:rotate-180" />
-              </button>
+              </Button>
             ) : (
-              <button
+              <Button
                 type="button"
                 onClick={handleSaveProduct}
                 className="px-6 py-2.5 text-xs font-bold text-slate-950 bg-gradient-to-r from-cyan-400 to-emerald-400 hover:from-cyan-300 hover:to-emerald-300 rounded-xl flex items-center gap-2 transition-all cursor-pointer shadow-md shadow-cyan-900/40"
               >
                 <CheckCircle2 className="w-4 h-4" />
                 <span>{isAr ? 'اعتماد الصنف والوصفة' : 'Save Product & Recipe'}</span>
-              </button>
+              </Button>
             )}
           </div>
         </div>

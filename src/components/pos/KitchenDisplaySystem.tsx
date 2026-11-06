@@ -9,6 +9,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { Button } from '../common/Button.tsx';
 import {
   Flame,
   Clock,
@@ -31,6 +32,7 @@ import {
   splitOrderIntoStationTickets,
 } from '../../domain/qrMenuTypes.ts';
 import { orderTransport } from '../../services/orderTransport.ts';
+import { orderService } from '../../services/orderService.ts';
 import { printerService } from '../../services/printerService.ts';
 import { SyncStatusIndicator } from '../sync/SyncStatusIndicator.tsx';
 
@@ -80,10 +82,14 @@ export const KitchenDisplaySystem: React.FC = () => {
     };
   }, [estId, audioEnabled]);
 
-  // Slices approved / in-prep orders into station tickets
+  // Slices sent / approved / in-prep orders into station tickets
   const activeTickets = React.useMemo(() => {
     const approvedOrders = orders.filter(
-      (o) => o.status === 'approved' || o.status === 'preparing' || o.status === 'ready'
+      (o) =>
+        o.status === 'sent' ||
+        o.status === 'approved' ||
+        o.status === 'preparing' ||
+        o.status === 'ready'
     );
     const allTickets: StationTicket[] = [];
 
@@ -104,7 +110,8 @@ export const KitchenDisplaySystem: React.FC = () => {
     station: PrepStation,
     status: 'pending' | 'preparing' | 'ready'
   ) => {
-    await orderTransport.updateStationStatus(estId, orderId, station, status);
+    await orderService.updateStationTicketStatus(estId, orderId, station, status);
+    setOrders(orderTransport.getOrders(estId));
   };
 
   const handlePrint = (ticket: StationTicket) => {
@@ -136,7 +143,7 @@ export const KitchenDisplaySystem: React.FC = () => {
         <div className="flex items-center gap-3">
           <SyncStatusIndicator />
           {/* Audio Chime Toggle */}
-          <button
+          <Button
             type="button"
             onClick={() => setAudioEnabled(!audioEnabled)}
             className={`p-2 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer ${
@@ -148,13 +155,13 @@ export const KitchenDisplaySystem: React.FC = () => {
           >
             {audioEnabled ? <Bell className="w-4 h-4 text-cyan-500" /> : <BellOff className="w-4 h-4" />}
             <span className="hidden sm:inline">{audioEnabled ? (isAr ? 'الجرس نشط' : 'Chime On') : (isAr ? 'صامت' : 'Muted')}</span>
-          </button>
+          </Button>
         </div>
       </div>
 
       {/* 2. Station Selector Bar */}
       <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-        <button
+        <Button
           type="button"
           onClick={() => setSelectedStation('all')}
           className={`px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-colors cursor-pointer ${
@@ -164,10 +171,10 @@ export const KitchenDisplaySystem: React.FC = () => {
           }`}
         >
           {isAr ? 'كافة محطات الإنتاج' : 'All Production Stations'}
-        </button>
+        </Button>
 
         {PREP_STATIONS.filter((s) => s.id !== 'cashier').map((st) => (
-          <button
+          <Button
             key={st.id}
             type="button"
             onClick={() => setSelectedStation(st.id)}
@@ -178,7 +185,7 @@ export const KitchenDisplaySystem: React.FC = () => {
             }`}
           >
             {isAr ? st.labelAr : st.labelEn}
-          </button>
+          </Button>
         ))}
       </div>
 
@@ -233,14 +240,14 @@ export const KitchenDisplaySystem: React.FC = () => {
                         <Clock className="w-3.5 h-3.5" />
                         <span>{elapsed}m</span>
                       </div>
-                      <button
+                      <Button
                         type="button"
                         onClick={() => handlePrint(ticket)}
                         className="p-1 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-700 dark:hover:text-white transition-colors cursor-pointer"
                         title={isAr ? 'طباعة التذكرة الحرارية' : 'Print ticket'}
                       >
                         <Printer className="w-3.5 h-3.5" />
-                      </button>
+                      </Button>
                     </div>
                   </div>
 
@@ -280,7 +287,7 @@ export const KitchenDisplaySystem: React.FC = () => {
 
                 {/* Ticket Actions: Start Prep & Ready */}
                 <div className="pt-2 border-t border-slate-200 dark:border-slate-800 grid grid-cols-2 gap-2">
-                  <button
+                  <Button
                     type="button"
                     onClick={() => handleUpdateStationStatus(ticket.orderId, ticket.station, 'preparing')}
                     className={`py-2 px-2.5 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
@@ -290,9 +297,9 @@ export const KitchenDisplaySystem: React.FC = () => {
                     }`}
                   >
                     {isAr ? 'بدأ التحضير' : 'In Prep'}
-                  </button>
+                  </Button>
 
-                  <button
+                  <Button
                     type="button"
                     onClick={() => handleUpdateStationStatus(ticket.orderId, ticket.station, 'ready')}
                     className={`py-2 px-2.5 rounded-xl text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-1 ${
@@ -303,7 +310,7 @@ export const KitchenDisplaySystem: React.FC = () => {
                   >
                     <Check className="w-3.5 h-3.5" />
                     <span>{isDone ? (isAr ? 'جاهز ✓' : 'Ready ✓') : (isAr ? 'اكتمل' : 'Mark Ready')}</span>
-                  </button>
+                  </Button>
                 </div>
               </div>
             );

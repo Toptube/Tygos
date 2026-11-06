@@ -4,6 +4,7 @@
  */
 
 import React, { useState } from 'react';
+import { Button } from '../common/Button.tsx';
 import {
   Eye,
   EyeOff,
@@ -185,14 +186,14 @@ export const RegisterWizard: React.FC<{ onCancel: () => void }> = ({ onCancel })
           {/* Permanent Verified Production Link Card */}
           <PermanentAppBrandBadge variant="card" className="mb-6 text-start" />
 
-          <button
+          <Button
             type="button"
             onClick={handleFinishAndEnter}
             className="w-full py-3.5 px-6 rounded-xl font-bold text-slate-950 bg-gradient-to-r from-cyan-400 via-cyan-300 to-emerald-400 hover:from-cyan-300 hover:to-emerald-300 transition-all shadow-lg shadow-cyan-950/50 flex items-center justify-center gap-2 cursor-pointer"
           >
             <span>{t('registration.continueToDashboard', 'Continue to Setup & Dashboard')}</span>
             <ArrowRight className="w-4 h-4 rtl:rotate-180" />
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -211,13 +212,13 @@ export const RegisterWizard: React.FC<{ onCancel: () => void }> = ({ onCancel })
           </div>
           <div className="flex items-center gap-3">
             <LanguageSelector variant="header" />
-            <button
+            <Button
               type="button"
               onClick={onCancel}
               className="text-xs text-slate-400 hover:text-white transition-colors cursor-pointer"
             >
               {t('common.back', 'Back')} {language === 'ar' ? 'إلى تسجيل الدخول' : 'to Login'}
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -509,14 +510,14 @@ export const RegisterWizard: React.FC<{ onCancel: () => void }> = ({ onCancel })
                       dir="ltr"
                       className="w-full px-3 py-2 pe-10 bg-slate-950 border border-slate-800 rounded-lg text-sm text-slate-100 focus:border-cyan-500 focus:outline-none font-mono"
                     />
-                    <button
+                    <Button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
                       aria-label="Toggle Password Visibility"
                       className="absolute end-3 top-2.5 text-slate-400 hover:text-white"
                     >
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
+                    </Button>
                   </div>
                 </div>
 
@@ -533,14 +534,14 @@ export const RegisterWizard: React.FC<{ onCancel: () => void }> = ({ onCancel })
                       dir="ltr"
                       className="w-full px-3 py-2 pe-10 bg-slate-950 border border-slate-800 rounded-lg text-sm text-slate-100 focus:border-cyan-500 focus:outline-none font-mono"
                     />
-                    <button
+                    <Button
                       type="button"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                       aria-label="Toggle Confirm Password Visibility"
                       className="absolute end-3 top-2.5 text-slate-400 hover:text-white"
                     >
                       {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </div>
@@ -619,35 +620,35 @@ export const RegisterWizard: React.FC<{ onCancel: () => void }> = ({ onCancel })
           {/* Navigation Controls */}
           <div className="mt-8 pt-4 border-t border-slate-800 flex items-center justify-between">
             {step > 1 ? (
-              <button
+              <Button
                 type="button"
                 onClick={() => setStep(step - 1)}
                 className="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer"
               >
                 <ArrowLeft className="w-4 h-4 rtl:rotate-180" />
                 <span>{t('common.back', 'Back')}</span>
-              </button>
+              </Button>
             ) : (
               <div />
             )}
 
             {step < 3 ? (
-              <button
+              <Button
                 type="button"
                 onClick={handleNext}
                 className="px-5 py-2 text-xs font-bold text-white bg-cyan-600 hover:bg-cyan-500 rounded-lg flex items-center gap-1.5 transition-colors cursor-pointer"
               >
                 <span>{t('common.continue', 'Continue')}</span>
                 <ArrowRight className="w-4 h-4 rtl:rotate-180" />
-              </button>
+              </Button>
             ) : (
-              <button
+              <Button
                 type="submit"
                 className="px-6 py-2.5 text-xs font-bold text-slate-950 bg-gradient-to-r from-cyan-400 to-emerald-400 hover:from-cyan-300 hover:to-emerald-300 rounded-lg flex items-center gap-2 transition-all cursor-pointer shadow-md shadow-cyan-900/40"
               >
                 <Shield className="w-4 h-4" />
                 <span>{t('registration.complete', 'Complete Registration')}</span>
-              </button>
+              </Button>
             )}
           </div>
         </form>

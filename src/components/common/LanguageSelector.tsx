@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useRef, useEffect } from 'react';
+import { Button } from './Button.tsx';
 import { Globe, Check, ChevronDown } from 'lucide-react';
 import { LanguageCode, useI18n } from '../../i18n/I18nContext.tsx';
 
@@ -55,7 +56,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
   if (variant === 'login') {
     return (
       <div ref={containerRef} className={`relative ${className}`}>
-        <button
+        <Button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
           aria-label="Select Language"
@@ -64,7 +65,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
           <Globe className="w-4 h-4 text-cyan-400" />
           <span className="font-semibold">{currentOption.nativeName}</span>
           <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
-        </button>
+        </Button>
 
         {isOpen && (
           <div className="absolute end-0 bottom-full mb-2 w-52 bg-slate-900 border border-slate-800 rounded-xl shadow-2xl p-1.5 z-50 animate-fade-in text-xs">
@@ -72,7 +73,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
               Select Language / اختر اللغة
             </div>
             {LANGUAGES.map((opt) => (
-              <button
+              <Button
                 key={opt.code}
                 type="button"
                 onClick={() => handleSelect(opt.code)}
@@ -87,7 +88,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
                   <span className="text-[10px] text-slate-500">({opt.englishName})</span>
                 </div>
                 {language === opt.code && <Check className="w-3.5 h-3.5 text-cyan-400" />}
-              </button>
+              </Button>
             ))}
           </div>
         )}
@@ -98,7 +99,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
   // Header / default variant
   return (
     <div ref={containerRef} className={`relative ${className}`}>
-      <button
+      <Button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         aria-label="Change Language"
@@ -107,12 +108,12 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
         <Globe className="w-3.5 h-3.5 text-cyan-500 shrink-0" />
         <span className="font-bold">{currentOption.nativeName}</span>
         <ChevronDown className="w-3 h-3 text-slate-400" />
-      </button>
+      </Button>
 
       {isOpen && (
         <div className="absolute end-0 mt-2 w-48 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-xl p-1.5 z-50 animate-fade-in text-xs">
           {LANGUAGES.map((opt) => (
-            <button
+            <Button
               key={opt.code}
               type="button"
               onClick={() => handleSelect(opt.code)}
@@ -129,7 +130,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
                 </span>
               </div>
               {language === opt.code && <Check className="w-3.5 h-3.5 text-slate-950" />}
-            </button>
+            </Button>
           ))}
         </div>
       )}

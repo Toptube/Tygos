@@ -30,7 +30,16 @@ export type PermissionAction =
   | 'finance:edit'
   | 'settings:view'
   | 'settings:edit'
-  | 'customer_pii:view';
+  | 'customer_pii:view'
+  | 'shift:open'
+  | 'shift:close'
+  | 'shift:view_all'
+  | 'treasury:deposit'
+  | 'treasury:view'
+  | 'pos:cancel_sent_item'
+  | 'pos:refund_paid_order'
+  | 'order:trace'
+  | 'tables:manage';
 
 const ADMIN_ROLES: UserRole[] = ['super_admin', 'tenant_admin', 'general_manager'];
 
@@ -68,7 +77,10 @@ const ROLE_PERMISSIONS: Record<UserRole, PermissionAction[]> = {
   financial_manager: [
     'crm:view', 'crm:export',
     'menu:view', 'menu:pricing',
-    'pos:view', 'pos:refund', 'pos:close_shift',
+    'pos:view', 'pos:refund', 'pos:close_shift', 'pos:refund_paid_order', 'pos:cancel_sent_item',
+    'shift:open', 'shift:close', 'shift:view_all',
+    'treasury:view', 'treasury:deposit',
+    'order:trace',
     'inventory:view',
     'finance:view', 'finance:edit',
     'settings:view',
@@ -95,6 +107,7 @@ const ROLE_PERMISSIONS: Record<UserRole, PermissionAction[]> = {
     'crm:view', 'crm:edit',
     'menu:view',
     'pos:view', 'pos:approve_order', 'pos:close_shift',
+    'shift:open', 'shift:close',
     'customer_pii:view',
   ],
   waiter: [

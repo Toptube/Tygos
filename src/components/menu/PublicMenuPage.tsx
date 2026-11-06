@@ -8,6 +8,7 @@
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
+import { Button } from '../common/Button.tsx';
 import {
   UtensilsCrossed,
   Search,
@@ -485,13 +486,13 @@ export const PublicMenuPage: React.FC<PublicMenuPageProps> = ({
 
         {/* Bottom Action */}
         <div className="max-w-md mx-auto w-full pt-6">
-          <button
+          <Button
             type="button"
             onClick={() => setActiveOrder(null)}
             className="w-full py-3.5 rounded-2xl bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-200 text-xs font-bold transition-colors cursor-pointer"
           >
             {isAr ? 'العودة للمنيو لطلب أصناف إضافية' : 'Return to Menu to Order More'}
-          </button>
+          </Button>
         </div>
       </div>
     );
@@ -524,24 +525,24 @@ export const PublicMenuPage: React.FC<PublicMenuPageProps> = ({
 
         <div className="flex items-center gap-2 shrink-0">
           {/* Language Switcher */}
-          <button
+          <Button
             type="button"
             onClick={() => setLang(lang === 'ar' ? 'en' : 'ar')}
             className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs font-bold text-slate-300 hover:text-white transition-colors cursor-pointer"
           >
             <Globe2 className="w-3.5 h-3.5 text-cyan-400" />
             <span>{lang === 'ar' ? 'English' : 'عربي'}</span>
-          </button>
+          </Button>
 
           {onBackToApp && (
-            <button
+            <Button
               type="button"
               onClick={onBackToApp}
               className="px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-400 hover:text-white transition-colors cursor-pointer"
               title={isAr ? 'العودة للنظام الداخلي' : 'Back to Internal App'}
             >
               {isAr ? 'إغلاق' : 'Close'}
-            </button>
+            </Button>
           )}
         </div>
       </header>
@@ -559,19 +560,19 @@ export const PublicMenuPage: React.FC<PublicMenuPageProps> = ({
             className="w-full ps-9 pe-4 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-hidden focus:border-cyan-500/50"
           />
           {searchQuery && (
-            <button
+            <Button
               onClick={() => setSearchQuery('')}
               className="absolute end-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-1"
             >
               <X className="w-3 h-3" />
-            </button>
+            </Button>
           )}
         </div>
 
         {/* Categories Bar */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
           {categories.map((cat) => (
-            <button
+            <Button
               key={cat}
               type="button"
               onClick={() => setSelectedCategory(cat)}
@@ -582,7 +583,7 @@ export const PublicMenuPage: React.FC<PublicMenuPageProps> = ({
               }`}
             >
               {cat === 'all' ? (isAr ? 'الكل' : 'All') : cat}
-            </button>
+            </Button>
           ))}
         </div>
       </div>
@@ -670,44 +671,44 @@ export const PublicMenuPage: React.FC<PublicMenuPageProps> = ({
                       </div>
 
                       <div className="flex items-center gap-1.5">
-                        <button
+                        <Button
                           type="button"
                           onClick={() => setDetailItem(item)}
                           className="text-[11px] font-medium text-slate-400 hover:text-cyan-300 px-2 py-1 rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
                         >
                           {isAr ? 'التفاصيل' : 'Details'}
-                        </button>
+                        </Button>
 
                         {item.isAvailable ? (
                           inCartItem ? (
                             <div className="flex items-center gap-1 bg-cyan-500/20 border border-cyan-500/40 rounded-xl p-0.5">
-                              <button
+                              <Button
                                 type="button"
                                 onClick={() => updateQuantity(item.productId, -1)}
                                 className="w-6 h-6 rounded-lg bg-slate-900 text-cyan-300 flex items-center justify-center hover:bg-slate-800"
                               >
                                 <Minus className="w-3 h-3" />
-                              </button>
+                              </Button>
                               <span className="text-xs font-mono font-bold text-white px-1.5">
                                 {inCartItem.quantity}
                               </span>
-                              <button
+                              <Button
                                 type="button"
                                 onClick={() => updateQuantity(item.productId, 1)}
                                 className="w-6 h-6 rounded-lg bg-cyan-500 text-slate-950 flex items-center justify-center font-bold"
                               >
                                 <Plus className="w-3 h-3" />
-                              </button>
+                              </Button>
                             </div>
                           ) : (
-                            <button
+                            <Button
                               type="button"
                               onClick={() => addToCart(item)}
                               className="px-3 py-1.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold flex items-center gap-1 transition-all cursor-pointer shadow-xs"
                             >
                               <Plus className="w-3.5 h-3.5" />
                               <span>{isAr ? 'إضافة' : 'Add'}</span>
-                            </button>
+                            </Button>
                           )
                         ) : (
                           <span className="text-[10px] font-bold text-slate-500 bg-slate-800/80 px-2 py-1 rounded-lg">
@@ -733,13 +734,13 @@ export const PublicMenuPage: React.FC<PublicMenuPageProps> = ({
               <div className="flex items-center gap-2">
                 <span className="text-xs font-bold text-cyan-400 uppercase tracking-wider">{detailItem.category}</span>
               </div>
-              <button
+              <Button
                 type="button"
                 onClick={() => setDetailItem(null)}
                 className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800"
               >
                 <X className="w-5 h-5" />
-              </button>
+              </Button>
             </div>
 
             {/* Photo Preview */}
@@ -817,7 +818,7 @@ export const PublicMenuPage: React.FC<PublicMenuPageProps> = ({
 
             {/* Sheet Action */}
             <div className="pt-2">
-              <button
+              <Button
                 type="button"
                 onClick={() => {
                   addToCart(detailItem);
@@ -828,7 +829,7 @@ export const PublicMenuPage: React.FC<PublicMenuPageProps> = ({
               >
                 <Plus className="w-4 h-4" />
                 <span>{isAr ? 'إضافة إلى طلباتي' : 'Add to My Order'}</span>
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -837,7 +838,7 @@ export const PublicMenuPage: React.FC<PublicMenuPageProps> = ({
       {/* 5. FLOATING CART DOCK BAR */}
       {cartCount > 0 && (
         <div className="fixed bottom-3 inset-x-3 sm:inset-x-auto sm:end-6 sm:w-96 z-40 animate-slide-up">
-          <button
+          <Button
             type="button"
             onClick={() => setIsCartOpen(true)}
             className="w-full p-3.5 rounded-2xl bg-gradient-to-r from-cyan-500 via-cyan-400 to-emerald-400 text-slate-950 font-bold shadow-2xl flex items-center justify-between cursor-pointer transition-transform hover:scale-[1.02]"
@@ -852,7 +853,7 @@ export const PublicMenuPage: React.FC<PublicMenuPageProps> = ({
               <span className="font-mono text-base font-black">${cartSubtotal.toFixed(2)}</span>
               <ChevronUp className="w-4 h-4" />
             </div>
-          </button>
+          </Button>
         </div>
       )}
 
@@ -865,13 +866,13 @@ export const PublicMenuPage: React.FC<PublicMenuPageProps> = ({
                 <ShoppingBag className="w-5 h-5 text-cyan-400" />
                 <h3 className="text-sm font-bold text-white">{isAr ? 'سلة الطلبات' : 'Your Basket'}</h3>
               </div>
-              <button
+              <Button
                 type="button"
                 onClick={() => setIsCartOpen(false)}
                 className="p-1.5 rounded-xl text-slate-400 hover:text-white"
               >
                 <X className="w-5 h-5" />
-              </button>
+              </Button>
             </div>
 
             {/* Cart Items List */}
@@ -885,21 +886,21 @@ export const PublicMenuPage: React.FC<PublicMenuPageProps> = ({
                     </div>
 
                     <div className="flex items-center gap-1 bg-slate-900 rounded-xl p-0.5 border border-slate-800">
-                      <button
+                      <Button
                         type="button"
                         onClick={() => updateQuantity(item.productId, -1)}
                         className="w-6 h-6 rounded-lg bg-slate-800 text-slate-300 flex items-center justify-center hover:bg-slate-700"
                       >
                         <Minus className="w-3 h-3" />
-                      </button>
+                      </Button>
                       <span className="text-xs font-mono font-bold text-white px-2">{item.quantity}</span>
-                      <button
+                      <Button
                         type="button"
                         onClick={() => updateQuantity(item.productId, 1)}
                         className="w-6 h-6 rounded-lg bg-cyan-500 text-slate-950 flex items-center justify-center font-bold"
                       >
                         <Plus className="w-3 h-3" />
-                      </button>
+                      </Button>
                     </div>
                   </div>
 
@@ -943,7 +944,7 @@ export const PublicMenuPage: React.FC<PublicMenuPageProps> = ({
               </div>
             </div>
 
-            <button
+            <Button
               type="button"
               onClick={() => {
                 setIsCartOpen(false);
@@ -953,7 +954,7 @@ export const PublicMenuPage: React.FC<PublicMenuPageProps> = ({
             >
               <span>{isAr ? 'المتابعة واختيار طريقة الاستلام' : 'Continue to Checkout'}</span>
               <ArrowRight className="w-4 h-4 rtl:rotate-180" />
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -964,13 +965,13 @@ export const PublicMenuPage: React.FC<PublicMenuPageProps> = ({
           <div className="w-full sm:max-w-md bg-slate-900 border border-slate-800 rounded-t-3xl sm:rounded-3xl p-5 sm:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between pb-3 border-b border-slate-800">
               <h3 className="text-sm font-bold text-white">{isAr ? 'تأكيد وإرسال الطلب' : 'Complete Your Order'}</h3>
-              <button
+              <Button
                 type="button"
                 onClick={() => setIsCheckoutOpen(false)}
                 className="p-1.5 rounded-xl text-slate-400 hover:text-white"
               >
                 <X className="w-5 h-5" />
-              </button>
+              </Button>
             </div>
 
             {orderError && (
@@ -985,7 +986,7 @@ export const PublicMenuPage: React.FC<PublicMenuPageProps> = ({
               <div>
                 <label className="text-xs font-bold text-slate-400 block mb-1.5">{isAr ? 'نوع الخدمة:' : 'Service Type:'}</label>
                 <div className="grid grid-cols-3 gap-1.5 p-1 bg-slate-950 rounded-2xl border border-slate-800">
-                  <button
+                  <Button
                     type="button"
                     onClick={() => setServiceType('dine_in')}
                     className={`py-2 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
@@ -993,8 +994,8 @@ export const PublicMenuPage: React.FC<PublicMenuPageProps> = ({
                     }`}
                   >
                     {isAr ? 'صالة' : 'Dine-in'}
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     type="button"
                     onClick={() => setServiceType('takeaway')}
                     className={`py-2 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
@@ -1002,8 +1003,8 @@ export const PublicMenuPage: React.FC<PublicMenuPageProps> = ({
                     }`}
                   >
                     {isAr ? 'تيك أواي' : 'Takeaway'}
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     type="button"
                     onClick={() => setServiceType('delivery')}
                     className={`py-2 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
@@ -1011,7 +1012,7 @@ export const PublicMenuPage: React.FC<PublicMenuPageProps> = ({
                     }`}
                   >
                     {isAr ? 'دليفري' : 'Delivery'}
-                  </button>
+                  </Button>
                 </div>
               </div>
 
@@ -1139,7 +1140,7 @@ export const PublicMenuPage: React.FC<PublicMenuPageProps> = ({
                 <span className="text-lg font-black font-mono text-emerald-400">${totalAmount.toFixed(2)}</span>
               </div>
 
-              <button
+              <Button
                 type="submit"
                 disabled={orderSubmitting}
                 className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-cyan-400 to-emerald-400 hover:from-cyan-300 hover:to-emerald-300 text-slate-950 font-black text-xs transition-all shadow-xl flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
@@ -1152,7 +1153,7 @@ export const PublicMenuPage: React.FC<PublicMenuPageProps> = ({
                     <span>{isAr ? 'تأكيد وإرسال الطلب الآن' : 'Confirm & Place Order Now'}</span>
                   </>
                 )}
-              </button>
+              </Button>
             </form>
           </div>
         </div>

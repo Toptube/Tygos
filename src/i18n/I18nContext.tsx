@@ -36,21 +36,9 @@ function resolveInitialLanguage(): LanguageCode {
     if (saved && SUPPORTED_LANGUAGES.includes(saved)) {
       return saved;
     }
-
-    // 2. Browser / Device language
-    try {
-      const browserLang = (navigator.language || (navigator as any).userLanguage || '').toLowerCase();
-      if (browserLang.startsWith('ar')) return 'ar';
-      if (browserLang.startsWith('en')) return 'en';
-      if (browserLang.startsWith('fr')) return 'fr';
-      if (browserLang.startsWith('nl')) return 'nl';
-      if (browserLang.startsWith('tr')) return 'tr';
-    } catch {
-      // Ignore detection errors in headless / sandbox environments
-    }
   }
 
-  // 3. Official primary default: Arabic
+  // 2. Official primary default: Arabic
   return 'ar';
 }
 
@@ -76,7 +64,7 @@ export const I18nProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return TRANSLATIONS[language]?.[key] || TRANSLATIONS.en?.[key] || fallback || key;
   };
 
-  const boundFormatCurrency = (amount: number, currency: string = 'USD'): string => {
+  const boundFormatCurrency = (amount: number, currency: string = 'EGP'): string => {
     return formatCurrency(amount, currency, language);
   };
 

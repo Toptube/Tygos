@@ -8,6 +8,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { Button } from '../common/Button.tsx';
 import {
   Bell,
   CheckCircle2,
@@ -224,27 +225,27 @@ export const IncomingOrdersDrawer: React.FC<IncomingOrdersDrawerProps> = ({
           </div>
 
           <div className="flex items-center gap-2">
-            <button
+            <Button
               type="button"
               onClick={() => setAudioEnabled(!audioEnabled)}
               className="p-1.5 rounded-lg text-slate-400 hover:text-white"
               title={isAr ? 'كتم/تشغيل التنبيه' : 'Toggle audio'}
             >
               {audioEnabled ? <Volume2 className="w-4 h-4 text-cyan-400" /> : <VolumeX className="w-4 h-4" />}
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
               onClick={onClose}
               className="p-1.5 rounded-lg text-slate-400 hover:text-slate-900 dark:hover:text-white"
             >
               <X className="w-5 h-5" />
-            </button>
+            </Button>
           </div>
         </div>
 
         {/* Mode Switcher Tabs: Pending Approval vs Live Station Tracking */}
         <div className="px-4 pt-3 pb-2 border-b border-slate-200 dark:border-slate-800 flex items-center gap-2 bg-slate-50 dark:bg-slate-950/60">
-          <button
+          <Button
             type="button"
             onClick={() => setActiveTab('pending')}
             className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-1.5 ${
@@ -257,8 +258,8 @@ export const IncomingOrdersDrawer: React.FC<IncomingOrdersDrawerProps> = ({
             <span className="font-mono px-1.5 py-0.2 rounded-full bg-slate-950/20 text-[10px]">
               {pendingOrders.length}
             </span>
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
             onClick={() => setActiveTab('stations')}
             className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-1.5 ${
@@ -271,7 +272,7 @@ export const IncomingOrdersDrawer: React.FC<IncomingOrdersDrawerProps> = ({
             <span className="font-mono px-1.5 py-0.2 rounded-full bg-slate-950/20 text-[10px]">
               {activeStationOrders.length}
             </span>
-          </button>
+          </Button>
         </div>
 
         {/* Orders Feed */}
@@ -385,13 +386,13 @@ export const IncomingOrdersDrawer: React.FC<IncomingOrdersDrawerProps> = ({
                                 </div>
                               )}
                             </div>
-                            <button
+                            <Button
                               type="button"
                               onClick={() => handleSettleDriverCash(order)}
                               className="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold cursor-pointer shrink-0"
                             >
                               {isAr ? 'تسوية نقدية للسائق ✓' : 'Settle Driver Cash ✓'}
-                            </button>
+                            </Button>
                           </div>
                         ) : (
                           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
@@ -425,13 +426,13 @@ export const IncomingOrdersDrawer: React.FC<IncomingOrdersDrawerProps> = ({
                               placeholder={isAr ? 'هاتف السائق...' : 'Driver phone...'}
                               className="flex-1 px-2.5 py-1.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-mono"
                             />
-                            <button
+                            <Button
                               type="button"
                               onClick={() => handleDispatchDelivery(order)}
                               className="px-3 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold cursor-pointer shrink-0"
                             >
                               {isAr ? 'خرج للتوصيل' : 'Out for Delivery'}
-                            </button>
+                            </Button>
                           </div>
                         )}
                       </div>
@@ -537,41 +538,41 @@ export const IncomingOrdersDrawer: React.FC<IncomingOrdersDrawerProps> = ({
                       className="w-full p-2 rounded-lg bg-white dark:bg-slate-900 border border-rose-300 dark:border-rose-700 text-xs text-slate-900 dark:text-white"
                     />
                     <div className="flex justify-end gap-2">
-                      <button
+                      <Button
                         type="button"
                         onClick={() => setRejectingOrderId(null)}
                         className="px-2.5 py-1 text-xs text-slate-500"
                       >
                         {isAr ? 'إلغاء' : 'Cancel'}
-                      </button>
-                      <button
+                      </Button>
+                      <Button
                         type="button"
                         onClick={() => handleReject(order.id)}
                         className="px-3 py-1 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold"
                       >
                         {isAr ? 'تأكيد الرفض' : 'Confirm Decline'}
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 ) : (
                   /* Action Buttons: Approve vs Decline */
                   <div className="grid grid-cols-2 gap-2 pt-1">
-                    <button
+                    <Button
                       type="button"
                       onClick={() => setRejectingOrderId(order.id)}
                       className="py-2.5 px-3 rounded-xl border border-rose-300 dark:border-rose-900/60 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 text-xs font-bold transition-colors cursor-pointer"
                     >
                       {isAr ? 'رفض الطلب' : 'Decline'}
-                    </button>
+                    </Button>
 
-                    <button
+                    <Button
                       type="button"
                       onClick={() => handleApprove(order)}
                       className="py-2.5 px-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-black transition-all shadow-md flex items-center justify-center gap-1.5 cursor-pointer"
                     >
                       <CheckCircle2 className="w-4 h-4" />
                       <span>{isAr ? 'موافقة وتوزيع للمطبخ' : 'Approve & Route'}</span>
-                    </button>
+                    </Button>
                   </div>
                 )}
               </div>

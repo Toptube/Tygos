@@ -4,6 +4,7 @@
  */
 
 import React from 'react';
+import { Button } from './Button.tsx';
 import { Sun, Moon } from 'lucide-react';
 import { useTheme } from '../../theme/ThemeContext.tsx';
 import { useI18n } from '../../i18n/I18nContext.tsx';
@@ -23,7 +24,7 @@ export const ThemeSwitcher: React.FC<ThemeSwitcherProps> = ({
   const isDark = theme === 'dark';
 
   return (
-    <button
+    <Button
       type="button"
       onClick={toggleTheme}
       aria-label={t('theme.switchTitle', 'Switch Theme')}
@@ -40,6 +41,6 @@ export const ThemeSwitcher: React.FC<ThemeSwitcherProps> = ({
           {isDark ? t('theme.lightMode', 'Light Mode') : t('theme.darkMode', 'Dark Mode')}
         </span>
       )}
-    </button>
+    </Button>
   );
 };

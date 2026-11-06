@@ -4,6 +4,7 @@
  */
 
 import React, { useState } from 'react';
+import { Button } from '../common/Button.tsx';
 import {
   LayoutDashboard,
   UtensilsCrossed,
@@ -33,6 +34,11 @@ import {
   QrCode,
   Flame,
   Smartphone,
+  Vault,
+  LayoutGrid,
+  GitBranch,
+  ArrowRight,
+  ArrowLeft,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.tsx';
 import { useI18n } from '../../i18n/I18nContext.tsx';
@@ -75,7 +81,12 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
   const [isTourOpen, setIsTourOpen] = useState(false);
+  const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({});
   const { showToast } = useToast();
+
+  const toggleGroup = (groupKey: string) => {
+    setCollapsedGroups((prev) => ({ ...prev, [groupKey]: !prev[groupKey] }));
+  };
 
   React.useEffect(() => {
     const estId = currentEstablishment?.id || 'default';
@@ -119,11 +130,18 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
     waiter: { ar: 'مقدم خدمة (نادل)', en: 'Service Waiter' },
   };
 
-  const navItems = [
+  const navItems: Array<{
+    id: string;
+    label: string;
+    icon: React.FC<any>;
+    group: 'operations' | 'menu_cost' | 'finance_hr' | 'admin';
+    roles: UserRole[];
+  }> = [
     {
       id: 'dashboard',
       label: t('navigation.dashboard', 'Executive Dashboard'),
       icon: LayoutDashboard,
+      group: 'operations',
       roles: [
         'tenant_admin',
         'general_manager',
@@ -139,78 +157,112 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
       id: 'pos',
       label: t('navigation.pos', 'Point of Sale (POS)'),
       icon: UtensilsCrossed,
+      group: 'operations',
       roles: ['cashier', 'waiter', 'general_manager', 'tenant_admin', 'super_admin'],
     },
     {
       id: 'kds',
       label: isAr ? 'شاشات المطبخ (KDS)' : 'Kitchen Stations (KDS)',
       icon: Flame,
+      group: 'operations',
       roles: ['kitchen_manager', 'bar_manager', 'tenant_admin', 'general_manager', 'cashier', 'super_admin'],
+    },
+    {
+      id: 'tables_management',
+      label: isAr ? 'الطاولات والمناطق والحجوزات' : 'Tables & Reservations',
+      icon: LayoutGrid,
+      group: 'operations',
+      roles: ['tenant_admin', 'general_manager', 'cashier', 'waiter', 'super_admin'],
+    },
+    {
+      id: 'order_trace',
+      label: isAr ? 'تتبّع دورة الطلب' : 'Order Lifecycle Trace',
+      icon: GitBranch,
+      group: 'operations',
+      roles: ['tenant_admin', 'general_manager', 'financial_manager', 'super_admin'],
     },
     {
       id: 'menu_management',
       label: isAr ? 'إدارة المنيو والصور' : 'Menu & Visuals',
       icon: QrCode,
+      group: 'menu_cost',
       roles: ['tenant_admin', 'general_manager', 'marketing_officer', 'super_admin'],
     },
     {
       id: 'qr_tables',
       label: isAr ? 'ملصقات QR للطاولات' : 'Table QR Stickers',
       icon: Smartphone,
+      group: 'menu_cost',
       roles: ['tenant_admin', 'general_manager', 'marketing_officer', 'cashier', 'super_admin'],
     },
     {
       id: 'menu',
       label: t('navigation.menu', 'Menu & Recipes (BOM)'),
       icon: ChefHat,
+      group: 'menu_cost',
       roles: ['tenant_admin', 'general_manager', 'kitchen_manager', 'bar_manager', 'cost_accountant', 'super_admin'],
     },
     {
       id: 'cost_control',
       label: t('navigation.costControl', 'Cost Control & Variance'),
       icon: Scale,
+      group: 'menu_cost',
       roles: ['tenant_admin', 'general_manager', 'cost_accountant', 'financial_manager', 'super_admin'],
     },
     {
       id: 'inventory',
       label: t('navigation.inventory', 'Inventory Warehouses'),
       icon: Package,
+      group: 'menu_cost',
       roles: ['tenant_admin', 'general_manager', 'store_manager', 'cost_accountant', 'kitchen_manager', 'super_admin'],
     },
     {
       id: 'purchasing',
       label: t('navigation.purchasing', 'Purchasing & Suppliers'),
       icon: ShoppingBag,
+      group: 'menu_cost',
       roles: ['tenant_admin', 'general_manager', 'store_manager', 'financial_manager', 'financial_accountant', 'super_admin'],
+    },
+    {
+      id: 'treasury',
+      label: isAr ? 'الخزينة وتقارير الورديات' : 'Treasury & Z-Reports',
+      icon: Vault,
+      group: 'finance_hr',
+      roles: ['tenant_admin', 'general_manager', 'financial_manager', 'financial_accountant', 'cashier', 'super_admin'],
     },
     {
       id: 'finance',
       label: t('navigation.finance', 'Finance & Accounting'),
       icon: DollarSign,
+      group: 'finance_hr',
       roles: ['tenant_admin', 'general_manager', 'financial_manager', 'financial_accountant', 'super_admin'],
     },
     {
       id: 'tax',
       label: t('navigation.tax', 'Tax & E-Invoicing'),
       icon: Receipt,
+      group: 'finance_hr',
       roles: ['tenant_admin', 'financial_manager', 'tax_accountant', 'super_admin'],
     },
     {
       id: 'hr',
       label: t('navigation.hr', 'HR & Labor Accounting'),
       icon: Users,
+      group: 'finance_hr',
       roles: ['tenant_admin', 'general_manager', 'hr_manager', 'super_admin'],
     },
     {
       id: 'crm',
       label: t('navigation.crm', 'CRM & Guest Loyalty'),
       icon: HeartHandshake,
+      group: 'finance_hr',
       roles: ['tenant_admin', 'general_manager', 'public_relations', 'cashier', 'super_admin'],
     },
     {
       id: 'chat',
       label: t('navigation.chat', 'Staff Internal Chat'),
       icon: MessageSquare,
+      group: 'admin',
       roles: [
         'tenant_admin',
         'general_manager',
@@ -228,12 +280,14 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
       id: 'health',
       label: isAr ? 'صحة المنظومة' : 'System Health',
       icon: Activity,
+      group: 'admin',
       roles: ['tenant_admin', 'general_manager', 'super_admin'],
     },
     {
       id: 'settings',
       label: isAr ? 'إعدادات المنشأة' : 'Settings',
       icon: Settings,
+      group: 'admin',
       roles: ['tenant_admin', 'super_admin'],
     },
   ];
@@ -243,9 +297,17 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
       id: 'super_admin',
       label: t('admin.controlCenter', 'Super Admin Center'),
       icon: ShieldAlert,
+      group: 'admin',
       roles: ['super_admin'],
     });
   }
+
+  const groupLabels: Record<string, { ar: string; en: string }> = {
+    operations: { ar: 'التشغيل اليومي والمبيعات', en: 'Daily Operations & POS' },
+    menu_cost: { ar: 'المنيو والتكاليف والمخزون', en: 'Menu, Recipes & Inventory' },
+    finance_hr: { ar: 'الخزينة والمالية والعملاء', en: 'Treasury, Finance & CRM' },
+    admin: { ar: 'الإدارة والإعدادات', en: 'Administration & Settings' },
+  };
 
   const allowedNav = navItems.filter((item) => item.roles.includes(role));
   const currentRoleLabel = roleLabels[role]?.[language === 'ar' ? 'ar' : 'en'] || role;
@@ -264,12 +326,12 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
                 : `Active Support Session for [${activeSupportSession.targetEstablishmentCode}] · Admin: ${activeSupportSession.adminUsername}`}
             </span>
           </div>
-          <button
+          <Button
             onClick={endSupportSession}
             className="px-3 py-1 rounded bg-slate-950 text-amber-300 hover:bg-slate-900 text-xs font-semibold cursor-pointer"
           >
             {isAr ? 'إنهاء جلسة الدعم' : 'Exit Support Session'}
-          </button>
+          </Button>
         </div>
       )}
 
@@ -277,24 +339,24 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
       <header className="h-16 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0b101e] sticky top-0 z-40 px-3 sm:px-6 flex items-center justify-between gap-2 sm:gap-4">
         {/* Zone 1: Navigation Trigger & Clickable Logo */}
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-          <button
+          <Button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="lg:hidden p-2 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
             aria-label="Toggle Navigation Drawer"
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
+          </Button>
 
           {/* Clickable Logo Mark that always returns to Dashboard */}
-          <button
+          <Button
             type="button"
             onClick={() => setActiveView(role === 'super_admin' ? 'super_admin' : 'dashboard')}
             className="cursor-pointer flex items-center text-start group"
             title={isAr ? 'العودة للوحة القيادة الرئيسية' : 'Return to Executive Dashboard'}
           >
             <TygosLogo variant="responsive-header" showSubtitle />
-          </button>
+          </Button>
 
           {/* Current Page Title on Mobile / Tablet */}
           {currentActiveNav && (
@@ -319,7 +381,7 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
         {/* Zone 2: Universal Search Affordance & Permanent App Brand Link */}
         <div className="hidden lg:flex items-center gap-3 flex-1 max-w-xl mx-2">
           <PermanentAppBrandBadge variant="header-pill" />
-          <button
+          <Button
             type="button"
             onClick={() => setIsSearchOpen(true)}
             className="flex-1 flex items-center justify-between px-3.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400 hover:border-cyan-500/50 transition-colors cursor-pointer"
@@ -331,7 +393,7 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
             <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400" dir="ltr">
               ⌘K
             </span>
-          </button>
+          </Button>
         </div>
 
         {/* Medium screens Search only */}
@@ -345,7 +407,7 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
           <VoiceNavigatorButton />
 
           {/* Tygos AI Assistant Trigger */}
-          <button
+          <Button
             type="button"
             onClick={() => setIsAssistantOpen(true)}
             className="flex items-center gap-1.5 p-2 sm:px-2.5 sm:py-1.5 text-xs font-bold rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white shadow-xs cursor-pointer transition-transform hover:scale-[1.02]"
@@ -355,10 +417,10 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
               <img src={TYGOS_LOGO_SRC} alt="Tygos" className="w-full h-full object-contain" />
             </div>
             <span className="hidden sm:inline">TYGOS</span>
-          </button>
+          </Button>
 
           {/* Security & Audit Notification */}
-          <button
+          <Button
             type="button"
             onClick={() => setIsAuditReportModalOpen(true)}
             className="relative p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-850 transition-colors cursor-pointer"
@@ -370,27 +432,27 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
                 {pendingRequestsCount}
               </span>
             )}
-          </button>
+          </Button>
 
           {/* Guided Tour Trigger (Hidden on tiny screens, inside drawer) */}
-          <button
+          <Button
             type="button"
             onClick={() => setIsTourOpen(true)}
             className="hidden sm:flex p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-850 transition-colors cursor-pointer"
             title={isAr ? 'الجولة الإرشادية بالنظام' : 'Guided Tour'}
           >
             <Compass className="w-4 h-4 text-emerald-400" />
-          </button>
+          </Button>
 
           {/* Help Center */}
-          <button
+          <Button
             type="button"
             onClick={() => setIsHelpOpen(true)}
             className="hidden sm:flex p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-850 transition-colors cursor-pointer"
             title={isAr ? 'دليل التشغيل والمعرفة (SOP)' : 'Help & Knowledge Center'}
           >
             <HelpCircle className="w-4 h-4 text-cyan-400" />
-          </button>
+          </Button>
 
           {/* Theme Switcher in Header */}
           <ThemeSwitcher />
@@ -402,7 +464,7 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
 
           {/* Role Simulator Switcher (Large screens) */}
           <div className="relative hidden xl:block">
-            <button
+            <Button
               type="button"
               onClick={() => setRoleDropdownOpen(!roleDropdownOpen)}
               className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-bold rounded-xl bg-cyan-50 dark:bg-cyan-950/40 text-cyan-700 dark:text-cyan-300 border border-cyan-500/30 hover:bg-cyan-100 dark:hover:bg-cyan-950/60 transition-colors cursor-pointer"
@@ -411,7 +473,7 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
               <Sparkles className="w-3.5 h-3.5 text-cyan-500" />
               <span>{currentRoleLabel}</span>
               <ChevronDown className="w-3 h-3 opacity-60" />
-            </button>
+            </Button>
 
             {roleDropdownOpen && (
               <div className="absolute end-0 mt-2 w-64 bg-white dark:bg-[#0b101e] border border-slate-200 dark:border-slate-800 rounded-xl shadow-2xl p-2 z-50 text-xs max-h-96 overflow-y-auto animate-fade-in">
@@ -421,7 +483,7 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
                 {Object.entries(roleLabels).map(([rKey, rObj]) => {
                   const label = isAr ? rObj.ar : rObj.en;
                   return (
-                    <button
+                    <Button
                       key={rKey}
                       type="button"
                       onClick={() => {
@@ -436,7 +498,7 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
                     >
                       <span>{label}</span>
                       {role === rKey && <span className="text-[10px]">✓</span>}
-                    </button>
+                    </Button>
                   );
                 })}
               </div>
@@ -454,14 +516,14 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
           </div>
 
           {/* Sign Out Action */}
-          <button
+          <Button
             type="button"
             onClick={logout}
             className="p-2 rounded-xl text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 border border-slate-200 dark:border-slate-800 transition-colors cursor-pointer"
             title={t('auth.logout', 'Sign Out')}
           >
             <LogOut className="w-4 h-4 rtl:rotate-180" />
-          </button>
+          </Button>
         </div>
       </header>
 
@@ -478,12 +540,12 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
               {/* Drawer Brand Header */}
               <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
                 <TygosLogo variant="compact" showSubtitle />
-                <button
+                <Button
                   onClick={() => setMobileMenuOpen(false)}
                   className="p-1.5 rounded-lg text-slate-400 hover:text-white"
                 >
                   <X className="w-5 h-5" />
-                </button>
+                </Button>
               </div>
 
               {/* Permanent Approved Logo & Verified App URL Card */}
@@ -504,7 +566,7 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
 
               {/* Quick Actions (Guided Tour + Help + Landing) */}
               <div className="grid grid-cols-2 gap-2">
-                <button
+                <Button
                   type="button"
                   onClick={() => {
                     setIsTourOpen(true);
@@ -514,9 +576,9 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
                 >
                   <Compass className="w-4 h-4 text-emerald-400" />
                   <span>{isAr ? 'الجولة الإرشادية' : 'Guided Tour'}</span>
-                </button>
+                </Button>
 
-                <button
+                <Button
                   type="button"
                   onClick={() => {
                     setIsHelpOpen(true);
@@ -526,9 +588,9 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
                 >
                   <HelpCircle className="w-4 h-4 text-cyan-400" />
                   <span>{isAr ? 'دليل التشغيل' : 'Docs & Help'}</span>
-                </button>
+                </Button>
 
-                <button
+                <Button
                   type="button"
                   onClick={() => {
                     setActiveView('landing');
@@ -541,7 +603,7 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
                     <span>{isAr ? 'صفحة المنظومة التسويقية' : 'Public Landing Page'}</span>
                   </span>
                   <ExternalLink className="w-3.5 h-3.5 opacity-60" />
-                </button>
+                </Button>
               </div>
 
               {/* Navigation Items List */}
@@ -553,7 +615,7 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
                   const Icon = item.icon;
                   const isActive = activeView === item.id;
                   return (
-                    <button
+                    <Button
                       key={item.id}
                       onClick={() => {
                         setActiveView(item.id);
@@ -567,7 +629,7 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
                     >
                       <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-slate-950' : 'text-slate-400'}`} />
                       <span className="truncate">{item.label}</span>
-                    </button>
+                    </Button>
                   );
                 })}
               </div>
@@ -583,14 +645,14 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
                 </div>
               </div>
 
-              <button
+              <Button
                 type="button"
                 onClick={logout}
                 className="w-full py-2.5 px-3 rounded-xl border border-rose-500/30 text-rose-500 hover:bg-rose-500/10 text-xs font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer"
               >
                 <LogOut className="w-4 h-4 rtl:rotate-180" />
                 <span>{t('auth.logout', 'Sign Out')}</span>
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -602,27 +664,44 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
         <aside
           className="hidden lg:flex w-64 border-e border-slate-200 dark:border-slate-800/90 bg-white dark:bg-[#0b101e] flex-col justify-between shrink-0 p-4 transition-all z-30 shadow-xs"
         >
-          {/* Menu Items List */}
-          <div className="space-y-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3 py-1 block">
-              {isAr ? 'الوحدات التشغيلية والمالية' : 'Operations & Management'}
-            </span>
-            {allowedNav.map((item) => {
-              const Icon = item.icon;
-              const isActive = activeView === item.id;
+          {/* Menu Items List (Grouped & Collapsible) */}
+          <div className="space-y-3">
+            {(['operations', 'menu_cost', 'finance_hr', 'admin'] as const).map((groupKey) => {
+              const items = allowedNav.filter((item) => item.group === groupKey);
+              if (items.length === 0) return null;
+              const isCollapsed = Boolean(collapsedGroups[groupKey]);
               return (
-                <button
-                  key={item.id}
-                  onClick={() => setActiveView(item.id)}
-                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
-                    isActive
-                      ? 'bg-cyan-50 dark:bg-cyan-950/60 text-cyan-700 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-500/40 shadow-xs font-bold'
-                      : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/70 hover:text-slate-900 dark:hover:text-slate-100'
-                  }`}
-                >
-                  <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-cyan-500' : 'text-slate-400'}`} />
-                  <span className="truncate">{item.label}</span>
-                </button>
+                <div key={groupKey} className="space-y-1">
+                  <Button
+                    type="button"
+                    onClick={() => toggleGroup(groupKey)}
+                    className="w-full flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 px-3 py-1 cursor-pointer"
+                  >
+                    <span>{isAr ? groupLabels[groupKey].ar : groupLabels[groupKey].en}</span>
+                    <ChevronDown
+                      className={`w-3.5 h-3.5 transition-transform ${isCollapsed ? '-rotate-90 rtl:rotate-90' : ''}`}
+                    />
+                  </Button>
+                  {!isCollapsed &&
+                    items.map((item) => {
+                      const Icon = item.icon;
+                      const isActive = activeView === item.id;
+                      return (
+                        <Button
+                          key={item.id}
+                          onClick={() => setActiveView(item.id)}
+                          className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                            isActive
+                              ? 'bg-cyan-50 dark:bg-cyan-950/60 text-cyan-700 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-500/40 shadow-xs font-bold'
+                              : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/70 hover:text-slate-900 dark:hover:text-slate-100'
+                          }`}
+                        >
+                          <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-cyan-500' : 'text-slate-400'}`} />
+                          <span className="truncate">{item.label}</span>
+                        </Button>
+                      );
+                    })}
+                </div>
               );
             })}
           </div>
@@ -631,7 +710,7 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
           <div className="space-y-2 mt-4">
             <PermanentAppBrandBadge variant="card" />
 
-            <button
+            <Button
               onClick={() => setIsTourOpen(true)}
               className="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:border-cyan-500/40 flex items-center justify-between cursor-pointer transition-colors"
             >
@@ -640,9 +719,9 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
                 <span>{isAr ? 'بدء الجولة الإرشادية' : 'Start Guided Tour'}</span>
               </div>
               <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-            </button>
+            </Button>
 
-            <button
+            <Button
               onClick={() => setActiveView('landing')}
               className="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:border-cyan-500/40 flex items-center justify-between cursor-pointer transition-colors"
             >
@@ -651,12 +730,35 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
                 <span>{isAr ? 'صفحة المنظومة التسويقية' : 'Public Landing Page'}</span>
               </div>
               <ExternalLink className="w-3.5 h-3.5 opacity-60" />
-            </button>
+            </Button>
           </div>
         </aside>
 
         {/* Main Content Area (Zero Horizontal Overflow, Mobile-First) */}
         <main className="flex-1 p-3 sm:p-6 lg:p-8 overflow-y-auto overflow-x-hidden max-w-[1600px] w-full mx-auto relative min-w-0">
+          {activeView !== 'dashboard' && currentActiveNav && (
+            <div className="mb-4 flex items-center justify-between gap-2 text-xs text-slate-500 dark:text-slate-400 bg-white/80 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 px-3.5 py-2 rounded-xl">
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setActiveView(role === 'super_admin' ? 'super_admin' : 'dashboard')}
+                  className="px-2 py-1 text-cyan-600 dark:text-cyan-400 font-bold"
+                >
+                  {isAr ? <ArrowRight className="w-3.5 h-3.5" /> : <ArrowLeft className="w-3.5 h-3.5" />}
+                  <span>{isAr ? 'الرئيسية' : 'Home'}</span>
+                </Button>
+                <span>/</span>
+                <span className="font-bold text-slate-800 dark:text-slate-200">
+                  {currentActiveNav.label}
+                </span>
+              </div>
+              <span className="text-[11px] font-semibold hidden sm:inline">
+                {currentRoleLabel}
+              </span>
+            </div>
+          )}
           {children}
 
           {/* Movable Draggable TYGOS AI Assistant Launcher (snaps to edge, never blocks UI) */}

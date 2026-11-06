@@ -4,6 +4,7 @@
  */
 
 import React, { useState } from 'react';
+import { Button } from '../common/Button.tsx';
 import {
   DollarSign,
   BookOpen,
@@ -50,7 +51,7 @@ export const FinanceModule: React.FC = () => {
         </div>
 
         <div className="flex p-1 bg-slate-100 dark:bg-slate-950 rounded-lg">
-          <button
+          <Button
             onClick={() => setActiveTab('accounts')}
             className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors cursor-pointer ${
               activeTab === 'accounts'
@@ -59,8 +60,8 @@ export const FinanceModule: React.FC = () => {
             }`}
           >
             {t('finance.chartOfAccounts')}
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={() => setActiveTab('journal')}
             className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors cursor-pointer ${
               activeTab === 'journal'
@@ -69,8 +70,8 @@ export const FinanceModule: React.FC = () => {
             }`}
           >
             {t('finance.journalEntries')}
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={() => setActiveTab('trial_balance')}
             className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors cursor-pointer ${
               activeTab === 'trial_balance'
@@ -79,7 +80,7 @@ export const FinanceModule: React.FC = () => {
             }`}
           >
             {t('finance.trialBalance')}
-          </button>
+          </Button>
         </div>
       </div>
 

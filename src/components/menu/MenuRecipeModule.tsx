@@ -4,6 +4,7 @@
  */
 
 import React, { useState } from 'react';
+import { Button } from '../common/Button.tsx';
 import {
   Utensils,
   Layers,
@@ -96,20 +97,20 @@ export const MenuRecipeModule: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-2">
-          <button
+          <Button
             onClick={() => setIsNewVersionModalOpen(true)}
             className="px-3.5 py-2 text-xs font-semibold rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
           >
             <Plus className="w-4 h-4" />
             <span>{isAr ? 'إصدار نسخة جديدة من الوصفة' : 'Create New Recipe Version'}</span>
-          </button>
+          </Button>
         </div>
       </div>
 
       {/* Production Department Filter Tabs */}
       <div className="flex items-center gap-1.5 overflow-x-auto pb-1 bg-white dark:bg-slate-900 p-2 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs">
         {departments.map((dept) => (
-          <button
+          <Button
             key={dept}
             onClick={() => setSelectedDepartment(dept)}
             className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap cursor-pointer ${
@@ -119,7 +120,7 @@ export const MenuRecipeModule: React.FC = () => {
             }`}
           >
             {dept === 'All' ? t('menu.allStations') : dept}
-          </button>
+          </Button>
         ))}
       </div>
 
@@ -207,7 +208,7 @@ export const MenuRecipeModule: React.FC = () => {
             <div className="flex items-center gap-1.5 p-1 bg-slate-100 dark:bg-slate-950 rounded-lg border border-slate-200 dark:border-slate-800">
               <History className="w-3.5 h-3.5 text-slate-400 ms-1" />
               {activeRecipe.versions.map((ver) => (
-                <button
+                <Button
                   key={ver.versionNumber}
                   onClick={() => setActiveVersionNumber(ver.versionNumber)}
                   className={`px-2.5 py-1 text-xs font-semibold rounded-md font-mono transition-colors cursor-pointer ${
@@ -217,7 +218,7 @@ export const MenuRecipeModule: React.FC = () => {
                   }`}
                 >
                   V{ver.versionNumber}.0
-                </button>
+                </Button>
               ))}
             </div>
           </div>
@@ -265,7 +266,7 @@ export const MenuRecipeModule: React.FC = () => {
 
           {/* Sub-tabs: BOM Table vs True Cost Breakdown vs History */}
           <div className="flex border-b border-slate-200 dark:border-slate-800 gap-4 text-xs font-bold">
-            <button
+            <Button
               onClick={() => setActiveTab('bom_table')}
               className={`pb-2 border-b-2 transition-colors cursor-pointer ${
                 activeTab === 'bom_table'
@@ -274,8 +275,8 @@ export const MenuRecipeModule: React.FC = () => {
               }`}
             >
               {isAr ? 'جدول المكونات المعيارية (BOM)' : 'Ingredients BOM Table'}
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => setActiveTab('true_cost_breakdown')}
               className={`pb-2 border-b-2 transition-colors cursor-pointer ${
                 activeTab === 'true_cost_breakdown'
@@ -284,8 +285,8 @@ export const MenuRecipeModule: React.FC = () => {
               }`}
             >
               {isAr ? 'تفصيل التكلفة الحقيقية (True Cost Breakdown)' : 'True Product Cost Breakdown'}
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => setActiveTab('version_history')}
               className={`pb-2 border-b-2 transition-colors cursor-pointer ${
                 activeTab === 'version_history'
@@ -294,7 +295,7 @@ export const MenuRecipeModule: React.FC = () => {
               }`}
             >
               {isAr ? 'سجل النسخ والتدقيق' : 'Version History Log'}
-            </button>
+            </Button>
           </div>
 
           {/* Tab 1: BOM Table */}
@@ -437,12 +438,12 @@ export const MenuRecipeModule: React.FC = () => {
               <h3 className="font-bold text-sm">
                 {isAr ? 'إصدار نسخة جديدة من الوصفة (V3.0)' : 'Create New Recipe Version (V3.0)'}
               </h3>
-              <button
+              <Button
                 onClick={() => setIsNewVersionModalOpen(false)}
                 className="text-slate-400 hover:text-white"
               >
                 <X className="w-4 h-4" />
-              </button>
+              </Button>
             </div>
 
             <form onSubmit={handleCreateVersionSubmit} className="space-y-3 text-xs">
@@ -484,19 +485,19 @@ export const MenuRecipeModule: React.FC = () => {
               </div>
 
               <div className="flex gap-2 pt-2">
-                <button
+                <Button
                   type="submit"
                   className="flex-1 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg font-bold cursor-pointer"
                 >
                   {isAr ? 'اعتماد وحفظ النسخة الجديدة' : 'Approve & Save Version'}
-                </button>
-                <button
+                </Button>
+                <Button
                   type="button"
                   onClick={() => setIsNewVersionModalOpen(false)}
                   className="px-3 py-2 bg-slate-800 text-slate-300 rounded-lg"
                 >
                   {isAr ? 'إلغاء' : 'Cancel'}
-                </button>
+                </Button>
               </div>
             </form>
           </div>

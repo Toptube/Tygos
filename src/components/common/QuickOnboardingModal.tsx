@@ -10,6 +10,7 @@
  */
 
 import React, { useState } from 'react';
+import { Button } from './Button.tsx';
 import {
   X,
   ArrowRight,
@@ -44,7 +45,7 @@ export const QuickOnboardingModal: React.FC<QuickOnboardingModalProps> = ({
 
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
   const [activityType, setActivityType] = useState<'restaurant' | 'cafe' | 'tourist_venue'>('restaurant');
-  const [currency, setCurrency] = useState('USD');
+  const [currency, setCurrency] = useState('EGP');
   const [taxRate, setTaxRate] = useState('14');
   const [loadTemplateChoice, setLoadTemplateChoice] = useState<'template' | 'blank'>('template');
   const [isLoading, setIsLoading] = useState(false);
@@ -79,13 +80,13 @@ export const QuickOnboardingModal: React.FC<QuickOnboardingModalProps> = ({
               </p>
             </div>
           </div>
-          <button
+          <Button
             type="button"
             onClick={onClose}
             className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
           >
             <X className="w-5 h-5" />
-          </button>
+          </Button>
         </div>
 
         {/* Progress tracker dots */}
@@ -110,7 +111,7 @@ export const QuickOnboardingModal: React.FC<QuickOnboardingModalProps> = ({
               </h4>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <button
+                <Button
                   type="button"
                   onClick={() => setActivityType('restaurant')}
                   className={`p-4 rounded-xl border text-start transition-all cursor-pointer flex flex-col items-center justify-center text-center gap-2 ${
@@ -121,9 +122,9 @@ export const QuickOnboardingModal: React.FC<QuickOnboardingModalProps> = ({
                 >
                   <UtensilsCrossed className="w-6 h-6 text-cyan-500" />
                   <span className="text-xs">{isAr ? 'مطعم ومأكولات' : 'Restaurant & Dining'}</span>
-                </button>
+                </Button>
 
-                <button
+                <Button
                   type="button"
                   onClick={() => setActivityType('cafe')}
                   className={`p-4 rounded-xl border text-start transition-all cursor-pointer flex flex-col items-center justify-center text-center gap-2 ${
@@ -134,9 +135,9 @@ export const QuickOnboardingModal: React.FC<QuickOnboardingModalProps> = ({
                 >
                   <Coffee className="w-6 h-6 text-amber-500" />
                   <span className="text-xs">{isAr ? 'كافيه ومشروبات' : 'Specialty Cafe'}</span>
-                </button>
+                </Button>
 
-                <button
+                <Button
                   type="button"
                   onClick={() => setActivityType('tourist_venue')}
                   className={`p-4 rounded-xl border text-start transition-all cursor-pointer flex flex-col items-center justify-center text-center gap-2 ${
@@ -147,7 +148,7 @@ export const QuickOnboardingModal: React.FC<QuickOnboardingModalProps> = ({
                 >
                   <Hotel className="w-6 h-6 text-purple-500" />
                   <span className="text-xs">{isAr ? 'فندق ومنشأة سياحية' : 'Resort & Hotel'}</span>
-                </button>
+                </Button>
               </div>
             </div>
           )}
@@ -200,7 +201,7 @@ export const QuickOnboardingModal: React.FC<QuickOnboardingModalProps> = ({
               </h4>
 
               <div className="space-y-2">
-                <button
+                <Button
                   type="button"
                   onClick={() => setLoadTemplateChoice('template')}
                   className={`w-full p-4 rounded-xl border text-start flex items-center justify-between transition-all cursor-pointer ${
@@ -223,9 +224,9 @@ export const QuickOnboardingModal: React.FC<QuickOnboardingModalProps> = ({
                     </div>
                   </div>
                   {loadTemplateChoice === 'template' && <CheckCircle2 className="w-5 h-5 text-cyan-500" />}
-                </button>
+                </Button>
 
-                <button
+                <Button
                   type="button"
                   onClick={() => setLoadTemplateChoice('blank')}
                   className={`w-full p-4 rounded-xl border text-start flex items-center justify-between transition-all cursor-pointer ${
@@ -244,7 +245,7 @@ export const QuickOnboardingModal: React.FC<QuickOnboardingModalProps> = ({
                     </div>
                   </div>
                   {loadTemplateChoice === 'blank' && <CheckCircle2 className="w-5 h-5 text-cyan-500" />}
-                </button>
+                </Button>
               </div>
             </div>
           )}
@@ -262,9 +263,14 @@ export const QuickOnboardingModal: React.FC<QuickOnboardingModalProps> = ({
                 </h4>
                 <p className="text-xs text-slate-500 max-w-sm mx-auto mt-1">
                   {isAr
-                    ? 'تم إعداد بيئة العمل بنجاح. يمكنك استعراض لوحة التحكم، نقطة البيع، وبناء الوصفات.'
-                    : 'Your environment is configured. You can now explore dashboard, POS, and BOM recipes.'}
+                    ? 'تم إعداد بيئة العمل بنجاح. اتبع المسار التشغيلي المعتمد:'
+                    : 'Your environment is configured. Follow the recommended operational flow:'}
                 </p>
+                <div className="mt-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-[11px] font-bold text-cyan-600 dark:text-cyan-400">
+                  {isAr
+                    ? 'الإعداد ← الخامات ← المنتجات ← الطاولات ← الوردية ← أول طلب'
+                    : 'Setup → Raw Materials → Products → Tables → Shift → First Order'}
+                </div>
               </div>
             </div>
           )}
@@ -273,29 +279,29 @@ export const QuickOnboardingModal: React.FC<QuickOnboardingModalProps> = ({
         {/* Footer Navigation */}
         <div className="p-4 sm:p-5 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-900/50">
           {step > 1 ? (
-            <button
+            <Button
               type="button"
               onClick={() => setStep((step - 1) as 1 | 2 | 3)}
               className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white flex items-center gap-1.5 transition-colors cursor-pointer"
             >
               <ArrowLeft className="w-4 h-4 rtl:rotate-180" />
               <span>{isAr ? 'السابق' : 'Back'}</span>
-            </button>
+            </Button>
           ) : (
             <div />
           )}
 
           {step < 4 ? (
-            <button
+            <Button
               type="button"
               onClick={() => setStep((step + 1) as 2 | 3 | 4)}
               className="px-5 py-2 text-xs font-bold text-white bg-cyan-600 hover:bg-cyan-500 rounded-xl flex items-center gap-1.5 transition-colors cursor-pointer"
             >
               <span>{isAr ? 'التالي' : 'Next'}</span>
               <ArrowRight className="w-4 h-4 rtl:rotate-180" />
-            </button>
+            </Button>
           ) : (
-            <button
+            <Button
               type="button"
               disabled={isLoading}
               onClick={handleFinish}
@@ -303,7 +309,7 @@ export const QuickOnboardingModal: React.FC<QuickOnboardingModalProps> = ({
             >
               <span>{isLoading ? (isAr ? 'جارٍ الإعداد...' : 'Setting up...') : (isAr ? 'الدخول لمساحة العمل' : 'Enter Workspace')}</span>
               <ArrowRight className="w-4 h-4 rtl:rotate-180" />
-            </button>
+            </Button>
           )}
         </div>
       </div>

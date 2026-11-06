@@ -4,6 +4,7 @@
  */
 
 import React, { useState } from 'react';
+import { Button } from '../common/Button.tsx';
 import {
   Receipt,
   FileCheck2,
@@ -36,7 +37,7 @@ export const TaxModule: React.FC = () => {
         </div>
 
         <div className="flex p-1 bg-slate-100 dark:bg-slate-950 rounded-lg">
-          <button
+          <Button
             onClick={() => setActiveTab('vat')}
             className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors cursor-pointer ${
               activeTab === 'vat'
@@ -45,8 +46,8 @@ export const TaxModule: React.FC = () => {
             }`}
           >
             {t('tax.title')}
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={() => setActiveTab('edocs')}
             className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors cursor-pointer ${
               activeTab === 'edocs'
@@ -55,8 +56,8 @@ export const TaxModule: React.FC = () => {
             }`}
           >
             {t('tax.edocs')}
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={() => setActiveTab('settings')}
             className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors cursor-pointer ${
               activeTab === 'settings'
@@ -65,7 +66,7 @@ export const TaxModule: React.FC = () => {
             }`}
           >
             {t('tax.settings')}
-          </button>
+          </Button>
         </div>
       </div>
 

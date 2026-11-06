@@ -7,6 +7,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
+import { Button } from './Button.tsx';
 import { RotateCcw, X, Check } from 'lucide-react';
 import { useI18n } from '../../i18n/I18nContext.tsx';
 
@@ -64,21 +65,21 @@ export const UndoToast: React.FC<UndoToastProps> = ({
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          <button
+          <Button
             type="button"
             onClick={onUndo}
             className="px-3 py-1.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold flex items-center gap-1.5 transition-transform active:scale-95 cursor-pointer shadow-md"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span>{isAr ? 'تراجع' : 'Undo'}</span>
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
             onClick={onDismiss}
             className="p-1 rounded-lg text-slate-400 hover:text-white"
           >
             <X className="w-4 h-4" />
-          </button>
+          </Button>
         </div>
       </div>
     </div>

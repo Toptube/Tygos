@@ -4,6 +4,7 @@
  */
 
 import React, { useState } from 'react';
+import { Button } from '../common/Button.tsx';
 import {
   DollarSign,
   ShoppingBag,
@@ -36,8 +37,9 @@ import { QrOperationsReport } from '../reports/QrOperationsReport.tsx';
 const TYGOS_MARK_SRC = '/assets/aistudio/1793697201912_bf1cbdeb.png';
 
 export const TenantDashboard: React.FC = () => {
-  const { currentEstablishment, setActiveView } = useAuth();
+  const { currentUser, currentEstablishment, setActiveView } = useAuth();
   const { t, formatCurrency, formatNumber, isRtl, language } = useI18n();
+  const role = currentUser?.role || 'tenant_admin';
   const {
     profitAnalysis,
     recommendations,
@@ -124,10 +126,91 @@ export const TenantDashboard: React.FC = () => {
           </p>
         </div>
 
+        {/* Phase 7: Role-Based "What Should I Do Now?" Quick Action Center */}
+        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-black text-slate-900 dark:text-white flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-cyan-500" />
+              <span>{isAr ? 'ماذا أفعل الآن؟' : 'What Should I Do Now?'}</span>
+            </h2>
+            <span className="text-[11px] font-bold text-slate-400">
+              {isAr ? 'مسار العمل السريع حسب دورك' : 'Role-tailored quick actions'}
+            </span>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+            {(role === 'cashier' || role === 'waiter' || role === 'tenant_admin' || role === 'general_manager') && (
+              <Button
+                type="button"
+                variant="primary"
+                size="md"
+                onClick={() => setActiveView('pos')}
+                className="justify-start text-start"
+              >
+                {isAr ? '1. الكاشير والوردية' : '1. POS & Shift'}
+              </Button>
+            )}
+            {(role === 'cashier' || role === 'waiter' || role === 'tenant_admin' || role === 'general_manager') && (
+              <Button
+                type="button"
+                variant="outline"
+                size="md"
+                onClick={() => setActiveView('tables_management')}
+                className="justify-start text-start"
+              >
+                {isAr ? '2. إدارة الطاولات' : '2. Tables & Zones'}
+              </Button>
+            )}
+            {(role === 'kitchen_manager' || role === 'bar_manager' || role === 'tenant_admin' || role === 'general_manager' || role === 'cashier') && (
+              <Button
+                type="button"
+                variant="outline"
+                size="md"
+                onClick={() => setActiveView('kds')}
+                className="justify-start text-start"
+              >
+                {isAr ? '3. محطات المطبخ' : '3. Kitchen KDS'}
+              </Button>
+            )}
+            {(role === 'tenant_admin' || role === 'general_manager' || role === 'financial_manager' || role === 'cashier') && (
+              <Button
+                type="button"
+                variant="outline"
+                size="md"
+                onClick={() => setActiveView('treasury')}
+                className="justify-start text-start"
+              >
+                {isAr ? '4. الخزينة وتقارير Z' : '4. Treasury & Z'}
+              </Button>
+            )}
+            {(role === 'tenant_admin' || role === 'general_manager' || role === 'financial_manager') && (
+              <Button
+                type="button"
+                variant="outline"
+                size="md"
+                onClick={() => setActiveView('order_trace')}
+                className="justify-start text-start"
+              >
+                {isAr ? '5. تتبّع الطلبات' : '5. Order Trace'}
+              </Button>
+            )}
+            {(role === 'cost_accountant' || role === 'tenant_admin' || role === 'general_manager') && (
+              <Button
+                type="button"
+                variant="outline"
+                size="md"
+                onClick={() => setActiveView('cost_control')}
+                className="justify-start text-start"
+              >
+                {isAr ? '6. التكاليف والوصفات' : '6. Cost & BOM'}
+              </Button>
+            )}
+          </div>
+        </div>
+
         {/* Phase 3 Action Center Buttons */}
         <div className="flex flex-wrap items-center gap-2">
           {/* Tygos AI Assistant Quick Launch */}
-          <button
+          <Button
             onClick={() => setIsAssistantOpen(true)}
             className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-bold flex items-center gap-2 shadow-md shadow-cyan-950/40 cursor-pointer transition-transform hover:scale-[1.02]"
           >
@@ -135,34 +218,34 @@ export const TenantDashboard: React.FC = () => {
               <img src={TYGOS_MARK_SRC} alt="Tygos Mark" className="w-full h-full object-contain" />
             </div>
             <span>{isAr ? 'مساعد TYGOS الذكي' : 'Ask TYGOS AI'}</span>
-          </button>
+          </Button>
 
           {/* What-If Cost Simulation */}
-          <button
+          <Button
             onClick={() => setIsSimulationModalOpen(true)}
             className="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-colors"
           >
             <Sliders className="w-4 h-4 text-cyan-500" />
             <span>{isAr ? 'محاكاة التكلفة (What-If)' : 'What-If Simulation'}</span>
-          </button>
+          </Button>
 
           {/* Security Audit Trail & Report */}
-          <button
+          <Button
             onClick={() => setIsAuditReportModalOpen(true)}
             className="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-300 dark:border-slate-700 text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-colors"
           >
             <Shield className="w-4 h-4 text-purple-400" />
             <span>{isAr ? 'سجل التدقيق الأمني' : 'Audit Trail'}</span>
-          </button>
+          </Button>
 
           {/* Help Center */}
-          <button
+          <Button
             onClick={() => setIsHelpOpen(true)}
             title={isAr ? 'دليل التشغيل والمعرفة' : 'SOP Knowledge Center'}
             className="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-white border border-slate-300 dark:border-slate-700 cursor-pointer"
           >
             <HelpCircle className="w-4 h-4" />
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -267,13 +350,13 @@ export const TenantDashboard: React.FC = () => {
             </p>
           </div>
 
-          <button
+          <Button
             onClick={() => setIsSimulationModalOpen(true)}
             className="text-xs font-bold text-cyan-600 dark:text-cyan-400 hover:underline flex items-center gap-1 cursor-pointer"
           >
             <span>{isAr ? 'اختبار سيناريو التصحيح' : 'Simulate Corrective Scenario'}</span>
             <ArrowIcon className="w-3.5 h-3.5" />
-          </button>
+          </Button>
         </div>
 
         {/* 4 Factor Contribution Drivers */}
@@ -364,13 +447,13 @@ export const TenantDashboard: React.FC = () => {
                   {isAr ? rec.recommendedActionAr : rec.recommendedActionEn}
                 </span>
                 {rec.actionRoute && (
-                  <button
+                  <Button
                     onClick={() => setActiveView(rec.actionRoute!)}
                     className="p-1.5 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 cursor-pointer shrink-0"
                     title={isAr ? 'فتح الشاشة' : 'Navigate'}
                   >
                     <ArrowIcon className="w-4 h-4" />
-                  </button>
+                  </Button>
                 )}
               </div>
             </div>
@@ -435,13 +518,13 @@ export const TenantDashboard: React.FC = () => {
             </p>
           </div>
 
-          <button
+          <Button
             onClick={() => setActiveView(traceSteps[selectedTraceStep].targetView)}
             className="px-4 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer shrink-0"
           >
             <span>{isAr ? 'فتح الشاشة المرتبطة' : 'Inspect Module'}</span>
             <ArrowIcon className="w-3.5 h-3.5" />
-          </button>
+          </Button>
         </div>
       </div>
     </div>

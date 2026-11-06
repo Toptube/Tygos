@@ -520,6 +520,28 @@ export class UiPreferencesRepository {
     this.adapter.setItemSync(`tygos_${tenantId || 'default'}_prelaunch_checklist`, JSON.stringify(state));
   }
 
+  public getClickSoundEnabled(): boolean {
+    return this.adapter.getItemSync('tygos_click_sound_enabled') === 'true';
+  }
+
+  public setClickSoundEnabled(enabled: boolean): void {
+    this.adapter.setItemSync('tygos_click_sound_enabled', enabled ? 'true' : 'false');
+  }
+
+  public getLauncherPosition(): { pctX: number; pctY: number } | null {
+    const raw = this.adapter.getItemSync('tygos_assistant_launcher_pos_pct');
+    if (!raw) return null;
+    try {
+      return JSON.parse(raw);
+    } catch {
+      return null;
+    }
+  }
+
+  public setLauncherPosition(pos: { pctX: number; pctY: number }): void {
+    this.adapter.setItemSync('tygos_assistant_launcher_pos_pct', JSON.stringify(pos));
+  }
+
   public getStorageUsageBytes(): number {
     let totalBytes = 0;
     for (const key of this.adapter.keysSync()) {

@@ -4,6 +4,7 @@
  */
 
 import React, { useState } from 'react';
+import { Button } from './Button.tsx';
 import {
   X,
   ArrowRight,
@@ -236,13 +237,13 @@ export const GuidedTourModal: React.FC<GuidedTourModalProps> = ({ isOpen, onClos
             </div>
           </div>
 
-          <button
+          <Button
             onClick={onClose}
             className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
             aria-label="Close Tour"
           >
             <X className="w-5 h-5" />
-          </button>
+          </Button>
         </div>
 
         {/* Body Content */}
@@ -265,52 +266,52 @@ export const GuidedTourModal: React.FC<GuidedTourModalProps> = ({ isOpen, onClos
 
           {/* Quick jump to screen */}
           <div className="pt-2">
-            <button
+            <Button
               onClick={handleNavigateAndClose}
               className="text-xs font-bold text-cyan-400 hover:text-cyan-300 flex items-center gap-1.5 transition-colors cursor-pointer"
             >
               <span>{isAr ? 'انتقل مباشرة لهذه الشاشة وجربها الآن' : 'Jump to this module and explore now'}</span>
               <NextArrow className="w-3.5 h-3.5" />
-            </button>
+            </Button>
           </div>
         </div>
 
         {/* Footer controls */}
         <div className="p-4 sm:p-5 border-t border-slate-800 bg-slate-950/60 flex items-center justify-between gap-3">
-          <button
+          <Button
             onClick={onClose}
             className="text-xs text-slate-400 hover:text-slate-200 cursor-pointer px-2 py-1"
           >
             {isAr ? 'تخطي الجولة' : 'Skip Tour'}
-          </button>
+          </Button>
 
           <div className="flex items-center gap-2">
             {currentStep > 0 && (
-              <button
+              <Button
                 onClick={() => setCurrentStep((prev) => prev - 1)}
                 className="px-3.5 py-2 rounded-xl border border-slate-700 hover:bg-slate-800 text-xs font-semibold text-slate-300 flex items-center gap-1.5 transition-colors cursor-pointer"
               >
                 <PrevArrow className="w-3.5 h-3.5" />
                 <span>{isAr ? 'السابق' : 'Previous'}</span>
-              </button>
+              </Button>
             )}
 
             {currentStep < tourSteps.length - 1 ? (
-              <button
+              <Button
                 onClick={() => setCurrentStep((prev) => prev + 1)}
                 className="px-4 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-md shadow-cyan-950 transition-colors cursor-pointer"
               >
                 <span>{isAr ? 'التالي' : 'Next'}</span>
                 <NextArrow className="w-3.5 h-3.5" />
-              </button>
+              </Button>
             ) : (
-              <button
+              <Button
                 onClick={onClose}
                 className="px-5 py-2 rounded-xl bg-gradient-to-r from-cyan-400 to-emerald-400 text-slate-950 text-xs font-black flex items-center gap-1.5 shadow-md shadow-cyan-950 transition-colors cursor-pointer"
               >
                 <span>{isAr ? 'إنهاء واستكشاف المنظومة' : 'Finish & Explore Tygos'}</span>
                 <CheckCircle2 className="w-4 h-4" />
-              </button>
+              </Button>
             )}
           </div>
         </div>

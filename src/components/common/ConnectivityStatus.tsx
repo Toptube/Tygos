@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useRef, useEffect } from 'react';
+import { Button } from './Button.tsx';
 import {
   Wifi,
   WifiOff,
@@ -87,7 +88,7 @@ export const ConnectivityStatus: React.FC = () => {
 
   return (
     <div ref={containerRef} className="relative">
-      <button
+      <Button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         aria-label="Connectivity and Synchronization Status"
@@ -96,7 +97,7 @@ export const ConnectivityStatus: React.FC = () => {
       >
         {badge.icon}
         <span className="hidden sm:inline font-bold">{badge.label}</span>
-      </button>
+      </Button>
 
       {isOpen && (
         <div className="absolute end-0 mt-2 w-80 sm:w-96 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl p-4 z-50 animate-fade-in text-slate-800 dark:text-slate-200">
@@ -107,12 +108,12 @@ export const ConnectivityStatus: React.FC = () => {
                 {t('sync.engineTitle', 'Tygos Sync Engine (Phase 2)')}
               </h4>
             </div>
-            <button
+            <Button
               onClick={() => setIsOpen(false)}
               className="text-slate-400 hover:text-slate-700 dark:hover:text-white p-1 rounded"
             >
               <X className="w-4 h-4" />
-            </button>
+            </Button>
           </div>
 
           {/* Toggle Online/Offline State */}
@@ -125,7 +126,7 @@ export const ConnectivityStatus: React.FC = () => {
                 {isOnline ? 'Active Cloud Gateway' : 'Local In-Memory Cache'}
               </p>
             </div>
-            <button
+            <Button
               type="button"
               onClick={() => {
                 setSimulatedError(false);
@@ -140,13 +141,13 @@ export const ConnectivityStatus: React.FC = () => {
               {isOnline
                 ? t('sync.simulateOffline', 'Simulate Offline')
                 : t('sync.goOnline', 'Go Online')}
-            </button>
+            </Button>
           </div>
 
           {/* Simulation Error Toggle Button */}
           <div className="mt-2 flex items-center justify-between px-1 text-xs">
             <span className="text-slate-500 text-[11px]">Testing & QA Simulation:</span>
-            <button
+            <Button
               type="button"
               onClick={() => setSimulatedError(!simulatedError)}
               className={`text-[11px] font-semibold px-2 py-0.5 rounded border transition-colors ${
@@ -156,7 +157,7 @@ export const ConnectivityStatus: React.FC = () => {
               }`}
             >
               {simulatedError ? 'Clear Sync Error' : 'Simulate Sync Error'}
-            </button>
+            </Button>
           </div>
 
           {/* Pending Sync Items Queue */}
@@ -165,7 +166,7 @@ export const ConnectivityStatus: React.FC = () => {
               <span className="text-[11px] uppercase tracking-wider text-slate-400 font-bold">
                 {t('sync.pendingQueue', 'Pending Local Queue')} ({pendingCount})
               </span>
-              <button
+              <Button
                 type="button"
                 onClick={() => {
                   setSimulatedError(false);
@@ -175,7 +176,7 @@ export const ConnectivityStatus: React.FC = () => {
               >
                 <RefreshCw className="w-3 h-3" />
                 <span>{t('sync.forceSync', 'Force Sync Now')}</span>
-              </button>
+              </Button>
             </div>
 
             {pendingQueue.length === 0 ? (

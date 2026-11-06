@@ -9,6 +9,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { Button } from '../common/Button.tsx';
 import {
   Activity,
   Server,
@@ -88,7 +89,7 @@ export const SystemHealthDashboard: React.FC = () => {
           </p>
         </div>
 
-        <button
+        <Button
           type="button"
           onClick={handleRefreshMetrics}
           disabled={isRefreshing}
@@ -96,7 +97,7 @@ export const SystemHealthDashboard: React.FC = () => {
         >
           <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-cyan-500' : ''}`} />
           <span>{isAr ? 'تحديث المؤشرات' : 'Refresh Metrics'}</span>
-        </button>
+        </Button>
       </div>
 
       {/* Notice Banner */}

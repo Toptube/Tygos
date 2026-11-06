@@ -8,6 +8,7 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
+import { Button } from './Button.tsx';
 import { Mic, MicOff, Volume2, AlertCircle, Sparkles } from 'lucide-react';
 import { useI18n } from '../../i18n/I18nContext.tsx';
 import { useAuth } from '../../context/AuthContext.tsx';
@@ -133,7 +134,7 @@ export const VoiceNavigatorButton: React.FC = () => {
 
   return (
     <div className="relative">
-      <button
+      <Button
         type="button"
         onClick={toggleListening}
         className={`p-2 rounded-xl border transition-all cursor-pointer relative ${
@@ -148,7 +149,7 @@ export const VoiceNavigatorButton: React.FC = () => {
         {isListening && (
           <span className="absolute -top-1 -end-1 w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping" />
         )}
-      </button>
+      </Button>
 
       {/* Spoken Feedback Popover */}
       {feedbackMessage && (

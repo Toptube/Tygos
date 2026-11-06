@@ -8,6 +8,7 @@
  */
 
 import React, { useState } from 'react';
+import { Button } from '../common/Button.tsx';
 import {
   ArrowRight,
   ArrowLeft,
@@ -357,21 +358,21 @@ export const LandingPage: React.FC<LandingPageProps> = ({
           <LanguageSelector variant="header" />
           <ThemeSwitcher />
 
-          <button
+          <Button
             type="button"
             onClick={onOpenLogin}
             className="text-xs font-bold text-slate-300 hover:text-cyan-400 px-3 py-2 rounded-xl transition-colors cursor-pointer"
           >
             {isAr ? 'تسجيل الدخول' : 'Sign In'}
-          </button>
+          </Button>
 
-          <button
+          <Button
             type="button"
             onClick={onOpenRegister}
             className="px-4 py-2 text-xs font-bold rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 shadow-md shadow-cyan-950/40 transition-all cursor-pointer"
           >
             {isAr ? 'ابدأ مجاناً' : 'Get Started'}
-          </button>
+          </Button>
         </div>
       </nav>
 
@@ -413,16 +414,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-            <button
+            <Button
               type="button"
               onClick={onOpenRegister}
               className="w-full sm:w-auto px-8 py-3.5 rounded-xl font-black text-sm bg-gradient-to-r from-cyan-400 via-cyan-300 to-emerald-400 hover:from-cyan-300 hover:to-emerald-300 text-slate-950 shadow-xl shadow-cyan-950/60 transition-all cursor-pointer flex items-center justify-center gap-2"
             >
               <span>{isAr ? 'جرّب مجاناً الآن' : 'Try Free Now'}</span>
               <ArrowIcon className="w-4 h-4" />
-            </button>
+            </Button>
 
-            <button
+            <Button
               type="button"
               onClick={() => {
                 const el = document.getElementById('how-it-works');
@@ -432,7 +433,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
             >
               <Compass className="w-4 h-4 text-cyan-400" />
               <span>{isAr ? 'شوف إزاي بيشتغل' : 'See How It Works'}</span>
-            </button>
+            </Button>
           </div>
 
           {/* Micro Trust Bar */}
@@ -549,7 +550,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               </div>
             </div>
             <div className="flex items-center gap-3 flex-wrap justify-end w-full sm:w-auto">
-              <button
+              <Button
                 onClick={() => {
                   window.location.hash = '#/m/R.0001?t=12';
                 }}
@@ -557,15 +558,15 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               >
                 <span>{isAr ? 'معاينة منيو طاولة #12' : 'Preview Table #12 Menu'}</span>
                 <ArrowIcon className="w-4 h-4" />
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => {
                   if (onExploreDemo) onExploreDemo('marketing_officer');
                 }}
                 className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-medium text-xs flex items-center gap-2 cursor-pointer transition-colors"
               >
                 <span>{isAr ? 'لوحة تحكم التسويق' : 'Marketing Dashboard'}</span>
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -809,7 +810,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {rolePortals.map((portal) => (
-              <button
+              <Button
                 key={portal.role}
                 type="button"
                 onClick={() => onExploreDemo && onExploreDemo(portal.role)}
@@ -824,11 +825,11 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                 <p className="text-[11px] text-slate-400">
                   {isAr ? portal.descAr : portal.descEn}
                 </p>
-              </button>
+              </Button>
             ))}
 
             {/* Quick Register Portal */}
-            <button
+            <Button
               type="button"
               onClick={onOpenRegister}
               className="p-4 rounded-xl bg-gradient-to-r from-cyan-950 to-blue-950 border border-cyan-500/40 text-start hover:border-cyan-400 transition-all cursor-pointer space-y-1"
@@ -842,7 +843,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               <p className="text-[11px] text-slate-400">
                 {isAr ? 'ابدأ معالج تسجيل منشأتك ببياناتك الخاصة.' : 'Launch wizard with your own brand details.'}
               </p>
-            </button>
+            </Button>
           </div>
         </div>
       </section>
@@ -867,14 +868,14 @@ export const LandingPage: React.FC<LandingPageProps> = ({
                   key={index}
                   className="rounded-xl border border-slate-800 bg-slate-900/70 overflow-hidden transition-colors"
                 >
-                  <button
+                  <Button
                     type="button"
                     onClick={() => setActiveFaq(isOpen ? null : index)}
                     className="w-full p-4 text-start text-xs sm:text-sm font-bold text-slate-200 hover:text-white flex items-center justify-between gap-3 cursor-pointer"
                   >
                     <span>{isAr ? faq.qAr : faq.qEn}</span>
                     <ChevronDown className={`w-4 h-4 text-slate-400 shrink-0 transition-transform ${isOpen ? 'rotate-180 text-cyan-400' : ''}`} />
-                  </button>
+                  </Button>
 
                   {isOpen && (
                     <div className="px-4 pb-4 text-xs text-slate-400 leading-relaxed border-t border-slate-800/60 pt-3">
@@ -900,13 +901,13 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               : 'Join hospitality managers who rely on TYGOS for surgical portion and food cost control.'}
           </p>
           <div className="pt-2">
-            <button
+            <Button
               type="button"
               onClick={onOpenRegister}
               className="px-8 py-3.5 rounded-xl font-black text-sm bg-gradient-to-r from-cyan-400 to-emerald-400 hover:from-cyan-300 hover:to-emerald-300 text-slate-950 shadow-xl shadow-cyan-950/60 cursor-pointer transition-all"
             >
               {isAr ? 'ابدأ تجربة المنظومة مجاناً' : 'Start Your Free Trial'}
-            </button>
+            </Button>
           </div>
         </div>
       </section>

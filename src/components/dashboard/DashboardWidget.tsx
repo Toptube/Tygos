@@ -4,6 +4,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
+import { Button } from '../common/Button.tsx';
 import {
   DollarSign,
   Percent,
@@ -203,13 +204,13 @@ export const DashboardWidget: React.FC = () => {
             <Award className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
             <span>{isAr ? 'أعلى الأصناف أداءً' : 'Top Performing Items'}</span>
           </div>
-          <button
+          <Button
             type="button"
             onClick={() => setActiveView('menu')}
             className="text-xs font-semibold text-cyan-600 dark:text-cyan-400 hover:underline cursor-pointer"
           >
             {isAr ? 'إدارة القائمة' : 'Manage Menu'}
-          </button>
+          </Button>
         </div>
 
         {topItems.length === 0 ? (

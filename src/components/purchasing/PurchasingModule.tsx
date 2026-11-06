@@ -4,6 +4,7 @@
  */
 
 import React, { useState } from 'react';
+import { Button } from '../common/Button.tsx';
 import {
   Truck,
   FileText,
@@ -51,7 +52,7 @@ export const PurchasingModule: React.FC = () => {
 
         <div className="flex items-center gap-2">
           <div className="flex p-1 bg-slate-100 dark:bg-slate-950 rounded-lg">
-            <button
+            <Button
               onClick={() => setActiveTab('orders')}
               className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors cursor-pointer ${
                 activeTab === 'orders'
@@ -60,8 +61,8 @@ export const PurchasingModule: React.FC = () => {
               }`}
             >
               {t('purchasing.poPipeline')}
-            </button>
-            <button
+            </Button>
+            <Button
               onClick={() => setActiveTab('suppliers')}
               className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors cursor-pointer ${
                 activeTab === 'suppliers'
@@ -70,7 +71,7 @@ export const PurchasingModule: React.FC = () => {
               }`}
             >
               {t('purchasing.approvedSuppliers')}
-            </button>
+            </Button>
           </div>
         </div>
       </div>

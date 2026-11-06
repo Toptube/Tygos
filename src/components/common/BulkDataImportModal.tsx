@@ -7,6 +7,7 @@
  */
 
 import React, { useState } from 'react';
+import { Button } from './Button.tsx';
 import {
   X,
   FileSpreadsheet,
@@ -187,18 +188,18 @@ export const BulkDataImportModal: React.FC<BulkDataImportModalProps> = ({
               </p>
             </div>
           </div>
-          <button
+          <Button
             type="button"
             onClick={onClose}
             className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
           >
             <X className="w-5 h-5" />
-          </button>
+          </Button>
         </div>
 
         {/* Tab Controls */}
         <div className="grid grid-cols-2 border-b border-slate-200 dark:border-slate-800 text-center text-xs font-bold">
-          <button
+          <Button
             type="button"
             onClick={() => setActiveTab('paste')}
             className={`py-3 transition-colors cursor-pointer border-b-2 flex items-center justify-center gap-2 ${
@@ -209,8 +210,8 @@ export const BulkDataImportModal: React.FC<BulkDataImportModalProps> = ({
           >
             <FileSpreadsheet className="w-4 h-4" />
             <span>{isAr ? 'لصق أو رفع إكسيل / CSV' : 'Paste / Upload CSV'}</span>
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
             onClick={() => setActiveTab('templates')}
             className={`py-3 transition-colors cursor-pointer border-b-2 flex items-center justify-center gap-2 ${
@@ -221,7 +222,7 @@ export const BulkDataImportModal: React.FC<BulkDataImportModalProps> = ({
           >
             <Sparkles className="w-4 h-4 text-cyan-400" />
             <span>{isAr ? 'قوالب سريعة جاهزة للنشاط' : 'Ready Industry Templates'}</span>
-          </button>
+          </Button>
         </div>
 
         {/* Modal Body */}
@@ -236,14 +237,14 @@ export const BulkDataImportModal: React.FC<BulkDataImportModalProps> = ({
                         ? 'انسخ الأعمدة من إكسيل والصقها هنا مباشرة:'
                         : 'Copy table cells from Excel and paste here:'}
                     </span>
-                    <button
+                    <Button
                       type="button"
                       onClick={handleDownloadSample}
                       className="text-xs text-cyan-600 dark:text-cyan-400 hover:underline flex items-center gap-1 cursor-pointer"
                     >
                       <Download className="w-3.5 h-3.5" />
                       <span>{isAr ? 'تحميل نموذج فارغ (CSV)' : 'Download Sample CSV'}</span>
-                    </button>
+                    </Button>
                   </div>
 
                   <textarea
@@ -259,14 +260,14 @@ export const BulkDataImportModal: React.FC<BulkDataImportModalProps> = ({
                   />
 
                   <div className="flex justify-end">
-                    <button
+                    <Button
                       type="button"
                       onClick={handleParseData}
                       disabled={!pastedText.trim()}
                       className="px-5 py-2 text-xs font-bold rounded-xl bg-cyan-600 hover:bg-cyan-500 disabled:opacity-40 text-white transition-colors cursor-pointer"
                     >
                       {isAr ? 'معاينة وفحص البيانات' : 'Preview & Validate'}
-                    </button>
+                    </Button>
                   </div>
                 </>
               ) : (
@@ -277,13 +278,13 @@ export const BulkDataImportModal: React.FC<BulkDataImportModalProps> = ({
                         ? `تم فحص ${parsedRows.length} صفاً (${parsedRows.filter((r) => r.isValid).length} سليم)`
                         : `Parsed ${parsedRows.length} rows (${parsedRows.filter((r) => r.isValid).length} valid)`}
                     </span>
-                    <button
+                    <Button
                       type="button"
                       onClick={() => setParsedRows([])}
                       className="text-xs text-slate-400 hover:text-rose-500 cursor-pointer"
                     >
                       {isAr ? 'إعادة اللصق' : 'Clear & Re-paste'}
-                    </button>
+                    </Button>
                   </div>
 
                   {/* Interactive Editable Preview Table */}
@@ -347,13 +348,13 @@ export const BulkDataImportModal: React.FC<BulkDataImportModalProps> = ({
                             </td>
                             <td className="p-2.5 font-mono">{row.wastePercentage}%</td>
                             <td className="p-2.5 text-end">
-                              <button
+                              <Button
                                 type="button"
                                 onClick={() => setParsedRows(parsedRows.filter((r) => r.id !== row.id))}
                                 className="p-1 rounded text-slate-400 hover:text-rose-500"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
-                              </button>
+                              </Button>
                             </td>
                           </tr>
                         ))}
@@ -362,13 +363,13 @@ export const BulkDataImportModal: React.FC<BulkDataImportModalProps> = ({
                   </div>
 
                   <div className="flex justify-end pt-2">
-                    <button
+                    <Button
                       type="button"
                       onClick={handleCommitImport}
                       className="px-6 py-2.5 text-xs font-bold rounded-xl bg-gradient-to-r from-cyan-400 to-emerald-400 text-slate-950 shadow-md cursor-pointer"
                     >
                       {isAr ? 'استيراد الصفوف السليمة للمخزن' : 'Import Valid Rows to Inventory'}
-                    </button>
+                    </Button>
                   </div>
                 </div>
               )}
@@ -393,14 +394,14 @@ export const BulkDataImportModal: React.FC<BulkDataImportModalProps> = ({
                       {isAr ? '٥ خامات أساسية + بيتزا وستيك ريب آي مع حسابات الـ BOM كاملة' : '5 ingredients + Pizza & Ribeye with full BOM'}
                     </span>
                   </div>
-                  <button
+                  <Button
                     type="button"
                     disabled={templateLoading !== null}
                     onClick={() => handleLoadStarterTemplate('restaurant')}
                     className="w-full py-2 px-3 text-xs font-bold rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white transition-colors cursor-pointer"
                   >
                     {templateLoading === 'restaurant' ? (isAr ? 'جارٍ التحميل...' : 'Loading...') : (isAr ? 'تطبيق قالب المطعم' : 'Apply Restaurant')}
-                  </button>
+                  </Button>
                 </div>
 
                 {/* Cafe */}
@@ -413,14 +414,14 @@ export const BulkDataImportModal: React.FC<BulkDataImportModalProps> = ({
                       {isAr ? 'بن مختص، حليب، ماتشا، سيروبات، فلات وايت، وإسبانش لاتيه' : 'Specialty espresso, milk, matcha, syrups, and latte'}
                     </span>
                   </div>
-                  <button
+                  <Button
                     type="button"
                     disabled={templateLoading !== null}
                     onClick={() => handleLoadStarterTemplate('cafe')}
                     className="w-full py-2 px-3 text-xs font-bold rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white transition-colors cursor-pointer"
                   >
                     {templateLoading === 'cafe' ? (isAr ? 'جارٍ التحميل...' : 'Loading...') : (isAr ? 'تطبيق قالب الكافيه' : 'Apply Cafe')}
-                  </button>
+                  </Button>
                 </div>
 
                 {/* Tourist Venue */}
@@ -433,14 +434,14 @@ export const BulkDataImportModal: React.FC<BulkDataImportModalProps> = ({
                       {isAr ? 'بوفيه إفطار، أسماك سلمون، كلوب ساندوتش، ومشروبات فندقية' : 'Buffet pass, salmon, club sandwich, and resort items'}
                     </span>
                   </div>
-                  <button
+                  <Button
                     type="button"
                     disabled={templateLoading !== null}
                     onClick={() => handleLoadStarterTemplate('tourist_venue')}
                     className="w-full py-2 px-3 text-xs font-bold rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white transition-colors cursor-pointer"
                   >
                     {templateLoading === 'tourist_venue' ? (isAr ? 'جارٍ التحميل...' : 'Loading...') : (isAr ? 'تطبيق قالب المنشأة السياحية' : 'Apply Resort')}
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>

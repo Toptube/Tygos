@@ -4,6 +4,7 @@
  */
 
 import React, { useState } from 'react';
+import { Button } from '../common/Button.tsx';
 import {
   Scale,
   TrendingDown,
@@ -61,14 +62,14 @@ export const CostControlModule: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-2">
-          <button
+          <Button
             onClick={() => setIsSimulationModalOpen(true)}
             className="px-3.5 py-2 text-xs font-semibold rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
           >
             <Sliders className="w-4 h-4" />
             <span>{isAr ? 'محاكاة التكلفة (What-If)' : 'Cost Simulation'}</span>
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={() => {
               setIsAssistantOpen(true);
               sendAssistantQuery(isAr ? 'ليه الـ Food Cost زاد؟' : 'Why did food cost increase?');
@@ -77,7 +78,7 @@ export const CostControlModule: React.FC = () => {
           >
             <Sparkles className="w-4 h-4 text-cyan-500" />
             <span>{isAr ? 'تحليل الذكاء التشغيلي' : 'AI Analysis'}</span>
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -136,7 +137,7 @@ export const CostControlModule: React.FC = () => {
 
           <div className="flex items-center gap-1.5 overflow-x-auto">
             {costCenters.map((cc) => (
-              <button
+              <Button
                 key={cc.code}
                 onClick={() => setSelectedCostCenter(cc.code)}
                 className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition-colors cursor-pointer whitespace-nowrap ${
@@ -146,7 +147,7 @@ export const CostControlModule: React.FC = () => {
                 }`}
               >
                 {cc.name}
-              </button>
+              </Button>
             ))}
           </div>
         </div>
@@ -253,7 +254,7 @@ export const CostControlModule: React.FC = () => {
                 <strong>{isAr ? 'الإجراء الرقابي الموصى به:' : 'Recommended Action:'}</strong>{' '}
                 {isAr ? selectedVariance.recommendedAuditActionAr : selectedVariance.recommendedAuditActionEn}
               </span>
-              <button
+              <Button
                 onClick={() => {
                   setIsAssistantOpen(true);
                   sendAssistantQuery(
@@ -265,7 +266,7 @@ export const CostControlModule: React.FC = () => {
                 className="px-2.5 py-1 rounded-md bg-cyan-600 text-white font-bold text-[10px] cursor-pointer hover:bg-cyan-500 shrink-0 ms-2"
               >
                 {isAr ? 'اسأل TYGOS' : 'Ask TYGOS'}
-              </button>
+              </Button>
             </div>
           </div>
         )}

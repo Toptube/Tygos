@@ -38,6 +38,12 @@ const PosModule = React.lazy(() =>
 const KitchenDisplaySystem = React.lazy(() =>
   import('./components/pos/KitchenDisplaySystem.tsx').then((m) => ({ default: m.KitchenDisplaySystem }))
 );
+const TablesManagementModule = React.lazy(() =>
+  import('./components/pos/TablesManagementModule.tsx').then((m) => ({ default: m.TablesManagementModule }))
+);
+const OrderTraceModule = React.lazy(() =>
+  import('./components/pos/OrderTraceModule.tsx').then((m) => ({ default: m.OrderTraceModule }))
+);
 const MenuManagementModule = React.lazy(() =>
   import('./components/menu/MenuManagementModule.tsx').then((m) => ({ default: m.MenuManagementModule }))
 );
@@ -58,6 +64,9 @@ const PurchasingModule = React.lazy(() =>
 );
 const FinanceModule = React.lazy(() =>
   import('./components/finance/FinanceModule.tsx').then((m) => ({ default: m.FinanceModule }))
+);
+const TreasuryAndShiftsModule = React.lazy(() =>
+  import('./components/finance/TreasuryAndShiftsModule.tsx').then((m) => ({ default: m.TreasuryAndShiftsModule }))
 );
 const TaxModule = React.lazy(() =>
   import('./components/tax/TaxModule.tsx').then((m) => ({ default: m.TaxModule }))
@@ -182,6 +191,10 @@ const AppContent: React.FC = () => {
         return <PosModule />;
       case 'kds':
         return <KitchenDisplaySystem />;
+      case 'tables_management':
+        return <TablesManagementModule onNavigate={setActiveView} />;
+      case 'order_trace':
+        return <OrderTraceModule onNavigate={setActiveView} />;
       case 'menu_management':
         return <MenuManagementModule />;
       case 'qr_tables':
@@ -196,6 +209,8 @@ const AppContent: React.FC = () => {
         return <PurchasingModule />;
       case 'finance':
         return <FinanceModule />;
+      case 'treasury':
+        return <TreasuryAndShiftsModule />;
       case 'tax':
         return <TaxModule />;
       case 'hr':

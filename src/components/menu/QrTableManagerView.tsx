@@ -8,6 +8,7 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
+import { Button } from '../common/Button.tsx';
 import {
   QrCode,
   Download,
@@ -140,14 +141,14 @@ export const QrTableManagerView: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-2">
-          <button
+          <Button
             type="button"
             onClick={handlePrintBatch}
             className="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 text-xs font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
           >
             <Printer className="w-4 h-4" />
             <span>{isAr ? 'طباعة كافة الملصقات (A4 / حراري)' : 'Print All Stickers'}</span>
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -164,23 +165,23 @@ export const QrTableManagerView: React.FC = () => {
           </h2>
           <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2 font-mono text-xs text-cyan-600 dark:text-cyan-300" dir="ltr">
             <span className="truncate">{getPublicMenuUrl(estCode)}</span>
-            <button
+            <Button
               type="button"
               onClick={() => handleCopy(getPublicMenuUrl(estCode))}
               className="p-1 rounded-lg text-slate-400 hover:text-white transition-colors cursor-pointer"
             >
               {copiedUrl === getPublicMenuUrl(estCode) ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
-            </button>
+            </Button>
           </div>
           <div className="flex items-center gap-2 pt-1">
-            <button
+            <Button
               type="button"
               onClick={() => handleDownloadPng(mainVenueQr, `tygos_menu_${estCode}`)}
               className="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5 transition-colors cursor-pointer"
             >
               <Download className="w-3.5 h-3.5 text-cyan-500" />
               <span>{isAr ? 'تنزيل PNG عالي الدقة' : 'Download PNG'}</span>
-            </button>
+            </Button>
             <a
               href={getPublicMenuUrl(estCode)}
               target="_blank"
@@ -266,22 +267,22 @@ export const QrTableManagerView: React.FC = () => {
 
             {/* Quick action buttons (Hidden on Print) */}
             <div className="print:hidden flex items-center gap-2 pt-2 border-t border-slate-200 w-full justify-center">
-              <button
+              <Button
                 type="button"
                 onClick={() => handleCopy(item.url)}
                 className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors"
                 title={isAr ? 'نسخ الرابط' : 'Copy URL'}
               >
                 {copiedUrl === item.url ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-              </button>
-              <button
+              </Button>
+              <Button
                 type="button"
                 onClick={() => handleDownloadPng(item.qrDataUrl, `table_${item.tableNumber}_qr`)}
                 className="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors"
                 title={isAr ? 'تنزيل كصورة' : 'Download PNG'}
               >
                 <Download className="w-3.5 h-3.5" />
-              </button>
+              </Button>
               <a
                 href={item.url}
                 target="_blank"

@@ -4,6 +4,7 @@
  */
 
 import React, { useState } from 'react';
+import { Button } from '../common/Button.tsx';
 import {
   X,
   BookOpen,
@@ -91,7 +92,7 @@ export const HelpCenterModal: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            <button
+            <Button
               type="button"
               onClick={() => {
                 setIsHelpOpen(false);
@@ -101,15 +102,15 @@ export const HelpCenterModal: React.FC = () => {
             >
               <Sparkles className="w-3.5 h-3.5" />
               <span>{isAr ? 'اسأل TYGOS' : 'Ask TYGOS AI'}</span>
-            </button>
+            </Button>
 
-            <button
+            <Button
               type="button"
               onClick={() => setIsHelpOpen(false)}
               className="p-2 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800 transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -128,7 +129,7 @@ export const HelpCenterModal: React.FC = () => {
 
           <div className="flex items-center gap-1.5 overflow-x-auto w-full py-1">
             {categories.map((c) => (
-              <button
+              <Button
                 key={c.id}
                 type="button"
                 onClick={() => setSelectedCategory(c.id)}
@@ -139,7 +140,7 @@ export const HelpCenterModal: React.FC = () => {
                 }`}
               >
                 {c.label}
-              </button>
+              </Button>
             ))}
           </div>
         </div>
@@ -156,7 +157,7 @@ export const HelpCenterModal: React.FC = () => {
               filteredArticles.map((art) => {
                 const isSelected = activeArticle?.id === art.id;
                 return (
-                  <button
+                  <Button
                     key={art.id}
                     type="button"
                     onClick={() => setSelectedHelpArticle(art)}
@@ -182,7 +183,7 @@ export const HelpCenterModal: React.FC = () => {
                     <p className="text-[11px] text-slate-400 mt-1 line-clamp-2 leading-relaxed">
                       {isAr ? art.summaryAr : art.summaryEn}
                     </p>
-                  </button>
+                  </Button>
                 );
               })
             )}
@@ -270,7 +271,7 @@ export const HelpCenterModal: React.FC = () => {
                     </span>
                   </div>
 
-                  <button
+                  <Button
                     type="button"
                     onClick={() => {
                       setIsHelpOpen(false);
@@ -280,7 +281,7 @@ export const HelpCenterModal: React.FC = () => {
                   >
                     <span>{isAr ? 'استفسر من المساعد حول هذا الدليل' : 'Ask TYGOS about this guide'}</span>
                     <ArrowIcon className="w-3.5 h-3.5" />
-                  </button>
+                  </Button>
                 </div>
               </>
             ) : (

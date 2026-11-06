@@ -4,6 +4,7 @@
  */
 
 import React, { useState } from 'react';
+import { Button } from '../common/Button.tsx';
 import {
   X,
   FileText,
@@ -72,7 +73,7 @@ export const AuditReportModal: React.FC = () => {
 
           <div className="flex items-center gap-2">
             <div className="flex p-1 bg-slate-950 rounded-lg border border-slate-800">
-              <button
+              <Button
                 onClick={() => setActiveTab('audit_trail')}
                 className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors cursor-pointer ${
                   activeTab === 'audit_trail'
@@ -81,8 +82,8 @@ export const AuditReportModal: React.FC = () => {
                 }`}
               >
                 {isAr ? 'سجل العمليات' : 'Audit Trail'}
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => setActiveTab('hr_incidents')}
                 className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors cursor-pointer ${
                   activeTab === 'hr_incidents'
@@ -91,8 +92,8 @@ export const AuditReportModal: React.FC = () => {
                 }`}
               >
                 {isAr ? 'وقائع الموارد البشرية' : 'HR Incidents'}
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => setActiveTab('pdf_preview')}
                 className={`px-3 py-1 text-xs font-semibold rounded-md transition-colors cursor-pointer ${
                   activeTab === 'pdf_preview'
@@ -101,15 +102,15 @@ export const AuditReportModal: React.FC = () => {
                 }`}
               >
                 {isAr ? 'معاينة التقرير الرسمي' : 'Formal Report'}
-              </button>
+              </Button>
             </div>
 
-            <button
+            <Button
               onClick={() => setIsAuditReportModalOpen(false)}
               className="p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
-            </button>
+            </Button>
           </div>
         </div>
 
@@ -296,13 +297,13 @@ export const AuditReportModal: React.FC = () => {
 
               <div className="pt-4 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500">
                 <span>Certified by: Tygos Ecosystem Security Master</span>
-                <button
+                <Button
                   onClick={handlePrint}
                   className="px-4 py-2 bg-slate-900 text-white rounded-lg font-bold flex items-center gap-2 hover:bg-slate-800 cursor-pointer"
                 >
                   <Printer className="w-4 h-4" />
                   <span>{isAr ? 'طباعة / حفظ PDF' : 'Print / Export PDF'}</span>
-                </button>
+                </Button>
               </div>
             </div>
           )}

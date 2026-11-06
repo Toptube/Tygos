@@ -8,6 +8,7 @@
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
+import { Button } from '../common/Button.tsx';
 import { X, Plus, ChevronDown, ChevronUp, AlertCircle, Check, Sparkles, Scale } from 'lucide-react';
 import { useI18n } from '../../i18n/I18nContext.tsx';
 import { dataService, RawMaterialItem } from '../../services/dataService.ts';
@@ -176,13 +177,13 @@ export const AddIngredientQuickModal: React.FC<AddIngredientQuickModalProps> = (
               </p>
             </div>
           </div>
-          <button
+          <Button
             type="button"
             onClick={onClose}
             className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
           >
             <X className="w-4 h-4" />
-          </button>
+          </Button>
         </div>
 
         {/* Success toast inside modal */}
@@ -315,7 +316,7 @@ export const AddIngredientQuickModal: React.FC<AddIngredientQuickModalProps> = (
             </span>
             <div className="flex flex-wrap gap-1.5">
               {wastePresets.map((wp) => (
-                <button
+                <Button
                   key={wp.val}
                   type="button"
                   onClick={() => setWastePercentage(wp.val.toString())}
@@ -326,21 +327,21 @@ export const AddIngredientQuickModal: React.FC<AddIngredientQuickModalProps> = (
                   }`}
                 >
                   {isAr ? wp.labelAr : wp.labelEn}
-                </button>
+                </Button>
               ))}
             </div>
           </div>
 
           {/* Collapsible Advanced Options Toggle */}
           <div className="pt-2 border-t border-slate-200 dark:border-slate-800">
-            <button
+            <Button
               type="button"
               onClick={() => setShowAdvanced(!showAdvanced)}
               className="w-full flex items-center justify-between text-xs font-bold text-slate-600 dark:text-slate-400 hover:text-cyan-500 transition-colors cursor-pointer py-1"
             >
               <span>{isAr ? 'خيارات إضافية (وحدة الاستهلاك، المورد، حد الطلب)' : 'Advanced Options (Consumption Unit, Supplier, Reorder)'}</span>
               {showAdvanced ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-            </button>
+            </Button>
 
             {showAdvanced && (
               <div className="mt-3 space-y-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 animate-fade-in">
@@ -418,30 +419,30 @@ export const AddIngredientQuickModal: React.FC<AddIngredientQuickModalProps> = (
 
         {/* Modal Footer */}
         <div className="p-4 sm:p-5 border-t border-slate-200 dark:border-slate-800 flex items-center justify-between gap-2 bg-slate-50 dark:bg-slate-900/50">
-          <button
+          <Button
             type="button"
             onClick={onClose}
             className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors cursor-pointer"
           >
             {t('common.cancel', 'Cancel')}
-          </button>
+          </Button>
 
           <div className="flex items-center gap-2">
-            <button
+            <Button
               type="button"
               onClick={() => handleSave(true)}
               className="px-3.5 py-2 text-xs font-bold rounded-xl border border-cyan-500/40 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-500/10 transition-colors cursor-pointer"
             >
               {isAr ? 'حفظ وإضافة أخرى' : 'Save & Add Another'}
-            </button>
+            </Button>
 
-            <button
+            <Button
               type="button"
               onClick={() => handleSave(false)}
               className="px-4 py-2 text-xs font-bold rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 shadow-md shadow-cyan-900/30 transition-all cursor-pointer"
             >
               {isAr ? 'حفظ الخامة' : 'Save Raw Material'}
-            </button>
+            </Button>
           </div>
         </div>
       </div>
