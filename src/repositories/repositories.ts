@@ -551,6 +551,14 @@ export class UiPreferencesRepository {
     this.adapter.setItemSync('tygos_digit_style', style);
   }
 
+  public getHideAssistant(): boolean {
+    return this.adapter.getItemSync('tygos_hide_assistant_button') === 'true';
+  }
+
+  public setHideAssistant(hide: boolean): void {
+    this.adapter.setItemSync('tygos_hide_assistant_button', hide ? 'true' : 'false');
+  }
+
   public getStorageUsageBytes(): number {
     let totalBytes = 0;
     for (const key of this.adapter.keysSync()) {

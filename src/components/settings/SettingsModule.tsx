@@ -52,6 +52,9 @@ export const SettingsModule: React.FC = () => {
   const [digitStyle, setDigitStyle] = useState<'western' | 'eastern'>(() =>
     uiPreferencesRepository.getDigitStyle()
   );
+  const [hideAssistant, setHideAssistant] = useState(() =>
+    uiPreferencesRepository.getHideAssistant()
+  );
   const [taxStandard, setTaxStandard] = useState('14.0');
   const [taxReduced, setTaxReduced] = useState('5.0');
   const [serviceCharge, setServiceCharge] = useState('12.0');
@@ -344,6 +347,30 @@ export const SettingsModule: React.FC = () => {
               ٠-٩
             </Button>
           </div>
+        </div>
+
+        <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+          <div>
+            <div className="text-xs font-bold text-slate-800 dark:text-slate-200">
+              {isAr ? 'إخفاء الزر العائم للمساعد مؤقتاً' : 'Temporarily Hide Floating Assistant'}
+            </div>
+            <div className="text-[11px] text-slate-500">
+              {isAr ? 'إخفاء الزر الدائري للمساعد من فوق الشاشات لتوسيع مساحة الرؤية' : 'Hide floating assistant circle to maximize screen space'}
+            </div>
+          </div>
+          <Button
+            type="button"
+            size="sm"
+            variant={hideAssistant ? 'primary' : 'outline'}
+            selected={hideAssistant}
+            onClick={() => {
+              const next = !hideAssistant;
+              setHideAssistant(next);
+              uiPreferencesRepository.setHideAssistant(next);
+            }}
+          >
+            {hideAssistant ? (isAr ? 'مخفي' : 'Hidden') : (isAr ? 'ظاهر' : 'Visible')}
+          </Button>
         </div>
       </div>
 

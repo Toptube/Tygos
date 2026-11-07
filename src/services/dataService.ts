@@ -120,7 +120,11 @@ export interface MenuItemProduct {
   laborHourlyRate: number;
   wasteLossBuffer: number;
   utilitiesCost: number;
-  consumablesCost: number;
+  prepStation?: string;
+  isExample?: boolean;
+  servingsYield?: number;
+  packagingItems?: Array<{ id: string; nameAr: string; cost: number }>;
+  auditHistory?: Array<{ timestamp: string; user: string; action: string; details: string }>;
   variants?: Array<{ id: string; nameAr: string; nameEn: string; priceMultiplier: number; price: number }>;
   createdAt: string;
   updatedAt: string;
@@ -262,7 +266,7 @@ class DataService {
 
     list.unshift(newItem);
     await this.saveRawMaterials(estId, list);
-    await this.logAudit(estId, 'إضافة خامة', `تمت إضافة خامة جديدة [${newItem.nameAr}] بسعر $${newItem.purchasePrice}`, 'inventory');
+    await this.logAudit(estId, 'إضافة خامة', `تمت إضافة خامة جديدة [${newItem.nameAr}] بسعر ${newItem.purchasePrice} ج.م`, 'inventory');
     return newItem;
   }
 
@@ -349,8 +353,70 @@ class DataService {
 
     list.unshift(newProduct);
     await this.saveProducts(estId, list);
-    await this.logAudit(estId, 'إضافة منتج ووصفة', `تم إنشاء الصنف [${newProduct.nameAr}] بتكلفة $${trueCost} وسعر $${newProduct.sellingPrice}`, 'menu');
+    await this.logAudit(estId, 'إضافة منتج ووصفة', `تم إنشاء الصنف [${newProduct.nameAr}] بتكلفة ${trueCost.toFixed(2)} ج.م وسعر ${newProduct.sellingPrice.toFixed(2)} ج.م`, 'menu');
     return newProduct;
+  }
+
+  async updateProduct(estId: string, updated: MenuItemProduct): Promise<void> {
+    const list = await this.getProducts(estId);
+    const index = list.findIndex((p) => p.id === updated.id);
+    if (index >= 0) {
+      // Recalculate true cost and margins
+      const rawCost = (updated.recipeIngredients || []).reduce((sum, item) => sum + item.totalCost, 0);
+      const pkgCost = (updated.packagingItems || []).reduce((sum, item) => sum + item.cost, 0);
+      const portions = Math.max(1, updated.servingsYield || 1);
+
+      const costResult = calculateRecipeTrueCost({
+        rawIngredientsCost: rawCost,
+        wasteLossBuffer: updated.wasteLossBuffer || 0,
+        packagingCost: pkgCost + (updated.consumablesCost || 0),
+        directLaborMinutes: updated.directLaborMinutes || 0,
+        laborHourlyRate: updated.laborHourlyRate || 15,
+        utilitiesAllocation: {
+          gas: (updated.utilitiesCost || 0) * 0.4,
+          electricity: (updated.utilitiesCost || 0) * 0.4,
+          water: (updated.utilitiesCost || 0) * 0.2,
+        },
+        portionsYield: portions,
+      });
+
+      const trueCost = costResult.costPerPortion;
+      const foodCostPct = calculateFoodCostPercentage(trueCost, updated.sellingPrice);
+      const grossMarginPct = calculateGrossMargin(updated.sellingPrice, trueCost);
+      const suggestedPrice = calculateSuggestedSellingPrice(trueCost, updated.targetMarginPercentage || 70);
+
+      list[index] = {
+        ...updated,
+        trueCost,
+        foodCostPercentage: foodCostPct,
+        grossMarginPercentage: grossMarginPct,
+        suggestedPrice,
+        updatedAt: new Date().toISOString(),
+      };
+      await this.saveProducts(estId, list);
+      await this.logAudit(estId, 'تعديل طبق', `تم تعديل بيانات ووصفة الصنف [${updated.nameAr}]`, 'menu');
+    }
+  }
+
+  async deleteProduct(estId: string, productId: string): Promise<MenuItemProduct | null> {
+    const list = await this.getProducts(estId);
+    const index = list.findIndex((p) => p.id === productId);
+    if (index >= 0) {
+      const removed = list.splice(index, 1)[0];
+      await this.saveProducts(estId, list);
+      await this.logAudit(estId, 'حذف طبق', `تم حذف الصنف [${removed.nameAr}]`, 'menu');
+      return removed;
+    }
+    return null;
+  }
+
+  async clearExampleProducts(estId: string): Promise<number> {
+    const list = await this.getProducts(estId);
+    const nonExamples = list.filter((p) => !p.isExample);
+    const removedCount = list.length - nonExamples.length;
+    await this.saveProducts(estId, nonExamples);
+    await this.logAudit(estId, 'حذف الأمثلة التجريبية', `تم حذف ${removedCount} من الأمثلة التجريبية للبدء من الصفر`, 'menu');
+    return removedCount;
   }
 
   // --- CASHIER SHIFTS ---
@@ -407,7 +473,7 @@ class DataService {
     await this.logAudit(
       estId,
       'إغلاق وردية كاشير (تقرير Z)',
-      `تم إغلاق الوردية برقم تقرير [${closedShift.zReportNumber}] بإجمالي مبيعات $${closedShift.totalSales}`,
+      `تم إغلاق الوردية برقم تقرير [${closedShift.zReportNumber}] بإجمالي مبيعات ${closedShift.totalSales} ج.م`,
       'pos'
     );
 

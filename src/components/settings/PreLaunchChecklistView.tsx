@@ -121,6 +121,16 @@ const CHECKLIST_STEPS: ChecklistStep[] = [
     icon: <Users className="w-5 h-5 text-cyan-600 dark:text-cyan-400" />,
   },
   {
+    id: 'recipe_journey',
+    categoryAr: 'رحلة الخامة للمنتج',
+    categoryEn: 'Raw Material to Product Journey',
+    titleAr: 'فحص رحلة الخامة من الشراء للوصفة للبيع للأرباح',
+    titleEn: 'Verify Journey: Material to Recipe to Sale to Profit',
+    descAr: 'أضف خامة بسعر شراء، اربطها بوصفة طبق بنسبة هالك، اعرض الطبق للبيع، ونفّذ بيعاً من الكاشير وتأكد من خصم المخزون وظهور هامش الربح الحقيقي.',
+    descEn: 'Add raw material, link to recipe with waste %, mark dish ready for sale, sell via POS, and verify stock depletion and true margin calculation.',
+    icon: <ShoppingBag className="w-5 h-5 text-emerald-500" />,
+  },
+  {
     id: 'privacy_anonymize',
     categoryAr: 'الخصوصية',
     categoryEn: 'Privacy',

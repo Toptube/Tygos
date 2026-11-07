@@ -68,31 +68,31 @@ export const SCREEN_GLOSSARY: Record<string, GlossaryEntry> = {
   },
   menu: {
     id: 'menu',
-    titleAr: 'المنيو والوصفات',
-    subtitleAr: 'ربط كل وجبة بمكوناتها وحساب تكلفتها الحقيقية',
-    titleEn: 'Menu & Recipes',
-    subtitleEn: 'Link dishes to ingredients and calculate true cost',
+    titleAr: 'الأطباق والوصفات',
+    subtitleAr: 'ربط كل طبق بمكوناته وحساب تكلفته وسعر بيعه',
+    titleEn: 'Dishes & Recipes',
+    subtitleEn: 'Link dishes to ingredients, calculate costs and selling prices',
   },
   cost_control: {
     id: 'cost_control',
     titleAr: 'مراقبة التكاليف',
-    subtitleAr: 'متابعة هوامش الربح والفرق بين الصرف الفعلي والنظري',
+    subtitleAr: 'متابعة هوامش الربح والفرق بين الصرف الفعلي والمفروض',
     titleEn: 'Cost Control',
-    subtitleEn: 'Track profit margins and ingredient usage variance',
+    subtitleEn: 'Track profit margins and actual vs expected ingredient usage',
   },
   inventory: {
     id: 'inventory',
-    titleAr: 'المخزون والخامات',
+    titleAr: 'الخامات والمخزون',
     subtitleAr: 'متابعة أرصدة الخامات وتنبيهات قرب النفاد والجرد',
-    titleEn: 'Inventory',
+    titleEn: 'Raw Materials & Stock',
     subtitleEn: 'Track raw material stock, low-stock alerts, and counts',
   },
   purchasing: {
     id: 'purchasing',
-    titleAr: 'المشتريات والموردين',
-    subtitleAr: 'تسجيل فواتير الشراء ومتابعة أسعار الموردين',
-    titleEn: 'Purchasing',
-    subtitleEn: 'Record purchase invoices and track supplier prices',
+    titleAr: 'النواقص والتوريد',
+    subtitleAr: 'تسجيل فواتير الشراء وطلب النواقص من الموردين',
+    titleEn: 'Suppliers & Purchasing',
+    subtitleEn: 'Record purchase invoices and restock orders from suppliers',
   },
   treasury: {
     id: 'treasury',
@@ -191,18 +191,19 @@ export interface JourneyStepGlossary {
   stepNumber: number;
   titleAr: string;
   titleEn: string;
+  descAr: string;
+  descEn: string;
   targetView: string;
 }
 
 export const ORDER_JOURNEY_STEPS: JourneyStepGlossary[] = [
-  { stepNumber: 1, titleAr: 'البيع', titleEn: 'Sale', targetView: 'pos' },
-  { stepNumber: 2, titleAr: 'الوصفة', titleEn: 'Recipe', targetView: 'menu' },
-  { stepNumber: 3, titleAr: 'المخزون', titleEn: 'Stock', targetView: 'inventory' },
-  { stepNumber: 4, titleAr: 'التوريد', titleEn: 'Supply', targetView: 'purchasing' },
-  { stepNumber: 5, titleAr: 'التكلفة', titleEn: 'Cost', targetView: 'cost_control' },
-  { stepNumber: 6, titleAr: 'الحسابات', titleEn: 'Accounts', targetView: 'finance' },
-  { stepNumber: 7, titleAr: 'الأرباح', titleEn: 'Profit', targetView: 'finance' },
-  { stepNumber: 8, titleAr: 'المساعد', titleEn: 'Assistant', targetView: 'assistant' },
+  { stepNumber: 1, titleAr: 'الخامات', titleEn: 'Raw Materials', descAr: 'سجّل ما تشتريه (اسم، وحدة، سعر)', descEn: 'Record what you purchase (name, unit, price)', targetView: 'inventory' },
+  { stepNumber: 2, titleAr: 'الأطباق والمشروبات', titleEn: 'Dishes & Drinks', descAr: 'أضف الطبق (اسم، قسم، سعر البيع)', descEn: 'Add dish (name, section, selling price)', targetView: 'menu' },
+  { stepNumber: 3, titleAr: 'الوصفة', titleEn: 'Recipe', descAr: 'حدد مكونات الطبق وكمياتها من الخامات', descEn: 'Set recipe ingredient quantities from stock', targetView: 'menu' },
+  { stepNumber: 4, titleAr: 'السعر والربح', titleEn: 'Price & Profit', descAr: 'يظهر التكلفة والربح وسعر البيع المقترح', descEn: 'View true cost, profit, and suggested price', targetView: 'menu' },
+  { stepNumber: 5, titleAr: 'عرضه للبيع', titleEn: 'Ready for Sale', descAr: 'يظهر في الكاشير والمنيو بعد التأكيد', descEn: 'Available in POS and Menu after confirmation', targetView: 'menu_management' },
+  { stepNumber: 6, titleAr: 'البيع', titleEn: 'POS Sale', descAr: 'يخصم من الخامات ويسجل الإيراد', descEn: 'Depletes stock and records revenue', targetView: 'pos' },
+  { stepNumber: 7, titleAr: 'المتابعة', titleEn: 'Track & Profits', descAr: 'تقارير الأرباح والمخزون المتبقي', descEn: 'Profit reports and remaining stock overview', targetView: 'finance' },
 ];
 
 /**

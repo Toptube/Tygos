@@ -359,6 +359,10 @@ interface BusinessContextType {
   rawMaterials: RawMaterialItem[];
   menuProducts: MenuItemProduct[];
   refreshMaterialsAndProducts: () => Promise<void>;
+  updateProduct: (updated: MenuItemProduct) => Promise<void>;
+  deleteProduct: (productId: string) => Promise<void>;
+  clearExampleProducts: () => Promise<number>;
+  updateRawMaterial: (updated: RawMaterialItem) => Promise<void>;
 }
 
 const BusinessContext = createContext<BusinessContextType | undefined>(undefined);
@@ -384,6 +388,27 @@ export const BusinessProvider: React.FC<{ children: React.ReactNode }> = ({
     } catch {
       // Fallback
     }
+  };
+
+  const updateProduct = async (updated: MenuItemProduct) => {
+    await dataService.updateProduct(estId, updated);
+    await refreshMaterialsAndProducts();
+  };
+
+  const deleteProduct = async (productId: string) => {
+    await dataService.deleteProduct(estId, productId);
+    await refreshMaterialsAndProducts();
+  };
+
+  const clearExampleProducts = async () => {
+    const count = await dataService.clearExampleProducts(estId);
+    await refreshMaterialsAndProducts();
+    return count;
+  };
+
+  const updateRawMaterial = async (updated: RawMaterialItem) => {
+    await dataService.updateRawMaterial(estId, updated);
+    await refreshMaterialsAndProducts();
   };
 
   useEffect(() => {
@@ -784,6 +809,10 @@ export const BusinessProvider: React.FC<{ children: React.ReactNode }> = ({
         rawMaterials,
         menuProducts,
         refreshMaterialsAndProducts,
+        updateProduct,
+        deleteProduct,
+        clearExampleProducts,
+        updateRawMaterial,
       }}
     >
       {children}

@@ -25,6 +25,7 @@ import { useBusiness } from '../../context/BusinessContext.tsx';
 import { MOCK_TABLES } from '../../data/mockData.ts';
 import { ORDER_JOURNEY_STEPS, getScreenTitle, getScreenSubtitle } from '../../i18n/glossary.ts';
 import { QrOperationsReport } from '../reports/QrOperationsReport.tsx';
+import { JourneyProgressBar } from '../costcontrol/JourneyProgressBar.tsx';
 
 export const TenantDashboard: React.FC = () => {
   const { currentUser, currentEstablishment, setActiveView } = useAuth();
@@ -64,6 +65,9 @@ export const TenantDashboard: React.FC = () => {
             : 'Quick summary of your restaurant’s activity today'}
         </p>
       </section>
+
+      {/* 7-Step Journey Interactive Bar with Live Counters */}
+      <JourneyProgressBar currentStep={1} />
 
       {/* 2. «ماذا أفعل الآن؟» */}
       <section

@@ -210,7 +210,9 @@ export const DraggableAssistantLauncher: React.FC<DraggableAssistantLauncherProp
     }
   };
 
-  if (isOpen || !position) return null;
+  const isHidden = uiPreferencesRepository.getHideAssistant();
+
+  if (isOpen || !position || isHidden) return null;
 
   return (
     <div
@@ -247,7 +249,7 @@ export const DraggableAssistantLauncher: React.FC<DraggableAssistantLauncherProp
       }}
     >
       <div className="relative group">
-        <div className="relative w-11 h-11 rounded-xl bg-white/95 dark:bg-slate-900/95 border border-slate-300 dark:border-slate-700 p-1.5 flex items-center justify-center shadow-lg opacity-75 hover:opacity-100 focus-within:opacity-100 transition-all">
+        <div className="relative w-11 h-11 rounded-xl bg-white/95 dark:bg-slate-900/95 border border-slate-300 dark:border-slate-700 p-1.5 flex items-center justify-center shadow-lg opacity-50 hover:opacity-100 focus-within:opacity-100 transition-opacity">
           <img
             src={TYGOS_LOGO_SRC}
             alt="TYGOS"
