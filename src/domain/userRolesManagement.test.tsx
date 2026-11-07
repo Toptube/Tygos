@@ -161,7 +161,15 @@ test('User Inspection: Clicking a user card opens details, permissions checklist
   fireEvent.click(passTab);
 
   assert.ok(screen.getByText(/صلاحية تغيير كلمة المرور المباشرة/));
-  assert.ok(screen.getByRole('button', { name: /تعيين PIN للكاشير: 1234/ }));
+  const genPinBtn = screen.getByTestId('generate-fast-pin-button');
+  assert.ok(genPinBtn);
+  fireEvent.click(genPinBtn);
+
+  // One-time PIN banner appears
+  assert.ok(screen.getByTestId('one-time-pin-banner'));
+  const pinVal = screen.getByTestId('one-time-pin-value').textContent?.trim();
+  assert.equal(pinVal?.length, 6, 'Generated PIN must be 6 digits');
+  assert.notEqual(pinVal, '1234', 'PIN must never be static 1234');
 });
 
 // 6. Dynamic Screen Visibility in Navigation upon Login

@@ -88,6 +88,9 @@ export interface User {
   permittedViews?: string[];
   customPermissions?: string[];
   password?: string;
+  passwordHash?: string;
+  passwordSalt?: string;
+  mustChangePasswordOnLogin?: boolean;
   status?: 'active' | 'suspended';
   createdAt?: string;
   updatedAt?: string;

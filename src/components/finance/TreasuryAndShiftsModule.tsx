@@ -29,6 +29,7 @@ import {
 } from '../../services/shiftTreasuryService.ts';
 import { formatMoney } from '../../utils/formatters.ts';
 import { domainEvents } from '../../events/domainEvents.ts';
+import { can } from '../../services/permissions.ts';
 
 export const TreasuryAndShiftsModule: React.FC = () => {
   const { currentEstablishment, currentUser } = useAuth();
@@ -37,10 +38,16 @@ export const TreasuryAndShiftsModule: React.FC = () => {
   const estId = currentEstablishment?.id || 'default';
   const currency = currentEstablishment?.currency || 'EGP';
 
-  const [tab, setTab] = useState<'treasury' | 'shifts'>('treasury');
+  const isCashier = currentUser?.role === 'cashier';
+  const canViewVault = can(currentUser?.role, 'treasury:view_vault');
+  const canViewAllShifts = can(currentUser?.role, 'shift:view_all');
+  const canDeposit = can(currentUser?.role, 'treasury:deposit');
+
+  const [tab, setTab] = useState<'treasury' | 'shifts'>(canViewVault ? 'treasury' : 'shifts');
   const [balance, setBalance] = useState(0);
   const [movements, setMovements] = useState<TreasuryMovement[]>([]);
   const [shifts, setShifts] = useState<ShiftRecord[]>([]);
+  const [activeShift, setActiveShift] = useState<ShiftRecord | null>(null);
   const [toast, setToast] = useState<string | null>(null);
 
   // Filters for Z-Reports
@@ -63,10 +70,42 @@ export const TreasuryAndShiftsModule: React.FC = () => {
   const [receiverName, setReceiverName] = useState('أمين الخزينة');
 
   const loadData = () => {
-    setBalance(shiftTreasuryService.getTreasuryBalance(estId));
-    setMovements(shiftTreasuryService.getTreasuryMovements(estId));
-    setShifts(shiftTreasuryService.getAllShifts(estId));
+    if (canViewVault) {
+      setBalance(shiftTreasuryService.getTreasuryBalance(estId));
+      setMovements(shiftTreasuryService.getTreasuryMovements(estId));
+    }
+
+    const curActive = shiftTreasuryService.getActiveShift(estId);
+    if (
+      curActive &&
+      (!isCashier ||
+        curActive.cashierUsername === currentUser?.username ||
+        curActive.cashierName === currentUser?.fullName)
+    ) {
+      setActiveShift(curActive);
+    } else {
+      setActiveShift(null);
+    }
+
+    const all = shiftTreasuryService.getAllShifts(estId);
+    if (!canViewAllShifts) {
+      // Cashier strictly sees only their own shifts
+      const myShifts = all.filter(
+        (s) =>
+          s.cashierUsername === currentUser?.username ||
+          s.cashierName === currentUser?.fullName
+      );
+      setShifts(myShifts);
+    } else {
+      setShifts(all);
+    }
   };
+
+  useEffect(() => {
+    if (!canViewVault && tab === 'treasury') {
+      setTab('shifts');
+    }
+  }, [canViewVault, tab]);
 
   useEffect(() => {
     loadData();
@@ -76,7 +115,7 @@ export const TreasuryAndShiftsModule: React.FC = () => {
       unsub1();
       unsub2();
     };
-  }, [estId]);
+  }, [estId, currentUser?.role, currentUser?.username, canViewVault, canViewAllShifts]);
 
   const showNotice = (msg: string) => {
     setToast(msg);
@@ -164,42 +203,70 @@ export const TreasuryAndShiftsModule: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            variant="primary"
-            size="sm"
-            onClick={() => setShowTxModal(true)}
-            icon={<Plus className="w-4 h-4" />}
-          >
-            {isAr ? 'حركة خزينة' : 'Treasury Entry'}
-          </Button>
-        </div>
+        {canViewVault && (
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant="primary"
+              size="sm"
+              onClick={() => setShowTxModal(true)}
+              icon={<Plus className="w-4 h-4" />}
+              data-testid="record-treasury-tx-button"
+            >
+              {isAr ? 'حركة خزينة' : 'Treasury Entry'}
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* KPI Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4">
-          <div className="text-xs font-bold text-slate-500 dark:text-slate-400">
-            {isAr ? 'رصيد الخزينة الحالي' : 'Current Treasury Balance'}
+        {canViewVault ? (
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4" data-testid="treasury-vault-balance-card">
+            <div className="text-xs font-bold text-slate-500 dark:text-slate-400">
+              {isAr ? 'رصيد الخزينة الحالي' : 'Current Treasury Balance'}
+            </div>
+            <div className="text-2xl font-black font-mono text-emerald-600 dark:text-emerald-400 mt-1">
+              {formatMoney(balance, currency, language)}
+            </div>
           </div>
-          <div className="text-2xl font-black font-mono text-emerald-600 dark:text-emerald-400 mt-1">
-            {formatMoney(balance, currency, language)}
+        ) : (
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4" data-testid="cashier-drawer-card">
+            <div className="text-xs font-bold text-slate-500 dark:text-slate-400">
+              {isAr ? 'النقدية المتوقعة بدرج الوردية' : 'Expected Drawer Cash'}
+            </div>
+            <div className="text-2xl font-black font-mono text-emerald-600 dark:text-emerald-400 mt-1">
+              {formatMoney(activeShift?.expectedDrawerCash || 0, currency, language)}
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4">
           <div className="text-xs font-bold text-slate-500 dark:text-slate-400">
-            {isAr ? 'ورديات بانتظار التوريد' : 'Pending Shift Deposits'}
+            {isAr
+              ? canViewVault
+                ? 'ورديات بانتظار التوريد'
+                : 'مبيعات الكاش للوردية'
+              : canViewVault
+              ? 'Pending Shift Deposits'
+              : 'Shift Cash Sales'}
           </div>
           <div className="text-2xl font-black font-mono text-amber-600 dark:text-amber-400 mt-1">
-            {undepositedShifts.length}
+            {canViewVault
+              ? undepositedShifts.length
+              : formatMoney(activeShift?.cashSales || 0, currency, language)}
           </div>
         </div>
 
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4">
           <div className="text-xs font-bold text-slate-500 dark:text-slate-400">
-            {isAr ? 'إجمالي تقارير Z المغلقة' : 'Total Closed Z-Reports'}
+            {isAr
+              ? isCashier
+                ? 'إجمالي تقارير Z لوردياتي'
+                : 'إجمالي تقارير Z المغلقة'
+              : isCashier
+              ? 'My Closed Z-Reports'
+              : 'Total Closed Z-Reports'}
           </div>
           <div className="text-2xl font-black font-mono text-cyan-600 dark:text-cyan-400 mt-1">
             {closedShifts.length}
@@ -207,8 +274,65 @@ export const TreasuryAndShiftsModule: React.FC = () => {
         </div>
       </div>
 
+      {/* Cashier Active Shift Card */}
+      {isCashier && (
+        <div className="bg-white dark:bg-slate-900 border border-cyan-500/30 rounded-2xl p-4 space-y-3" data-testid="cashier-active-shift-card">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 dark:border-slate-800 pb-2">
+            <div>
+              <h3 className="text-sm font-black text-slate-900 dark:text-white flex items-center gap-2">
+                <span className={`w-2.5 h-2.5 rounded-full ${activeShift ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'}`} />
+                <span>
+                  {activeShift
+                    ? (isAr ? `وردية الكاشير الحالية: ${activeShift.zReportNumber}` : `Active Shift: ${activeShift.zReportNumber}`)
+                    : (isAr ? 'لا توجد وردية كاشير مفتوحة حالياً' : 'No active shift open')}
+                </span>
+              </h3>
+              <p className="text-[11px] text-slate-500 mt-0.5">
+                {isAr
+                  ? 'نطاق الكاشير مقتصر على فتح ورديتك وحركات درجك وإغلاقها وتسليمها، ولا يمكنك الاطلاع على رصيد الخزينة العامة للمنشأة.'
+                  : 'Cashier scope is restricted to your own shift drawer movements, without access to the general treasury safe.'}
+              </p>
+            </div>
+            {activeShift && (
+              <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-lg bg-emerald-500/10 text-emerald-600 shrink-0">
+                {isAr ? 'وردية قيد العمل' : 'Open'}
+              </span>
+            )}
+          </div>
+
+          {activeShift && (
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+              <div className="p-2 rounded-xl bg-slate-50 dark:bg-slate-950">
+                <span className="text-slate-400 block text-[10px]">{isAr ? 'عهدة البداية' : 'Opening Float'}</span>
+                <strong className="font-mono text-slate-900 dark:text-white">
+                  {formatMoney(activeShift.openingFloat, currency, language)}
+                </strong>
+              </div>
+              <div className="p-2 rounded-xl bg-slate-50 dark:bg-slate-950">
+                <span className="text-slate-400 block text-[10px]">{isAr ? 'مبيعات الكاش' : 'Cash Sales'}</span>
+                <strong className="font-mono text-emerald-600">
+                  {formatMoney(activeShift.cashSales, currency, language)}
+                </strong>
+              </div>
+              <div className="p-2 rounded-xl bg-slate-50 dark:bg-slate-950">
+                <span className="text-slate-400 block text-[10px]">{isAr ? 'الدرج المتوقع' : 'Drawer Cash'}</span>
+                <strong className="font-mono text-cyan-600 dark:text-cyan-400">
+                  {formatMoney(activeShift.expectedDrawerCash, currency, language)}
+                </strong>
+              </div>
+              <div className="p-2 rounded-xl bg-slate-50 dark:bg-slate-950">
+                <span className="text-slate-400 block text-[10px]">{isAr ? 'الطلبات' : 'Orders'}</span>
+                <strong className="font-mono text-slate-900 dark:text-white">
+                  {activeShift.ordersCount}
+                </strong>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Pending Undeposited Shifts Alert */}
-      {undepositedShifts.length > 0 && (
+      {canViewVault && undepositedShifts.length > 0 && (
         <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-800 rounded-2xl p-4 space-y-3">
           <div className="flex items-center gap-2 text-xs font-black text-amber-800 dark:text-amber-300">
             <AlertTriangle className="w-4 h-4" />
@@ -235,14 +359,16 @@ export const TreasuryAndShiftsModule: React.FC = () => {
                     </strong>
                   </div>
                 </div>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="primary"
-                  onClick={() => openDepositModal(s)}
-                >
-                  {isAr ? 'توريد للخزينة' : 'Deposit'}
-                </Button>
+                {canDeposit && (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="primary"
+                    onClick={() => openDepositModal(s)}
+                  >
+                    {isAr ? 'توريد للخزينة' : 'Deposit'}
+                  </Button>
+                )}
               </div>
             ))}
           </div>
@@ -251,16 +377,19 @@ export const TreasuryAndShiftsModule: React.FC = () => {
 
       {/* Tabs */}
       <div className="flex items-center gap-2">
-        <Button
-          type="button"
-          size="sm"
-          variant={tab === 'treasury' ? 'primary' : 'outline'}
-          selected={tab === 'treasury'}
-          onClick={() => setTab('treasury')}
-          icon={<Vault className="w-4 h-4" />}
-        >
-          {isAr ? 'سجل حركات الخزينة' : 'Treasury Ledger'}
-        </Button>
+        {canViewVault && (
+          <Button
+            type="button"
+            size="sm"
+            variant={tab === 'treasury' ? 'primary' : 'outline'}
+            selected={tab === 'treasury'}
+            onClick={() => setTab('treasury')}
+            icon={<Vault className="w-4 h-4" />}
+            data-testid="treasury-ledger-tab-button"
+          >
+            {isAr ? 'سجل حركات الخزينة' : 'Treasury Ledger'}
+          </Button>
+        )}
         <Button
           type="button"
           size="sm"
@@ -268,8 +397,15 @@ export const TreasuryAndShiftsModule: React.FC = () => {
           selected={tab === 'shifts'}
           onClick={() => setTab('shifts')}
           icon={<FileSpreadsheet className="w-4 h-4" />}
+          data-testid="shifts-tab-button"
         >
-          {isAr ? 'تقارير الورديات (Z-Reports)' : 'Shift Z-Reports'}
+          {isAr
+            ? isCashier
+              ? 'سجل وردياتي (تقارير Z)'
+              : 'تقارير الورديات (Z-Reports)'
+            : isCashier
+            ? 'My Shift Z-Reports'
+            : 'Shift Z-Reports'}
         </Button>
       </div>
 
@@ -423,13 +559,17 @@ export const TreasuryAndShiftsModule: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between pt-1 text-[11px]">
+                  <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100 dark:border-slate-800 text-[11px]">
+                    <span className="text-[10px] font-bold text-slate-500 border border-slate-200 dark:border-slate-800 px-2 py-0.5 rounded-md">
+                      {isAr ? 'مغلقة ومؤمنة (لا تعديل بعد الإغلاق)' : 'Locked & Immutable'}
+                    </span>
+
                     {s.depositedToTreasury ? (
                       <span className="text-emerald-600 font-bold">
                         ✓ {isAr ? 'تم التوريد للخزينة:' : 'Deposited:'}{' '}
                         <span className="font-mono">{s.treasuryReceiptNumber}</span>
                       </span>
-                    ) : (
+                    ) : canDeposit ? (
                       <Button
                         type="button"
                         size="sm"
@@ -438,10 +578,11 @@ export const TreasuryAndShiftsModule: React.FC = () => {
                       >
                         {isAr ? 'توريد للخزينة' : 'Deposit to Treasury'}
                       </Button>
+                    ) : (
+                      <span className="text-amber-600 text-[11px] font-bold">
+                        {isAr ? 'بانتظار تسليم العهدة لأمين الخزينة' : 'Pending treasury handover'}
+                      </span>
                     )}
-                    <span className="text-slate-400 font-mono">
-                      {s.ordersCount} {isAr ? 'طلبات' : 'orders'}
-                    </span>
                   </div>
                 </div>
               );

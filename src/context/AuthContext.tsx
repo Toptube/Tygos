@@ -8,6 +8,8 @@ import { DEMO_USERS, MOCK_ESTABLISHMENTS } from '../data/mockData.ts';
 import { BusinessType, Establishment, EstablishmentStatus, MaintenanceSession, User, UserRole } from '../types/index.ts';
 import { userRepository, settingsRepository } from '../repositories/repositories.ts';
 import { getDefaultViewsForRole } from '../i18n/glossary.ts';
+import { generateRandomPin6, generateRandomSalt, hashPassword } from '../services/authCrypto.ts';
+import { dataService } from '../services/dataService.ts';
 
 interface RegistrationData {
   ownerName: string;
@@ -54,7 +56,7 @@ interface AuthContextType {
   addUser: (userData: Omit<User, 'id'> & { password?: string }) => User;
   updateUser: (id: string, updates: Partial<User>) => void;
   deleteUser: (id: string) => boolean;
-  resetUserPassword: (userId: string, newPass: string) => boolean;
+  resetUserPassword: (userId: string, newPass: string, mustChangeOnLogin?: boolean) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -152,8 +154,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [currentUser, currentEstablishment, activeView]);
 
-  const addUser = (userData: Omit<User, 'id'> & { password?: string }): User => {
+  const addUser = (userData: Omit<User, 'id'> & { password?: string; mustChangePasswordOnLogin?: boolean }): User => {
     const estId = currentEstablishment?.id || 'est-1';
+    const rawPass = userData.password || generateRandomPin6();
+    const salt = generateRandomSalt();
+    const hash = hashPassword(rawPass, salt);
+
     const newUser: User = {
       ...userData,
       id: `usr-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
@@ -161,11 +167,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       establishmentCode: currentEstablishment?.code || 'R.0001',
       establishmentName: currentEstablishment?.name || 'السراب الملكي · مطعم راقٍ',
       permittedViews: userData.permittedViews || getDefaultViewsForRole(userData.role),
+      password: undefined, // Never store plaintext!
+      passwordHash: hash,
+      passwordSalt: salt,
+      mustChangePasswordOnLogin: userData.mustChangePasswordOnLogin ?? true,
       status: userData.status || 'active',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
     setUsers((prev) => [newUser, ...prev]);
+
+    dataService.logAudit(
+      estId,
+      'USER_CREATED',
+      `إنشاء حساب موظف جديد: [${newUser.fullName}] (@${newUser.username}) بدور [${newUser.role}]`,
+      'users',
+      currentUser?.username || 'admin',
+      currentUser?.role || 'tenant_admin'
+    );
+
     return newUser;
   };
 
@@ -188,15 +208,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (currentUser?.id === id) {
       return false; // Can't delete currently active user
     }
+    const target = users.find((u) => u.id === id);
     setUsers((prev) => prev.filter((u) => u.id !== id));
+    if (target) {
+      dataService.logAudit(
+        currentUser?.establishmentId || currentEstablishment?.id || 'default',
+        'USER_DELETED',
+        `حذف حساب الموظف [${target.fullName}] (@${target.username})`,
+        'users',
+        currentUser?.username || 'admin',
+        currentUser?.role || 'tenant_admin'
+      );
+    }
     return true;
   };
 
-  const resetUserPassword = (userId: string, newPass: string): boolean => {
+  const resetUserPassword = (userId: string, newPass: string, mustChangeOnLogin: boolean = false): boolean => {
+    const salt = generateRandomSalt();
+    const hash = hashPassword(newPass, salt);
+    let targetUser: User | undefined;
+
     setUsers((prev) =>
       prev.map((u) => {
         if (u.id === userId) {
-          const updated = { ...u, password: newPass, updatedAt: new Date().toISOString() };
+          targetUser = u;
+          const updated: User = {
+            ...u,
+            password: undefined, // Never store plaintext!
+            passwordHash: hash,
+            passwordSalt: salt,
+            mustChangePasswordOnLogin: mustChangeOnLogin,
+            updatedAt: new Date().toISOString(),
+          };
           if (currentUser?.id === userId) {
             setCurrentUser(updated);
           }
@@ -205,6 +248,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return u;
       })
     );
+
+    dataService.logAudit(
+      currentUser?.establishmentId || currentEstablishment?.id || 'default',
+      'USER_PASSWORD_RESET',
+      `إعادة تعيين كلمة المرور/PIN للمستخدم [${targetUser?.fullName || targetUser?.username || userId}] بواسطة [${currentUser?.fullName || 'Manager'}]${mustChangeOnLogin ? ' (إلزام بالتغيير عند أول دخول)' : ''}`,
+      'users',
+      currentUser?.username || 'admin',
+      currentUser?.role || 'tenant_admin'
+    );
+
     return true;
   };
 

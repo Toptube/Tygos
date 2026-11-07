@@ -56,6 +56,7 @@ import { useI18n } from '../../i18n/I18nContext.tsx';
 import { useToast } from '../../context/ToastContext.tsx';
 import { User, UserRole } from '../../types/index.ts';
 import { SCREEN_GLOSSARY, getDefaultViewsForRole, getScreenTitle } from '../../i18n/glossary.ts';
+import { generateRandomPin6 } from '../../services/authCrypto.ts';
 
 interface ScreenOption {
   id: string;
@@ -146,6 +147,8 @@ export const UserRolesManagementModule: React.FC = () => {
   const [editPermittedViews, setEditPermittedViews] = useState<string[]>([]);
   const [newDirectPassword, setNewDirectPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [oneTimePin, setOneTimePin] = useState<string | null>(null);
+  const [forceChangeOnLogin, setForceChangeOnLogin] = useState(true);
   const [activeTab, setActiveTab] = useState<'info' | 'permissions' | 'password'>('permissions');
 
   // Add User Modal State
@@ -201,6 +204,8 @@ export const UserRolesManagementModule: React.FC = () => {
     setEditPermittedViews(user.permittedViews || getDefaultViewsForRole(user.role));
     setNewDirectPassword('');
     setShowPassword(false);
+    setOneTimePin(null);
+    setForceChangeOnLogin(true);
     setActiveTab('permissions');
   };
 
@@ -234,8 +239,9 @@ export const UserRolesManagementModule: React.FC = () => {
       permittedViews: finalViews,
     });
 
-    if (newDirectPassword.trim()) {
-      resetUserPassword(editingUser.id, newDirectPassword.trim());
+    if (newDirectPassword.trim() || oneTimePin) {
+      const passToSet = oneTimePin || newDirectPassword.trim();
+      resetUserPassword(editingUser.id, passToSet, forceChangeOnLogin);
     }
 
     showToast({
@@ -248,7 +254,8 @@ export const UserRolesManagementModule: React.FC = () => {
   // Direct Password Reset
   const handleDirectPasswordReset = () => {
     if (!editingUser) return;
-    if (!newDirectPassword.trim() || newDirectPassword.trim().length < 4) {
+    const passToSet = oneTimePin || newDirectPassword.trim();
+    if (!passToSet || passToSet.length < 4) {
       showToast({
         title: isAr ? 'كلمة المرور يجب أن تكون 4 خانات على الأقل' : 'Password must be at least 4 characters',
         type: 'error',
@@ -256,9 +263,9 @@ export const UserRolesManagementModule: React.FC = () => {
       return;
     }
 
-    resetUserPassword(editingUser.id, newDirectPassword.trim());
+    resetUserPassword(editingUser.id, passToSet, forceChangeOnLogin);
     showToast({
-      title: isAr ? 'تم تغيير كلمة المرور بنجاح دون الحاجة للباسورد القديم' : 'Password changed successfully without old password',
+      title: isAr ? 'تم تعيين كلمة المرور بنجاح وتسجيل العملية في سجل الرقابة' : 'Password reset recorded in audit log successfully',
       type: 'success',
     });
     setNewDirectPassword('');
@@ -860,32 +867,108 @@ export const UserRolesManagementModule: React.FC = () => {
                 </div>
 
                 {/* Quick Presets */}
+                {/* One-Time PIN Banner */}
+                {oneTimePin && (
+                  <div className="p-3.5 rounded-xl border border-amber-500/40 bg-amber-500/10 space-y-2.5 animate-fade-in" data-testid="one-time-pin-banner">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-amber-800 dark:text-amber-300 flex items-center gap-1.5">
+                        <KeyRound className="w-3.5 h-3.5 text-amber-500" />
+                        <span>{isAr ? 'رمز PIN السريع (يظهر مرة واحدة فقط):' : 'One-Time Fast PIN:'}</span>
+                      </span>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-500 text-slate-950">
+                        {isAr ? 'إلزام بالتغيير' : 'Must Change'}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between bg-white dark:bg-slate-900 p-2.5 rounded-xl border border-amber-500/20">
+                      <span
+                        className="font-mono text-2xl font-black text-amber-600 dark:text-amber-400 tracking-widest"
+                        dir="ltr"
+                        data-testid="one-time-pin-value"
+                      >
+                        {oneTimePin}
+                      </span>
+                      <Button
+                        type="button"
+                        size="xs"
+                        variant="outline"
+                        onClick={() => {
+                          try {
+                            navigator.clipboard?.writeText(oneTimePin);
+                            showToast({
+                              title: isAr ? 'تم نسخ الرمز للحافظة' : 'PIN copied to clipboard',
+                              type: 'success',
+                            });
+                          } catch {}
+                        }}
+                      >
+                        <span>{isAr ? 'نسخ الرمز' : 'Copy'}</span>
+                      </Button>
+                    </div>
+
+                    <p className="text-[11px] text-amber-700 dark:text-amber-300 leading-relaxed">
+                      {isAr
+                        ? 'تنبيه أمان: هذا الرمز لن يُعرض مجدداً بعد إغلاق هذه النافذة. الموظف مُجبر على تغييره فور تسجيل دخوله.'
+                        : 'Security notice: This PIN will not be displayed again. The user must change it upon login.'}
+                    </p>
+                  </div>
+                )}
+
+                {/* Quick Presets */}
                 <div className="flex flex-wrap items-center gap-2 pt-1">
                   <Button
                     type="button"
-                    size="xs"
+                    size="sm"
                     variant="outline"
-                    onClick={() => setNewDirectPassword('1234')}
+                    onClick={() => {
+                      const pin = generateRandomPin6();
+                      setOneTimePin(pin);
+                      setNewDirectPassword(pin);
+                      setForceChangeOnLogin(true);
+                    }}
+                    data-testid="generate-fast-pin-button"
+                    className="border-amber-500/40 text-amber-600 dark:text-amber-400 font-bold"
                   >
-                    {isAr ? 'تعيين PIN للكاشير: 1234' : 'Cashier PIN: 1234'}
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>{isAr ? 'تعيين PIN سريع (6 خانات عشوائي)' : 'Fast 6-Digit Random PIN'}</span>
                   </Button>
                   <Button
                     type="button"
-                    size="xs"
+                    size="sm"
                     variant="outline"
-                    onClick={() => setNewDirectPassword(`Pass#${Math.floor(1000 + Math.random() * 9000)}`)}
+                    onClick={() => {
+                      const rand = `Pass#${Math.floor(100000 + Math.random() * 900000)}`;
+                      setOneTimePin(null);
+                      setNewDirectPassword(rand);
+                    }}
                   >
-                    {isAr ? 'توليد كلمة سر عشوائية' : 'Generate Random'}
+                    <span>{isAr ? 'توليد كلمة سر عشوائية' : 'Generate Random Password'}</span>
                   </Button>
                 </div>
+
+                {/* Force Change on Login Checkbox */}
+                <label className="flex items-center gap-2 cursor-pointer pt-2 text-xs font-semibold text-slate-700 dark:text-slate-300">
+                  <input
+                    type="checkbox"
+                    checked={forceChangeOnLogin}
+                    onChange={(e) => setForceChangeOnLogin(e.target.checked)}
+                    className="rounded border-slate-300 text-cyan-600 focus:ring-cyan-500"
+                  />
+                  <span>
+                    {isAr
+                      ? 'إجبار الموظف على تغيير كلمة المرور عند أول تسجيل دخول'
+                      : 'Force user to change password on first login'}
+                  </span>
+                </label>
 
                 <Button
                   type="button"
                   variant="primary"
                   size="md"
                   onClick={handleDirectPasswordReset}
-                  disabled={!newDirectPassword.trim()}
+                  disabled={!newDirectPassword.trim() && !oneTimePin}
                   className="w-full mt-2"
+                  data-testid="save-new-password-button"
                 >
                   <KeyRound className="w-4 h-4" />
                   <span>{isAr ? 'حفظ كلمة المرور الجديدة فوراً' : 'Save New Password Now'}</span>
@@ -980,14 +1063,25 @@ export const UserRolesManagementModule: React.FC = () => {
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
-                  {isAr ? 'كلمة المرور الابتدائية:' : 'Initial Password:'}
-                </label>
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block">
+                    {isAr ? 'كلمة المرور الابتدائية أو PIN:' : 'Initial Password or PIN:'}
+                  </label>
+                  <Button
+                    type="button"
+                    size="xs"
+                    variant="ghost"
+                    onClick={() => setNewPassword(generateRandomPin6())}
+                    className="text-cyan-600 dark:text-cyan-400 font-bold p-0 text-[10px]"
+                  >
+                    <span>{isAr ? 'توليد PIN عشوائي (6 خانات)' : 'Generate 6-Digit PIN'}</span>
+                  </Button>
+                </div>
                 <input
                   type="text"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder={isAr ? 'افتراضي: 123456 أو PIN' : 'Default: 123456'}
+                  placeholder={isAr ? 'أدخل كلمة مرور قوية أو ولّد PIN عشوائي' : 'Enter password or generate random PIN'}
                   dir="ltr"
                   className="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:border-cyan-500 font-mono"
                 />

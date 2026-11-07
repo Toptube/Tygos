@@ -111,6 +111,16 @@ const CHECKLIST_STEPS: ChecklistStep[] = [
     icon: <ShieldCheck className="w-5 h-5 text-teal-600 dark:text-teal-400" />,
   },
   {
+    id: 'user_roles_management',
+    categoryAr: 'أدوار المستخدمين والصلاحيات',
+    categoryEn: 'User Roles & Permissions',
+    titleAr: 'فحص شاشة إدارة المستخدمين وتخصيص الشاشات وتعيين PIN السريع',
+    titleEn: 'Verify User Roles Management, Screen Permissions & Fast PIN',
+    descAr: 'ادخل على شاشة «أدوار المستخدمين»، تأكد من ظهور الموظفين وتخصيص شاشاتهم، تجربة توليد PIN عشوائي من 6 خانات (يظهر مرة واحدة)، وتأكد من قصر الشاشة على القيادة وحجبها عن الكاشير.',
+    descEn: 'Open User Roles screen, verify staff listing, customize screen permissions, test random 6-digit one-time PIN generation, and ensure cashier cannot access.',
+    icon: <Users className="w-5 h-5 text-cyan-600 dark:text-cyan-400" />,
+  },
+  {
     id: 'privacy_anonymize',
     categoryAr: 'الخصوصية',
     categoryEn: 'Privacy',

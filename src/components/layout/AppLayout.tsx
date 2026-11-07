@@ -55,6 +55,7 @@ import { ThemeSwitcher } from '../common/ThemeSwitcher.tsx';
 import { ConnectivityStatus } from '../common/ConnectivityStatus.tsx';
 import { DraggableAssistantLauncher } from '../ai/DraggableAssistantLauncher.tsx';
 import { GuidedTourModal } from '../common/GuidedTourModal.tsx';
+import { MandatoryPasswordChangeModal } from '../common/MandatoryPasswordChangeModal.tsx';
 import { VoiceNavigatorButton } from '../common/VoiceNavigatorButton.tsx';
 import { UserRole } from '../../types/index.ts';
 
@@ -831,7 +832,8 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
         </main>
       </div>
 
-      {/* 4. Guided Tour Modal Component */}
+      {/* 4. Guided Tour Modal & Mandatory Password Change */}
+      <MandatoryPasswordChangeModal />
       <GuidedTourModal isOpen={isTourOpen} onClose={() => setIsTourOpen(false)} />
 
       {/* 5. Minimal Footer with Approved Logo & Live App URL */}

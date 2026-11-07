@@ -34,8 +34,10 @@ export type PermissionAction =
   | 'shift:open'
   | 'shift:close'
   | 'shift:view_all'
+  | 'shift:edit_closed'
   | 'treasury:deposit'
   | 'treasury:view'
+  | 'treasury:view_vault'
   | 'pos:cancel_sent_item'
   | 'pos:refund_paid_order'
   | 'order:trace'
@@ -153,6 +155,8 @@ const ROLE_PERMISSIONS: Record<UserRole, PermissionAction[]> = {
  */
 export function can(role: UserRole | undefined | null, action: PermissionAction): boolean {
   if (!role) return false;
+  // Closed shifts are immutable financial records - editing is forbidden across all roles
+  if (action === 'shift:edit_closed') return false;
   if (ADMIN_ROLES.includes(role)) return true;
   const allowed = ROLE_PERMISSIONS[role] || [];
   return allowed.includes(action);
