@@ -23,6 +23,7 @@ import {
   EyeOff,
   SunMoon,
   WifiOff,
+  FolderTree,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.tsx';
 import { useI18n } from '../../i18n/I18nContext.tsx';
@@ -129,6 +130,16 @@ const CHECKLIST_STEPS: ChecklistStep[] = [
     descAr: 'أضف خامة بسعر شراء، اربطها بوصفة طبق بنسبة هالك، اعرض الطبق للبيع، ونفّذ بيعاً من الكاشير وتأكد من خصم المخزون وظهور هامش الربح الحقيقي.',
     descEn: 'Add raw material, link to recipe with waste %, mark dish ready for sale, sell via POS, and verify stock depletion and true margin calculation.',
     icon: <ShoppingBag className="w-5 h-5 text-emerald-500" />,
+  },
+  {
+    id: 'recipes_and_categories_tree',
+    categoryAr: 'الوصفات والأقسام',
+    categoryEn: 'Recipes & Categories Tree',
+    titleAr: 'فحص شجرة الأقسام ومنع تكرار المنتجات والوصفات (رسبي)',
+    titleEn: 'Verify Categories Tree, Duplicate Prevention & Recipes',
+    descAr: 'تأكد من عمل شجرة الأقسام (رئيسي/فرعي/تصنيف) للمنتجات والخامات، ومنع حفظ صنفين بنفس الاسم في نفس القسم مع قبوله في قسم مختلف، وكتابة الأرقام بالإنجليزية والأرقام العربية المشرقية، وتأكيد الحذف مع التراجع 8 ثوان.',
+    descEn: 'Confirm 3-level category tree for products and materials, duplicate name prevention within same category, keyboard numeric inputs, and delete confirmation with 8s undo.',
+    icon: <FolderTree className="w-5 h-5 text-cyan-600 dark:text-cyan-400" />,
   },
   {
     id: 'privacy_anonymize',

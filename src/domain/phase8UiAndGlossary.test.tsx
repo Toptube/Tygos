@@ -210,8 +210,8 @@ test('TenantDashboard: Renders exact 6-section order, 8 Arabic journey steps, EG
   assert.ok(dashboard.textContent?.includes('4,680.50 ج.م'));
   assert.ok(dashboard.textContent?.includes('التنبيهات'));
 
-  // All 8 simplified Arabic journey steps present
-  assert.equal(ORDER_JOURNEY_STEPS.length, 8);
+  // All 7 simplified Arabic journey steps present
+  assert.equal(ORDER_JOURNEY_STEPS.length, 7);
   for (const step of ORDER_JOURNEY_STEPS) {
     assert.ok(s3.textContent?.includes(step.titleAr), `Missing journey step ${step.titleAr}`);
   }
@@ -263,7 +263,7 @@ test('DraggableAssistantLauncher: Renders compact 44px semi-transparent launcher
   const launcher = screen.getByTestId('floating-assistant-launcher');
   assert.ok(launcher.innerHTML.includes('w-11'));
   assert.ok(launcher.innerHTML.includes('h-11'));
-  assert.ok(launcher.innerHTML.includes('opacity-75'));
+  assert.ok(launcher.innerHTML.includes('opacity-50'));
 });
 
 console.log(`\n🎉 Phase 8 UI & Glossary Tests Passed: ${passed}/${passed}`);

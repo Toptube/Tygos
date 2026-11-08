@@ -1,6 +1,6 @@
 {
   "name": "Tygos",
-  "description": "منظومة TYGOS السحابية السيادية المتكاملة لإدارة المطاعم والكافيهات والمنشآت الفندقية والسياحية",
+  "description": "منظومة إدارة المطاعم والكافيهات والمنشآت الفندقية والسياحية",
   "requestFramePermissions": [],
   "majorCapabilities": [
     "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"

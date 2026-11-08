@@ -68,10 +68,24 @@ export const SCREEN_GLOSSARY: Record<string, GlossaryEntry> = {
   },
   menu: {
     id: 'menu',
-    titleAr: 'الأطباق والوصفات',
-    subtitleAr: 'ربط كل طبق بمكوناته وحساب تكلفته وسعر بيعه',
-    titleEn: 'Dishes & Recipes',
-    subtitleEn: 'Link dishes to ingredients, calculate costs and selling prices',
+    titleAr: 'الوصفات (رسبي)',
+    subtitleAr: 'بوابة كل منتجات المنشأة وحساب التكلفة الحقيقية للوصفة',
+    titleEn: 'Recipes (BOM)',
+    subtitleEn: 'Recipe gateway for all dishes, drinks, and true cost calculations',
+  },
+  products: {
+    id: 'products',
+    titleAr: 'المنتجات',
+    subtitleAr: 'استعراض كل المنتجات مرتبة حسب شجرة الأقسام وحالة البيع',
+    titleEn: 'Products',
+    subtitleEn: 'Catalog of all products grouped by category and sales status',
+  },
+  categories: {
+    id: 'categories',
+    titleAr: 'الأقسام',
+    subtitleAr: 'إدارة شجرة أقسام المنتجات والخامات والمستويات الفرعية',
+    titleEn: 'Categories',
+    subtitleEn: 'Manage product and material category trees and sub-levels',
   },
   cost_control: {
     id: 'cost_control',
@@ -198,10 +212,10 @@ export interface JourneyStepGlossary {
 
 export const ORDER_JOURNEY_STEPS: JourneyStepGlossary[] = [
   { stepNumber: 1, titleAr: 'الخامات', titleEn: 'Raw Materials', descAr: 'سجّل ما تشتريه (اسم، وحدة، سعر)', descEn: 'Record what you purchase (name, unit, price)', targetView: 'inventory' },
-  { stepNumber: 2, titleAr: 'الأطباق والمشروبات', titleEn: 'Dishes & Drinks', descAr: 'أضف الطبق (اسم، قسم، سعر البيع)', descEn: 'Add dish (name, section, selling price)', targetView: 'menu' },
+  { stepNumber: 2, titleAr: 'المنتجات', titleEn: 'Products', descAr: 'قائمة كل الأصناف حسب شجرة الأقسام', descEn: 'Browse all products by category tree', targetView: 'products' },
   { stepNumber: 3, titleAr: 'الوصفة', titleEn: 'Recipe', descAr: 'حدد مكونات الطبق وكمياتها من الخامات', descEn: 'Set recipe ingredient quantities from stock', targetView: 'menu' },
   { stepNumber: 4, titleAr: 'السعر والربح', titleEn: 'Price & Profit', descAr: 'يظهر التكلفة والربح وسعر البيع المقترح', descEn: 'View true cost, profit, and suggested price', targetView: 'menu' },
-  { stepNumber: 5, titleAr: 'عرضه للبيع', titleEn: 'Ready for Sale', descAr: 'يظهر في الكاشير والمنيو بعد التأكيد', descEn: 'Available in POS and Menu after confirmation', targetView: 'menu_management' },
+  { stepNumber: 5, titleAr: 'عرضه للبيع', titleEn: 'Ready for Sale', descAr: 'يظهر في الكاشير والمنيو بعد التأكيد', descEn: 'Available in POS and Menu after confirmation', targetView: 'products' },
   { stepNumber: 6, titleAr: 'البيع', titleEn: 'POS Sale', descAr: 'يخصم من الخامات ويسجل الإيراد', descEn: 'Depletes stock and records revenue', targetView: 'pos' },
   { stepNumber: 7, titleAr: 'المتابعة', titleEn: 'Track & Profits', descAr: 'تقارير الأرباح والمخزون المتبقي', descEn: 'Profit reports and remaining stock overview', targetView: 'finance' },
 ];
@@ -250,38 +264,38 @@ export function getDefaultViewsForRole(role: string): string[] {
     case 'super_admin':
       return [
         'super_admin', 'dashboard', 'pos', 'kds', 'tables_management', 'order_trace',
-        'menu_management', 'qr_tables', 'menu', 'cost_control', 'inventory', 'purchasing',
+        'menu_management', 'qr_tables', 'products', 'categories', 'menu', 'cost_control', 'inventory', 'purchasing',
         'treasury', 'finance', 'tax', 'hr', 'crm', 'chat', 'health', 'settings', 'users_roles'
       ];
     case 'tenant_admin':
       return [
         'dashboard', 'pos', 'kds', 'tables_management', 'order_trace',
-        'menu_management', 'qr_tables', 'menu', 'cost_control', 'inventory', 'purchasing',
+        'menu_management', 'qr_tables', 'products', 'categories', 'menu', 'cost_control', 'inventory', 'purchasing',
         'treasury', 'finance', 'tax', 'hr', 'crm', 'chat', 'health', 'settings', 'users_roles'
       ];
     case 'general_manager':
       return [
         'dashboard', 'pos', 'kds', 'tables_management', 'order_trace',
-        'menu_management', 'qr_tables', 'menu', 'cost_control', 'inventory', 'purchasing',
+        'menu_management', 'qr_tables', 'products', 'categories', 'menu', 'cost_control', 'inventory', 'purchasing',
         'treasury', 'finance', 'hr', 'crm', 'chat', 'health', 'users_roles'
       ];
     case 'financial_manager':
       return [
-        'dashboard', 'order_trace', 'cost_control', 'purchasing',
+        'dashboard', 'order_trace', 'categories', 'cost_control', 'purchasing',
         'treasury', 'finance', 'tax', 'crm', 'chat', 'health', 'users_roles'
       ];
     case 'cashier':
-      return ['pos', 'tables_management', 'kds', 'order_trace', 'qr_tables', 'treasury', 'crm', 'chat'];
+      return ['pos', 'tables_management', 'kds', 'order_trace', 'qr_tables', 'products', 'treasury', 'crm', 'chat'];
     case 'waiter':
-      return ['pos', 'tables_management', 'crm', 'chat'];
+      return ['pos', 'tables_management', 'products', 'crm', 'chat'];
     case 'kitchen_manager':
-      return ['kds', 'menu', 'inventory', 'chat'];
+      return ['kds', 'products', 'menu', 'inventory', 'chat'];
     case 'bar_manager':
-      return ['kds', 'menu', 'inventory', 'chat'];
+      return ['kds', 'products', 'menu', 'inventory', 'chat'];
     case 'store_manager':
-      return ['inventory', 'purchasing', 'dashboard', 'chat'];
+      return ['inventory', 'categories', 'purchasing', 'dashboard', 'chat'];
     case 'cost_accountant':
-      return ['dashboard', 'menu', 'cost_control', 'inventory', 'finance', 'chat'];
+      return ['dashboard', 'products', 'categories', 'menu', 'cost_control', 'inventory', 'finance', 'chat'];
     case 'financial_accountant':
       return ['dashboard', 'purchasing', 'treasury', 'finance', 'tax', 'chat'];
     case 'tax_accountant':

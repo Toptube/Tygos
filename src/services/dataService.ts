@@ -120,6 +120,7 @@ export interface MenuItemProduct {
   laborHourlyRate: number;
   wasteLossBuffer: number;
   utilitiesCost: number;
+  consumablesCost: number;
   prepStation?: string;
   isExample?: boolean;
   servingsYield?: number;
@@ -406,6 +407,31 @@ class DataService {
       await this.saveProducts(estId, list);
       await this.logAudit(estId, 'حذف طبق', `تم حذف الصنف [${removed.nameAr}]`, 'menu');
       return removed;
+    }
+    return null;
+  }
+
+  async restoreProduct(estId: string, product: MenuItemProduct): Promise<void> {
+    const list = await this.getProducts(estId);
+    const existingIndex = list.findIndex((p) => p.id === product.id);
+    if (existingIndex >= 0) {
+      list[existingIndex] = { ...product, updatedAt: new Date().toISOString() };
+    } else {
+      list.push({ ...product, updatedAt: new Date().toISOString() });
+    }
+    await this.saveProducts(estId, list);
+    await this.logAudit(estId, 'استرجاع طبق', `تم التراجع عن حذف الصنف [${product.nameAr}]`, 'menu');
+  }
+
+  async archiveProduct(estId: string, productId: string): Promise<MenuItemProduct | null> {
+    const list = await this.getProducts(estId);
+    const target = list.find((p) => p.id === productId);
+    if (target) {
+      target.isActive = false;
+      target.updatedAt = new Date().toISOString();
+      await this.saveProducts(estId, list);
+      await this.logAudit(estId, 'أرشفة طبق', `تم أرشفة الصنف [${target.nameAr}] لوجود مبيعات سابقة`, 'menu');
+      return target;
     }
     return null;
   }

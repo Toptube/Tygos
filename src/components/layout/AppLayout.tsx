@@ -41,6 +41,7 @@ import {
   ArrowLeft,
   Bell,
   MoreHorizontal,
+  FolderTree,
 } from 'lucide-react';
 import { getScreenTitle } from '../../i18n/glossary.ts';
 import { useAuth } from '../../context/AuthContext.tsx';
@@ -201,8 +202,22 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
       roles: ['tenant_admin', 'general_manager', 'marketing_officer', 'cashier', 'super_admin'],
     },
     {
+      id: 'products',
+      label: isAr ? 'المنتجات' : 'Products',
+      icon: UtensilsCrossed,
+      group: 'menu_cost',
+      roles: ['tenant_admin', 'general_manager', 'kitchen_manager', 'bar_manager', 'cost_accountant', 'cashier', 'waiter', 'super_admin'],
+    },
+    {
+      id: 'categories',
+      label: isAr ? 'الأقسام' : 'Categories',
+      icon: FolderTree,
+      group: 'menu_cost',
+      roles: ['tenant_admin', 'general_manager', 'financial_manager', 'cost_accountant', 'store_manager', 'super_admin'],
+    },
+    {
       id: 'menu',
-      label: t('navigation.menu', 'Menu & Recipes (BOM)'),
+      label: isAr ? 'الوصفات (رسبي)' : 'Recipes (BOM)',
       icon: ChefHat,
       group: 'menu_cost',
       roles: ['tenant_admin', 'general_manager', 'kitchen_manager', 'bar_manager', 'cost_accountant', 'super_admin'],

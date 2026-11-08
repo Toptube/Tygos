@@ -53,6 +53,12 @@ const QrTableManagerView = React.lazy(() =>
 const MenuRecipeModule = React.lazy(() =>
   import('./components/menu/MenuRecipeModule.tsx').then((m) => ({ default: m.MenuRecipeModule }))
 );
+const ProductsListModule = React.lazy(() =>
+  import('./components/menu/ProductsListModule.tsx').then((m) => ({ default: m.ProductsListModule }))
+);
+const CategoriesManagementModule = React.lazy(() =>
+  import('./components/menu/CategoriesManagementModule.tsx').then((m) => ({ default: m.CategoriesManagementModule }))
+);
 const CostControlModule = React.lazy(() =>
   import('./components/costcontrol/CostControlModule.tsx').then((m) => ({ default: m.CostControlModule }))
 );
@@ -206,6 +212,10 @@ const AppContent: React.FC = () => {
         return <QrTableManagerView />;
       case 'menu':
         return <MenuRecipeModule />;
+      case 'products':
+        return <ProductsListModule />;
+      case 'categories':
+        return <CategoriesManagementModule />;
       case 'cost_control':
         return <CostControlModule />;
       case 'inventory':

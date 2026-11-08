@@ -20,6 +20,7 @@ interface ModalShellProps {
   subtitle?: string;
   icon?: React.ReactNode;
   maxWidthClass?: string;
+  size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '4xl' | string;
   headerExtra?: React.ReactNode;
   children: React.ReactNode;
 }
@@ -30,10 +31,24 @@ export const ModalShell: React.FC<ModalShellProps> = ({
   title,
   subtitle,
   icon,
-  maxWidthClass = 'sm:max-w-4xl',
+  maxWidthClass,
+  size,
   headerExtra,
   children,
 }) => {
+  const computedMaxWidth =
+    maxWidthClass ||
+    (size === 'sm'
+      ? 'sm:max-w-md'
+      : size === 'md'
+      ? 'sm:max-w-lg'
+      : size === 'lg'
+      ? 'sm:max-w-2xl'
+      : size === 'xl'
+      ? 'sm:max-w-3xl'
+      : size === '2xl'
+      ? 'sm:max-w-4xl'
+      : 'sm:max-w-4xl');
   const { language, dir } = useI18n();
   const isAr = language === 'ar';
 
@@ -76,7 +91,7 @@ export const ModalShell: React.FC<ModalShellProps> = ({
       aria-label={title}
     >
       <div
-        className={`w-full ${maxWidthClass} h-[92vh] sm:h-auto sm:max-h-[90vh] bg-white dark:bg-slate-900 border-t sm:border border-slate-200 dark:border-slate-800 rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden text-slate-900 dark:text-slate-100 pb-[env(safe-area-inset-bottom)]`}
+        className={`w-full ${computedMaxWidth} h-[92vh] sm:h-auto sm:max-h-[90vh] bg-white dark:bg-slate-900 border-t sm:border border-slate-200 dark:border-slate-800 rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden text-slate-900 dark:text-slate-100 pb-[env(safe-area-inset-bottom)]`}
       >
         {/* Fixed Top Bar with Large Always-Visible Close (X) Button */}
         <div className="px-4 py-3 sm:px-5 sm:py-4 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/90 flex items-center justify-between gap-3 shrink-0">

@@ -43,6 +43,7 @@ import { HELP_ARTICLES, processAssistantQuery } from '../services/aiKnowledgeEng
 import { localAssistantEngine } from '../services/localAssistantEngine.ts';
 import { buildAppContextSnapshot } from '../services/appContextSnapshot.ts';
 import { dataService, RawMaterialItem, MenuItemProduct } from '../services/dataService.ts';
+import { categoryService, CategoryNode } from '../services/categoryService.ts';
 import { useAuth } from './AuthContext.tsx';
 import { useI18n } from '../i18n/I18nContext.tsx';
 
@@ -361,8 +362,13 @@ interface BusinessContextType {
   refreshMaterialsAndProducts: () => Promise<void>;
   updateProduct: (updated: MenuItemProduct) => Promise<void>;
   deleteProduct: (productId: string) => Promise<void>;
+  restoreDeletedProduct: (product: MenuItemProduct) => Promise<void>;
+  archiveProduct: (productId: string) => Promise<void>;
   clearExampleProducts: () => Promise<number>;
   updateRawMaterial: (updated: RawMaterialItem) => Promise<void>;
+  productCategories: CategoryNode[];
+  materialCategories: CategoryNode[];
+  refreshCategories: () => void;
 }
 
 const BusinessContext = createContext<BusinessContextType | undefined>(undefined);
@@ -390,6 +396,21 @@ export const BusinessProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
+  // Categories state
+  const [productCategories, setProductCategories] = useState<CategoryNode[]>([]);
+  const [materialCategories, setMaterialCategories] = useState<CategoryNode[]>([]);
+
+  const refreshCategories = () => {
+    try {
+      const pCats = categoryService.getCategories(estId, 'product');
+      const mCats = categoryService.getCategories(estId, 'material');
+      setProductCategories(pCats);
+      setMaterialCategories(mCats);
+    } catch {
+      // Ignore
+    }
+  };
+
   const updateProduct = async (updated: MenuItemProduct) => {
     await dataService.updateProduct(estId, updated);
     await refreshMaterialsAndProducts();
@@ -397,6 +418,16 @@ export const BusinessProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const deleteProduct = async (productId: string) => {
     await dataService.deleteProduct(estId, productId);
+    await refreshMaterialsAndProducts();
+  };
+
+  const restoreDeletedProduct = async (product: MenuItemProduct) => {
+    await dataService.restoreProduct(estId, product);
+    await refreshMaterialsAndProducts();
+  };
+
+  const archiveProduct = async (productId: string) => {
+    await dataService.archiveProduct(estId, productId);
     await refreshMaterialsAndProducts();
   };
 
@@ -413,6 +444,7 @@ export const BusinessProvider: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     refreshMaterialsAndProducts();
+    refreshCategories();
   }, [estId]);
 
   // 1. Recipes & BOM state
@@ -811,8 +843,13 @@ export const BusinessProvider: React.FC<{ children: React.ReactNode }> = ({
         refreshMaterialsAndProducts,
         updateProduct,
         deleteProduct,
+        restoreDeletedProduct,
+        archiveProduct,
         clearExampleProducts,
         updateRawMaterial,
+        productCategories,
+        materialCategories,
+        refreshCategories,
       }}
     >
       {children}

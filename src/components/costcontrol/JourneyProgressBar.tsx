@@ -57,14 +57,23 @@ export const JourneyProgressBar: React.FC<JourneyProgressBarProps> = ({
   const readyDishesCount = menuProducts.filter((p) => p.isActive && p.recipeIngredients?.length > 0).length;
 
   const steps = [
-    { num: 1, title: isAr ? 'الخامات' : 'Raw Materials', icon: Boxes, view: 'inventory' },
-    { num: 2, title: isAr ? 'الأطباق' : 'Dishes', icon: UtensilsCrossed, view: 'menu' },
-    { num: 3, title: isAr ? 'الوصفة' : 'Recipe', icon: ChefHat, view: 'menu' },
-    { num: 4, title: isAr ? 'السعر والربح' : 'Price & Profit', icon: TrendingUp, view: 'menu' },
-    { num: 5, title: isAr ? 'عرضه للبيع' : 'Ready for Sale', icon: Eye, view: 'menu_management' },
-    { num: 6, title: isAr ? 'البيع' : 'Sale', icon: ShoppingCart, view: 'pos' },
-    { num: 7, title: isAr ? 'المتابعة' : 'Track', icon: LineChart, view: 'finance' },
+    { num: 1, title: isAr ? 'الخامات' : 'Raw Materials', icon: Boxes, view: 'inventory', tab: null },
+    { num: 2, title: isAr ? 'المنتجات' : 'Products', icon: UtensilsCrossed, view: 'products', tab: null },
+    { num: 3, title: isAr ? 'الوصفة' : 'Recipe', icon: ChefHat, view: 'menu', tab: 'recipe' },
+    { num: 4, title: isAr ? 'السعر والربح' : 'Price & Profit', icon: TrendingUp, view: 'menu', tab: 'pricing' },
+    { num: 5, title: isAr ? 'عرضه للبيع' : 'Ready for Sale', icon: Eye, view: 'products', tab: null },
+    { num: 6, title: isAr ? 'البيع' : 'Sale', icon: ShoppingCart, view: 'pos', tab: null },
+    { num: 7, title: isAr ? 'المتابعة' : 'Track', icon: LineChart, view: 'finance', tab: null },
   ];
+
+  const handleStepClick = (st: typeof steps[0]) => {
+    if (st.tab) {
+      try {
+        localStorage.setItem('tygos_active_dish_tab_intent', st.tab);
+      } catch {}
+    }
+    setActiveView(st.view as any);
+  };
 
   // Determine smart single next-action
   let nextAction = {
@@ -81,7 +90,7 @@ export const JourneyProgressBar: React.FC<JourneyProgressBarProps> = ({
     };
   } else if (dishesCount === 0) {
     nextAction = {
-      label: isAr ? '+ أضف أول طبق' : '+ Add First Dish',
+      label: isAr ? '+ أضف أول منتج' : '+ Add First Product',
       onClick: () => setIsAddProductModalOpen(true),
       badgeType: 'primary',
     };
@@ -93,6 +102,9 @@ export const JourneyProgressBar: React.FC<JourneyProgressBarProps> = ({
         if (onSelectDishMissingRecipe) {
           onSelectDishMissingRecipe(firstMissing.id);
         } else {
+          try {
+            localStorage.setItem('tygos_active_dish_tab_intent', 'recipe');
+          } catch {}
           setActiveView('menu');
         }
       },
@@ -100,8 +112,8 @@ export const JourneyProgressBar: React.FC<JourneyProgressBarProps> = ({
     };
   } else if (readyDishesCount === 0) {
     nextAction = {
-      label: isAr ? 'اعرض الأطباق للبيع' : 'Publish Dishes to Menu',
-      onClick: () => setActiveView('menu_management'),
+      label: isAr ? 'اعرض المنتجات للبيع' : 'Publish Products for Sale',
+      onClick: () => setActiveView('products'),
       badgeType: 'primary',
     };
   } else {
@@ -118,7 +130,7 @@ export const JourneyProgressBar: React.FC<JourneyProgressBarProps> = ({
       className={`p-4 rounded-2xl bg-white dark:bg-[#0b101e] border border-slate-200 dark:border-slate-800 shadow-xs space-y-3.5 ${className}`}
     >
       {/* Top Bar: Title & Live Counters & Next Action */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 flex-wrap">
         <div>
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-cyan-500" />
@@ -133,8 +145,8 @@ export const JourneyProgressBar: React.FC<JourneyProgressBarProps> = ({
           </p>
         </div>
 
-        {/* Live Counters */}
-        <div className="flex items-center gap-3 text-xs">
+        {/* Live Counters & Next Action in flex-wrap */}
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs">
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
             <span className="text-slate-500">{isAr ? 'الخامات:' : 'Materials:'}</span>
             <strong className="font-mono text-slate-900 dark:text-white" data-testid="journey-materials-count">
@@ -143,7 +155,7 @@ export const JourneyProgressBar: React.FC<JourneyProgressBarProps> = ({
           </div>
 
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
-            <span className="text-slate-500">{isAr ? 'الأطباق:' : 'Dishes:'}</span>
+            <span className="text-slate-500">{isAr ? 'المنتجات:' : 'Products:'}</span>
             <strong className="font-mono text-slate-900 dark:text-white" data-testid="journey-dishes-count">
               {dishesCount}
             </strong>
@@ -159,7 +171,7 @@ export const JourneyProgressBar: React.FC<JourneyProgressBarProps> = ({
           ) : dishesCount > 0 ? (
             <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800/80 text-emerald-700 dark:text-emerald-400 text-[11px] font-bold">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-              <span>{isAr ? 'كل الأطباق بوصفات' : 'All recipes complete'}</span>
+              <span>{isAr ? 'كل المنتجات بوصفات' : 'All recipes complete'}</span>
             </div>
           ) : null}
 
@@ -170,7 +182,7 @@ export const JourneyProgressBar: React.FC<JourneyProgressBarProps> = ({
             size="sm"
             onClick={nextAction.onClick}
             data-testid="journey-next-action-button"
-            className="shrink-0 font-bold"
+            className="font-bold shrink-0 max-w-full"
           >
             <span>{nextAction.label}</span>
             {isRtl ? <ArrowLeft className="w-3.5 h-3.5" /> : <ArrowRight className="w-3.5 h-3.5" />}
@@ -178,7 +190,7 @@ export const JourneyProgressBar: React.FC<JourneyProgressBarProps> = ({
         </div>
       </div>
 
-      {/* 7-Step Track: Horizontal on desktop/tablet, clean scroll on mobile */}
+      {/* 7-Step Track: Symmetrical Numbered Circles, no RTL digit flipping */}
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2 pt-2 border-t border-slate-100 dark:border-slate-800/80">
         {steps.map((st) => {
           const Icon = st.icon;
@@ -189,8 +201,8 @@ export const JourneyProgressBar: React.FC<JourneyProgressBarProps> = ({
             <button
               key={st.num}
               type="button"
-              onClick={() => setActiveView(st.view as any)}
-              className={`p-2 rounded-xl text-start transition-all cursor-pointer border ${
+              onClick={() => handleStepClick(st)}
+              className={`p-2.5 rounded-xl text-start transition-all cursor-pointer border ${
                 isCurrent
                   ? 'bg-cyan-50 dark:bg-cyan-950/60 border-cyan-500/80 text-cyan-900 dark:text-cyan-200 shadow-xs'
                   : isPassed
@@ -198,9 +210,9 @@ export const JourneyProgressBar: React.FC<JourneyProgressBarProps> = ({
                   : 'bg-white dark:bg-transparent border-slate-200/60 dark:border-slate-800/60 text-slate-400 hover:text-slate-600'
               }`}
             >
-              <div className="flex items-center justify-between gap-1 mb-1">
-                <span className="text-[10px] font-mono font-bold text-slate-400">
-                  {st.num}.
+              <div className="flex items-center justify-between gap-1.5 mb-1.5">
+                <span className="w-5 h-5 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-200 text-xs font-mono font-bold flex items-center justify-center shrink-0">
+                  {st.num}
                 </span>
                 <Icon
                   className={`w-3.5 h-3.5 ${
