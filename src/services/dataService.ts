@@ -68,6 +68,7 @@ export interface VenueSettings {
   loyaltyEnabled?: boolean;
   loyaltyPointsPerUnit?: number;
   loyaltyRedeemValue?: number;
+  allowNegativeStockSale?: boolean; // إعداد: السماح بالبيع عند رصيد صفر (افتراضياً false)
 }
 
 export interface RawMaterialItem {
@@ -76,6 +77,7 @@ export interface RawMaterialItem {
   nameAr: string;
   nameEn: string;
   category: string;
+  categoryNodeId?: string;
   purchaseUnit: string; // e.g., 'kg', 'liter', 'piece', 'box'
   purchasePrice: number; // e.g., 50.00
   purchasedQuantity: number; // e.g., 10
@@ -84,6 +86,19 @@ export interface RawMaterialItem {
   wastePercentage: number; // e.g., 15 for 15% trimming/prep loss
   effectiveUnitCost: number; // calculated cost per consumption unit after waste
   currentStock: number; // in consumption units
+
+  // Multi-level Packaging Chain (Package 2)
+  majorUnit?: string; // وحدة كبرى (كرتونة / شوال / جركن / صندوق)
+  majorUnitCapacity?: number; // سعة الوحدة الكبرى كم وحدة فرعية (مثلاً: 12 علبة)
+  subUnit?: string; // وحدة فرعية (علبة / كيس / زجاجة)
+  subUnitCapacity?: number; // سعة الوحدة الفرعية بوحدة الأساس (مثلاً: 700 مل أو 500 جم)
+  baseUnit?: string; // أصغر وحدة قياس (جرام / مل / قطعة)
+
+  // Multi-warehouse & Location stock breakdown (in base units)
+  warehouseStockMap?: Record<string, number>; // { 'wh-main': 12000, 'wh-kitchen': 2000, 'wh-bar': 500 }
+  inTransitStockMap?: Record<string, number>; // كميات محجوزة في الطريق
+  assignedWarehouseId?: string; // مخزن الصرف الافتراضي للخامة
+
   reorderPoint: number;
   supplierName?: string;
   expirationDate?: string;
@@ -127,6 +142,11 @@ export interface MenuItemProduct {
   packagingItems?: Array<{ id: string; nameAr: string; cost: number }>;
   auditHistory?: Array<{ timestamp: string; user: string; action: string; details: string }>;
   variants?: Array<{ id: string; nameAr: string; nameEn: string; priceMultiplier: number; price: number }>;
+  // Package 3: Product Availability & Batch Tracking
+  isAvailable?: boolean; // Manual override toggle by station chef (default: true)
+  batchStockCount?: number; // Optional manual batch count for baked goods / items (e.g. 24 croissants prepared)
+  enableBatchStock?: boolean; // Toggle for manual batch stock tracking
+  lowStockThresholdPortions?: number; // Portions remaining for yellow alert warning
   createdAt: string;
   updatedAt: string;
 }
@@ -172,6 +192,10 @@ export interface EstablishmentSettings {
   numberFormat: 'western' | 'eastern';
   theme: 'dark' | 'light' | 'system';
   language: 'ar' | 'en';
+  // Package 3: Stock Settings
+  allowNegativeStockSale?: boolean;
+  lowStockYellowThresholdPercent?: number; // Percentage or portions
+  enableBatchStockDefault?: boolean;
 }
 
 // ---------------------------------------------------------------------------

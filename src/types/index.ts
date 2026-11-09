@@ -15,6 +15,10 @@ export type UserRole =
   | 'cost_accountant'
   | 'tax_accountant'
   | 'store_manager'
+  | 'warehouse_manager'
+  | 'storekeeper'
+  | 'head_chef'
+  | 'section_manager'
   | 'cashier'
   | 'hr_manager'
   | 'public_relations'
@@ -87,6 +91,8 @@ export interface User {
   temporarySessionId?: string;
   permittedViews?: string[];
   customPermissions?: string[];
+  assignedWarehouseIds?: string[];
+  assignedSection?: string;
   password?: string;
   passwordHash?: string;
   passwordSalt?: string;

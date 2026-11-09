@@ -40,6 +40,7 @@ import {
   sanitizeUserInput,
 } from '../../domain/qrMenuTypes.ts';
 import { dataService, VenueSettings } from '../../services/dataService.ts';
+import { productAvailabilityService } from '../../services/productAvailabilityService.ts';
 import { orderTransport } from '../../services/orderTransport.ts';
 import { Establishment } from '../../types/index.ts';
 import { TYGOS_LOGO_SRC } from '../brand/TygosLogo.tsx';
@@ -116,7 +117,14 @@ export const PublicMenuPage: React.FC<PublicMenuPageProps> = ({
 
       // Project internal products into strict PublicMenuItems
       const overrideMap = new Map(overrides.map((o) => [o.productId, o]));
-      const publicList = products.map((prod) => toPublicMenuItem(prod, overrideMap.get(prod.id)));
+      const publicList = products.map((prod) => {
+        const item = toPublicMenuItem(prod, overrideMap.get(prod.id));
+        const avail = productAvailabilityService.getProductAvailability(prod.id, estId);
+        if (avail.status === 'out_of_stock') {
+          item.isAvailable = false;
+        }
+        return item;
+      });
 
       // If venue configured to hide unavailables, filter them out
       const filtered = settings.hideUnavailableMenuItems

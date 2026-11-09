@@ -74,6 +74,7 @@ import { can } from '../../services/permissions.ts';
 import { domainEvents } from '../../events/domainEvents.ts';
 import { IncomingOrdersDrawer } from './IncomingOrdersDrawer.tsx';
 import { printerService } from '../../services/printerService.ts';
+import { productAvailabilityService } from '../../services/productAvailabilityService.ts';
 
 type MobilePosTab = 'tables' | 'order' | 'orders' | 'drawer';
 
@@ -787,19 +788,54 @@ export const PosModule: React.FC = () => {
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 overflow-y-auto flex-1 content-start">
             {filteredProducts.map((prod) => {
               const isFlashing = flashedProductId === prod.id;
+              const avail = productAvailabilityService.getProductAvailability(prod.id, estId);
+              const isOutOfStock = avail.status === 'out_of_stock';
+              const isLowStock = avail.status === 'low_stock';
+
               return (
                 <Button
                   key={prod.id}
                   variant="tile"
                   size="touch"
-                  onClick={() => handleAddProduct(prod)}
-                  className={`flex-col items-start justify-between text-start h-24 p-3 relative overflow-hidden ${
+                  disabled={isOutOfStock}
+                  onClick={() => {
+                    if (isOutOfStock) {
+                      showToast({
+                        type: 'warning',
+                        title: isAr ? 'غير متوفر الآن مؤقتاً' : 'Temporarily Out of Stock',
+                        message: isAr
+                          ? `الصنف [${prod.nameAr}] غير متاح حالياً لنفاد المخزون`
+                          : 'Item is currently unavailable',
+                      });
+                      return;
+                    }
+                    handleAddProduct(prod);
+                  }}
+                  className={`flex-col items-start justify-between text-start h-24 p-3 relative overflow-hidden transition-all ${
                     isFlashing ? 'ring-2 ring-emerald-500 bg-emerald-50 dark:bg-emerald-950/40' : ''
+                  } ${
+                    isOutOfStock
+                      ? 'bg-slate-100 dark:bg-slate-800/80 border-slate-300 dark:border-slate-700 opacity-60 cursor-not-allowed text-slate-400'
+                      : isLowStock
+                      ? 'bg-amber-100/90 dark:bg-amber-950/60 border-amber-400 dark:border-amber-600 text-amber-950 dark:text-amber-100 shadow-xs'
+                      : ''
                   }`}
                 >
-                  <span className="text-xs sm:text-sm font-bold line-clamp-2 text-slate-900 dark:text-white">
-                    {isAr ? prod.nameAr : prod.nameEn}
-                  </span>
+                  <div className="w-full flex items-start justify-between gap-1">
+                    <span className="text-xs sm:text-sm font-bold line-clamp-2 text-slate-900 dark:text-white">
+                      {isAr ? prod.nameAr : prod.nameEn}
+                    </span>
+                    {isLowStock && (
+                      <span className="text-[10px] font-black bg-amber-500 text-white px-1.5 py-0.5 rounded-full shrink-0">
+                        متبقي {avail.portionsAvailable}
+                      </span>
+                    )}
+                    {isOutOfStock && (
+                      <span className="text-[10px] font-bold bg-slate-400 text-white px-1.5 py-0.5 rounded shrink-0">
+                        نافد
+                      </span>
+                    )}
+                  </div>
                   <div className="flex items-center justify-between w-full mt-auto">
                     <span className="text-xs font-mono font-extrabold text-cyan-700 dark:text-cyan-400">
                       {formatCurrency(prod.sellingPrice)}

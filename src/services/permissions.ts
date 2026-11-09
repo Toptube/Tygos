@@ -148,6 +148,24 @@ const ROLE_PERMISSIONS: Record<UserRole, PermissionAction[]> = {
     'menu:view', 'menu:edit',
     'settings:view',
   ],
+  warehouse_manager: [
+    'inventory:view', 'inventory:adjust',
+    'menu:view',
+  ],
+  storekeeper: [
+    'inventory:view', 'inventory:adjust',
+    'menu:view',
+  ],
+  head_chef: [
+    'menu:view', 'menu:edit',
+    'kds:view', 'kds:update_ticket',
+    'inventory:view',
+  ],
+  section_manager: [
+    'menu:view',
+    'kds:view', 'kds:update_ticket',
+    'inventory:view',
+  ],
 };
 
 /**

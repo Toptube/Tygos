@@ -20,6 +20,8 @@ import { tableService } from './tableService.ts';
 import { shiftTreasuryService } from './shiftTreasuryService.ts';
 import { customerService, Coupon, calculateOrderDiscounts } from './customerService.ts';
 import { dataService } from './dataService.ts';
+import { warehouseService } from './warehouseService.ts';
+import { productAvailabilityService } from './productAvailabilityService.ts';
 import { domainEvents } from '../events/domainEvents.ts';
 import { calculateTax } from '../domain/formulas.ts';
 import { generateUuid } from '../sync/syncTypes.ts';
@@ -554,19 +556,27 @@ class OrderService {
       actorName: input.actorName,
     });
 
-    // 4. Deduct theoretical inventory & calculate COGS
+    // 4. Deduct theoretical inventory from SECTION warehouse & calculate COGS
     const products = await dataService.getProducts(estId);
     let totalCogs = 0;
     for (const item of savedOrder.items) {
       const prod = products.find((p) => p.id === item.productId);
       if (prod) {
         totalCogs += prod.trueCost * item.quantity;
+
+        // Deduct from manual batch counter if enabled (e.g. croissants)
+        if (prod.enableBatchStock) {
+          productAvailabilityService.deductBatchStockOnSale(estId, prod.id, item.quantity);
+        }
+
         for (const ing of prod.recipeIngredients) {
-          rawMaterialRepository.recordStockMovementSync(
+          warehouseService.deductSalesStock(
             estId,
             ing.ingredientId,
-            -(ing.quantity * item.quantity),
-            `صرف مبيعات فاتورة ${savedOrder.serialNumber}`
+            prod.prepStation || 'kitchen',
+            ing.quantity * item.quantity,
+            savedOrder.serialNumber,
+            input.actorName || 'كاشير'
           );
         }
       }

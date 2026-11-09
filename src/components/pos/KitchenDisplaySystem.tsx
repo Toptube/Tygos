@@ -21,6 +21,12 @@ import {
   Filter,
   Check,
   UtensilsCrossed,
+  PackageCheck,
+  AlertTriangle,
+  ToggleLeft,
+  ToggleRight,
+  Plus,
+  Minus,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.tsx';
 import { useI18n } from '../../i18n/I18nContext.tsx';
@@ -35,6 +41,10 @@ import { orderTransport } from '../../services/orderTransport.ts';
 import { orderService } from '../../services/orderService.ts';
 import { printerService } from '../../services/printerService.ts';
 import { SyncStatusIndicator } from '../sync/SyncStatusIndicator.tsx';
+import { productAvailabilityService } from '../../services/productAvailabilityService.ts';
+import { productRepository } from '../../repositories/repositories.ts';
+import { MenuItemProduct } from '../../services/dataService.ts';
+import { ModalShell } from '../common/ModalShell.tsx';
 
 export const KitchenDisplaySystem: React.FC = () => {
   const { currentEstablishment } = useAuth();
@@ -46,6 +56,39 @@ export const KitchenDisplaySystem: React.FC = () => {
   const [orders, setOrders] = useState<CustomerOrder[]>([]);
   const [audioEnabled, setAudioEnabled] = useState(true);
   const [currentTime, setCurrentTime] = useState(Date.now());
+  const [isAvailabilityModalOpen, setIsAvailabilityModalOpen] = useState(false);
+  const [products, setProducts] = useState<MenuItemProduct[]>([]);
+
+  const loadProducts = () => {
+    setProducts(productRepository.getAllSync(estId, false));
+  };
+
+  useEffect(() => {
+    loadProducts();
+  }, [estId, isAvailabilityModalOpen]);
+
+  const handleToggleProductAvailability = (prod: MenuItemProduct) => {
+    const isCurrentlyAvail = prod.isAvailable !== false;
+    productAvailabilityService.setManualAvailability(
+      estId,
+      prod.id,
+      !isCurrentlyAvail,
+      isAr ? 'رئيس المحطة' : 'Station Head'
+    );
+    loadProducts();
+  };
+
+  const handleUpdateProductBatch = (prod: MenuItemProduct, delta: number) => {
+    const current = prod.batchStockCount || 0;
+    const nextCount = Math.max(0, current + delta);
+    productAvailabilityService.updateBatchStockCount(
+      estId,
+      prod.id,
+      nextCount,
+      isAr ? 'الخباز / الشيف' : 'Baker / Chef'
+    );
+    loadProducts();
+  };
 
   // 1. Load initial orders and subscribe to real-time events
   useEffect(() => {
@@ -142,6 +185,16 @@ export const KitchenDisplaySystem: React.FC = () => {
 
         <div className="flex items-center gap-3">
           <SyncStatusIndicator />
+          {/* Station Availability Toggle */}
+          <Button
+            type="button"
+            onClick={() => setIsAvailabilityModalOpen(true)}
+            className="p-2 px-3 rounded-xl border border-orange-400 bg-orange-50 dark:bg-orange-950/40 text-orange-700 dark:text-orange-300 text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+          >
+            <PackageCheck className="w-4 h-4 text-orange-500" />
+            <span>{isAr ? 'إتاحة ونواقص الأصناف' : 'Station Availability'}</span>
+          </Button>
+
           {/* Audio Chime Toggle */}
           <Button
             type="button"
@@ -316,6 +369,125 @@ export const KitchenDisplaySystem: React.FC = () => {
             );
           })}
         </div>
+      )}
+
+      {/* Station Availability & Out of Stock Management Modal */}
+      {isAvailabilityModalOpen && (
+        <ModalShell
+          isOpen={isAvailabilityModalOpen}
+          onClose={() => setIsAvailabilityModalOpen(false)}
+          title={isAr ? 'إتاحة الأصناف ونواقص المحطة' : 'Station Items Availability'}
+          subtitle={
+            isAr
+              ? 'تفعيل أو إيقاف توفر الأطباق يدوياً وإدارة عدّاد التشغيلات المحضرة (الكرواسون والمخبوزات)'
+              : 'Toggle items availability or manage batch production counts'
+          }
+          size="2xl"
+        >
+          <div className="p-4 sm:p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+            <div className="grid grid-cols-1 divide-y divide-slate-100 dark:divide-slate-800">
+              {products
+                .filter((p) => {
+                  if (selectedStation === 'all') return true;
+                  const st = (p.prepStation || 'kitchen').toLowerCase();
+                  return st.includes(selectedStation);
+                })
+                .map((prod) => {
+                  const avail = productAvailabilityService.getProductAvailability(prod.id, estId);
+
+                  return (
+                    <div
+                      key={prod.id}
+                      className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                    >
+                      <div className="space-y-0.5">
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-sm text-slate-900 dark:text-white">
+                            {isAr ? prod.nameAr : prod.nameEn}
+                          </span>
+                          <span
+                            className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                              avail.status === 'out_of_stock'
+                                ? 'bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300'
+                                : avail.status === 'low_stock'
+                                ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300'
+                                : 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300'
+                            }`}
+                          >
+                            {avail.statusNameAr}
+                          </span>
+                        </div>
+                        <div className="text-xs text-slate-500">
+                          {prod.enableBatchStock ? (
+                            <span>تشغيلة محضرة: <b>{prod.batchStockCount || 0}</b> قطعة</span>
+                          ) : (
+                            <span>المتاح وفق رصيد الخامات: <b>{avail.portionsAvailable}</b> وجبة</span>
+                          )}
+                          {avail.limitingIngredientNameAr && (
+                            <span className="text-rose-500 ms-2">
+                              (الخامة الحرجة: {avail.limitingIngredientNameAr})
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 self-end sm:self-center">
+                        {/* Batch Stock Controls if enabled */}
+                        {prod.enableBatchStock && (
+                          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg">
+                            <button
+                              type="button"
+                              onClick={() => handleUpdateProductBatch(prod, -1)}
+                              className="p-1 rounded bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200"
+                              title="إنقاص"
+                            >
+                              <Minus className="w-3.5 h-3.5" />
+                            </button>
+                            <span className="px-2 text-xs font-mono font-bold text-slate-900 dark:text-white">
+                              {prod.batchStockCount || 0}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => handleUpdateProductBatch(prod, 1)}
+                              className="p-1 rounded bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200"
+                              title="زيادة"
+                            >
+                              <Plus className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        )}
+
+                        {/* Availability Toggle Button */}
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleToggleProductAvailability(prod)}
+                          className={`gap-1.5 font-bold text-xs ${
+                            prod.isAvailable !== false
+                              ? 'border-emerald-500 text-emerald-700 dark:text-emerald-400 bg-emerald-50/50 dark:bg-emerald-950/30'
+                              : 'border-rose-400 text-rose-700 dark:text-rose-400 bg-rose-50/50 dark:bg-rose-950/30'
+                          }`}
+                        >
+                          {prod.isAvailable !== false ? (
+                            <>
+                              <ToggleRight className="w-4 h-4 text-emerald-600" />
+                              <span>{isAr ? 'متوفر' : 'Available'}</span>
+                            </>
+                          ) : (
+                            <>
+                              <ToggleLeft className="w-4 h-4 text-rose-500" />
+                              <span>{isAr ? 'غير متوفر' : 'Unavailable'}</span>
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
+            </div>
+          </div>
+        </ModalShell>
       )}
     </div>
   );

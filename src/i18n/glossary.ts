@@ -101,6 +101,27 @@ export const SCREEN_GLOSSARY: Record<string, GlossaryEntry> = {
     titleEn: 'Raw Materials & Stock',
     subtitleEn: 'Track raw material stock, low-stock alerts, and counts',
   },
+  warehouses: {
+    id: 'warehouses',
+    titleAr: 'المخازن وحركات الأصناف',
+    subtitleAr: 'إدارة الفروع والمخازن، كارت الصنف، وطلبيات الأقسام',
+    titleEn: 'Warehouses & Supply',
+    subtitleEn: 'Manage branches, warehouses, item cards, and requisitions',
+  },
+  inventory_audit: {
+    id: 'inventory_audit',
+    titleAr: 'الجرد الفعلي والانحراف',
+    subtitleAr: 'إدخال الجرد الفعلي ومقارنته بالرصيد التقديري وإغلاق الفترات',
+    titleEn: 'Physical Audit & Variance',
+    subtitleEn: 'Physical inventory counting, BOM variance tracking, and period closing',
+  },
+  daily_notes: {
+    id: 'daily_notes',
+    titleAr: 'الملاحظات اليومية',
+    subtitleAr: 'سجل ملاحظات التكاليف على الأصناف والهالك ومتابعة حلها',
+    titleEn: 'Daily Notes',
+    subtitleEn: 'Cost accountant notes ledger, variance reasons, and resolution tracking',
+  },
   purchasing: {
     id: 'purchasing',
     titleAr: 'النواقص والتوريد',
@@ -264,38 +285,46 @@ export function getDefaultViewsForRole(role: string): string[] {
     case 'super_admin':
       return [
         'super_admin', 'dashboard', 'pos', 'kds', 'tables_management', 'order_trace',
-        'menu_management', 'qr_tables', 'products', 'categories', 'menu', 'cost_control', 'inventory', 'purchasing',
+        'menu_management', 'qr_tables', 'products', 'categories', 'menu', 'cost_control', 'inventory', 'warehouses', 'inventory_audit', 'daily_notes', 'purchasing',
         'treasury', 'finance', 'tax', 'hr', 'crm', 'chat', 'health', 'settings', 'users_roles'
       ];
     case 'tenant_admin':
       return [
         'dashboard', 'pos', 'kds', 'tables_management', 'order_trace',
-        'menu_management', 'qr_tables', 'products', 'categories', 'menu', 'cost_control', 'inventory', 'purchasing',
+        'menu_management', 'qr_tables', 'products', 'categories', 'menu', 'cost_control', 'inventory', 'warehouses', 'inventory_audit', 'daily_notes', 'purchasing',
         'treasury', 'finance', 'tax', 'hr', 'crm', 'chat', 'health', 'settings', 'users_roles'
       ];
     case 'general_manager':
       return [
         'dashboard', 'pos', 'kds', 'tables_management', 'order_trace',
-        'menu_management', 'qr_tables', 'products', 'categories', 'menu', 'cost_control', 'inventory', 'purchasing',
+        'menu_management', 'qr_tables', 'products', 'categories', 'menu', 'cost_control', 'inventory', 'warehouses', 'inventory_audit', 'daily_notes', 'purchasing',
         'treasury', 'finance', 'hr', 'crm', 'chat', 'health', 'users_roles'
       ];
     case 'financial_manager':
       return [
-        'dashboard', 'order_trace', 'categories', 'cost_control', 'purchasing',
+        'dashboard', 'order_trace', 'categories', 'cost_control', 'warehouses', 'inventory_audit', 'daily_notes', 'purchasing',
         'treasury', 'finance', 'tax', 'crm', 'chat', 'health', 'users_roles'
       ];
+    case 'warehouse_manager':
+      return ['warehouses', 'inventory_audit', 'daily_notes', 'inventory', 'categories', 'purchasing', 'dashboard', 'chat'];
+    case 'storekeeper':
+      return ['warehouses', 'inventory', 'chat'];
+    case 'head_chef':
+      return ['kds', 'warehouses', 'products', 'menu', 'inventory', 'chat'];
+    case 'section_manager':
+      return ['kds', 'warehouses', 'products', 'inventory', 'chat'];
     case 'cashier':
       return ['pos', 'tables_management', 'kds', 'order_trace', 'qr_tables', 'products', 'treasury', 'crm', 'chat'];
     case 'waiter':
       return ['pos', 'tables_management', 'products', 'crm', 'chat'];
     case 'kitchen_manager':
-      return ['kds', 'products', 'menu', 'inventory', 'chat'];
+      return ['kds', 'warehouses', 'products', 'menu', 'inventory', 'chat'];
     case 'bar_manager':
-      return ['kds', 'products', 'menu', 'inventory', 'chat'];
+      return ['kds', 'warehouses', 'products', 'menu', 'inventory', 'chat'];
     case 'store_manager':
-      return ['inventory', 'categories', 'purchasing', 'dashboard', 'chat'];
+      return ['warehouses', 'inventory_audit', 'daily_notes', 'inventory', 'categories', 'purchasing', 'dashboard', 'chat'];
     case 'cost_accountant':
-      return ['dashboard', 'products', 'categories', 'menu', 'cost_control', 'inventory', 'finance', 'chat'];
+      return ['dashboard', 'inventory_audit', 'daily_notes', 'products', 'categories', 'menu', 'cost_control', 'inventory', 'warehouses', 'finance', 'chat'];
     case 'financial_accountant':
       return ['dashboard', 'purchasing', 'treasury', 'finance', 'tax', 'chat'];
     case 'tax_accountant':

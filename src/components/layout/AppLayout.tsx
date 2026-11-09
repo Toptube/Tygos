@@ -42,6 +42,7 @@ import {
   Bell,
   MoreHorizontal,
   FolderTree,
+  Warehouse,
 } from 'lucide-react';
 import { getScreenTitle } from '../../i18n/glossary.ts';
 import { useAuth } from '../../context/AuthContext.tsx';
@@ -127,6 +128,10 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
     cost_accountant: { ar: 'محاسب التكاليف والانحراف', en: 'Cost Controller' },
     tax_accountant: { ar: 'محاسب الضرائب والفواتير', en: 'Tax Accountant' },
     store_manager: { ar: 'أمين المستودع المركزي', en: 'Warehouse Manager' },
+    warehouse_manager: { ar: 'مدير المخازن العام', en: 'Warehouse Manager' },
+    storekeeper: { ar: 'أمين المخزن', en: 'Storekeeper' },
+    head_chef: { ar: 'الشيف العمومي', en: 'Head Chef' },
+    section_manager: { ar: 'مدير القسم (بار/مخبز/حلواني)', en: 'Section Manager' },
     cashier: { ar: 'أمين الصندوق (كاشير)', en: 'Cashier' },
     hr_manager: { ar: 'مدير الموارد البشرية', en: 'HR Manager' },
     public_relations: { ar: 'علاقات الضيوف وكبار الشخصيات', en: 'Guest Relations' },
@@ -235,6 +240,13 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
       icon: Package,
       group: 'menu_cost',
       roles: ['tenant_admin', 'general_manager', 'store_manager', 'cost_accountant', 'kitchen_manager', 'super_admin'],
+    },
+    {
+      id: 'warehouses',
+      label: isAr ? 'المخازن وحركات الأصناف' : 'Warehouses & Supply',
+      icon: Warehouse,
+      group: 'menu_cost',
+      roles: ['tenant_admin', 'general_manager', 'warehouse_manager', 'store_manager', 'storekeeper', 'head_chef', 'section_manager', 'cost_accountant', 'financial_manager', 'super_admin'],
     },
     {
       id: 'purchasing',

@@ -24,6 +24,7 @@ import {
   SunMoon,
   WifiOff,
   FolderTree,
+  Warehouse,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.tsx';
 import { useI18n } from '../../i18n/I18nContext.tsx';
@@ -140,6 +141,16 @@ const CHECKLIST_STEPS: ChecklistStep[] = [
     descAr: 'تأكد من عمل شجرة الأقسام (رئيسي/فرعي/تصنيف) للمنتجات والخامات، ومنع حفظ صنفين بنفس الاسم في نفس القسم مع قبوله في قسم مختلف، وكتابة الأرقام بالإنجليزية والأرقام العربية المشرقية، وتأكيد الحذف مع التراجع 8 ثوان.',
     descEn: 'Confirm 3-level category tree for products and materials, duplicate name prevention within same category, keyboard numeric inputs, and delete confirmation with 8s undo.',
     icon: <FolderTree className="w-5 h-5 text-cyan-600 dark:text-cyan-400" />,
+  },
+  {
+    id: 'warehouses_and_requisition_cycle',
+    categoryAr: 'المخازن والتوريد',
+    categoryEn: 'Warehouses & Supply',
+    titleAr: 'فحص المخازن وسلسلة الوحدات وكارت الصنف ودورة الطلبية',
+    titleEn: 'Verify Multi-Warehouse Stock, Units Chain & Requisitions',
+    descAr: 'تأكد من خصم مبيعات الكاشير من مخزن القسم المرتبط بمحطة التحضير لا المخزن الرئيسي، وتحويل الوحدات المركبة (2 علبة = 1400 مل)، ودورة الطلبية بالتوقيع والصرف والاستلام الجزئي وكارت الصنف.',
+    descEn: 'Confirm POS sales deduct from section warehouse not main, verify multi-level packaging conversion (2 cans = 1400ml), and complete requisition order cycle with signatures, dispatching, partial receipt, and item card ledger.',
+    icon: <Warehouse className="w-5 h-5 text-amber-500" />,
   },
   {
     id: 'privacy_anonymize',
