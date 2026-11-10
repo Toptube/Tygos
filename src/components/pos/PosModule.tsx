@@ -797,6 +797,7 @@ export const PosModule: React.FC = () => {
                   key={prod.id}
                   variant="tile"
                   size="touch"
+                  data-testid={`pos-product-card-${prod.id}`}
                   disabled={isOutOfStock}
                   onClick={() => {
                     if (isOutOfStock) {
@@ -826,13 +827,19 @@ export const PosModule: React.FC = () => {
                       {isAr ? prod.nameAr : prod.nameEn}
                     </span>
                     {isLowStock && (
-                      <span className="text-[10px] font-black bg-amber-500 text-white px-1.5 py-0.5 rounded-full shrink-0">
+                      <span
+                        data-testid={`pos-low-badge-${prod.id}`}
+                        className="text-[10px] font-black bg-amber-500 text-white px-1.5 py-0.5 rounded-full shrink-0"
+                      >
                         متبقي {avail.portionsAvailable}
                       </span>
                     )}
                     {isOutOfStock && (
-                      <span className="text-[10px] font-bold bg-slate-400 text-white px-1.5 py-0.5 rounded shrink-0">
-                        نافد
+                      <span
+                        data-testid={`pos-out-badge-${prod.id}`}
+                        className="text-[10px] font-bold bg-slate-400 text-white px-1.5 py-0.5 rounded shrink-0"
+                      >
+                        غير متوفر
                       </span>
                     )}
                   </div>

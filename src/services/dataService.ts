@@ -86,6 +86,7 @@ export interface RawMaterialItem {
   wastePercentage: number; // e.g., 15 for 15% trimming/prep loss
   effectiveUnitCost: number; // calculated cost per consumption unit after waste
   currentStock: number; // in consumption units
+  costPerUnit?: number; // average cost per base consumption unit (WAC)
 
   // Multi-level Packaging Chain (Package 2)
   majorUnit?: string; // وحدة كبرى (كرتونة / شوال / جركن / صندوق)

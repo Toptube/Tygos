@@ -291,6 +291,22 @@ const SEED_WAREHOUSES: WarehouseLocation[] = [
     createdAt: '2026-11-01T10:00:00.000Z',
     updatedAt: '2026-11-01T10:00:00.000Z',
   },
+  {
+    id: 'wh-tagamoa-kitchen',
+    establishmentId: 'default',
+    branchId: 'branch-tagamoa',
+    code: 'WH-07',
+    nameAr: 'مخزن مطبخ فرع التجمع الخامس',
+    nameEn: 'Tagamoa Kitchen Storage',
+    type: 'section',
+    sectionType: 'kitchen',
+    managerName: 'الشيف تامر',
+    keeperIds: ['usr-storekeeper-1'],
+    order: 7,
+    active: true,
+    createdAt: '2026-11-01T10:00:00.000Z',
+    updatedAt: '2026-11-01T10:00:00.000Z',
+  },
 ];
 
 // -------------------------------------------------------------
@@ -435,6 +451,10 @@ export class WarehouseService {
 
   public saveWarehouses(establishmentId: string, warehouses: WarehouseLocation[]): void {
     this.storage.setItemSync(this.getWarehousesKey(establishmentId), JSON.stringify(warehouses));
+  }
+
+  public getWarehousesByBranch(establishmentId: string = 'default', branchId: string): WarehouseLocation[] {
+    return this.getWarehouses(establishmentId).filter((w) => w.branchId === branchId);
   }
 
   /**

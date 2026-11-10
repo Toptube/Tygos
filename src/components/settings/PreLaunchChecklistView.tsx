@@ -25,6 +25,7 @@ import {
   WifiOff,
   FolderTree,
   Warehouse,
+  ClipboardCheck,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.tsx';
 import { useI18n } from '../../i18n/I18nContext.tsx';
@@ -151,6 +152,16 @@ const CHECKLIST_STEPS: ChecklistStep[] = [
     descAr: 'تأكد من خصم مبيعات الكاشير من مخزن القسم المرتبط بمحطة التحضير لا المخزن الرئيسي، وتحويل الوحدات المركبة (2 علبة = 1400 مل)، ودورة الطلبية بالتوقيع والصرف والاستلام الجزئي وكارت الصنف.',
     descEn: 'Confirm POS sales deduct from section warehouse not main, verify multi-level packaging conversion (2 cans = 1400ml), and complete requisition order cycle with signatures, dispatching, partial receipt, and item card ledger.',
     icon: <Warehouse className="w-5 h-5 text-amber-500" />,
+  },
+  {
+    id: 'inventory_audit_and_availability',
+    categoryAr: 'الجرد وإتاحة الأصناف',
+    categoryEn: 'Audit & Product Availability',
+    titleAr: 'فحص الجرد الفعلي والانحراف وإغلاق الفترة وإتاحة الأصناف النواقص',
+    titleEn: 'Verify Physical Inventory Audit, Period Close & Item Availability',
+    descAr: 'تأكد من شاشة الجرد والانحراف بالوحدات المختلطة، استبعاد بضاعة في الطريق، تمييز الفروق (أخضر للزيادة وأحمر للعجز)، الإغلاق الفعلي وترحيل قيود التسوية، الملاحظات اليومية وفتح كارت الصنف، وتحول زر الكاشير للأصفر ثم الرمادي عند نفاد الخامة أو حصص الخبز، مع حجب تفاصيل النواقص عن منيو العميل.',
+    descEn: 'Confirm physical audit with mixed units, in-transit segregation, surplus/deficit visual cues, official period close ledger reconciliations, daily notes linking to item card, and cashier yellow/gray out-of-stock states while keeping raw inventory hidden from customer menu.',
+    icon: <ClipboardCheck className="w-5 h-5 text-emerald-500" />,
   },
   {
     id: 'privacy_anonymize',

@@ -15,7 +15,7 @@
 
 import { productRepository, rawMaterialRepository } from '../repositories/repositories.ts';
 import { warehouseService } from './warehouseService.ts';
-import { MenuItemProduct } from './dataService.ts';
+import { MenuItemProduct, ProductRecipeItem } from './dataService.ts';
 
 export type AvailabilityStatus = 'available' | 'low_stock' | 'out_of_stock';
 
@@ -81,7 +81,7 @@ class ProductAvailabilityService {
     let minPortions = Infinity;
     let bottleneckName: string | undefined = undefined;
 
-    const requirements: RawRequirementItem[] = recipe.map((rec) => {
+    const requirements: RawRequirementItem[] = recipe.map((rec: ProductRecipeItem) => {
       const mat = materials.find((m) => m.id === rec.ingredientId);
       const sectionStock = mat?.warehouseStockMap?.[targetWh.id] || 0;
       const reqPerPortion = rec.quantity || 1;
@@ -240,7 +240,7 @@ class ProductAvailabilityService {
         : `قام [${actorName}] بإيقاف إتاحة المنتج [${prod.nameAr}] مؤقتاً لنفاد الخامات`,
     });
 
-    productRepository.saveSync(establishmentId, prod);
+    productRepository.upsertSync(establishmentId, prod);
     return prod;
   }
 
@@ -270,7 +270,7 @@ class ProductAvailabilityService {
       details: `تم تحديث رصيد التشغيلة المحضرة لـ [${prod.nameAr}] إلى [${newCount}] قطعة`,
     });
 
-    productRepository.saveSync(establishmentId, prod);
+    productRepository.upsertSync(establishmentId, prod);
     return prod;
   }
 
@@ -288,7 +288,7 @@ class ProductAvailabilityService {
 
     const current = prod.batchStockCount || 0;
     prod.batchStockCount = Math.max(0, current - quantity);
-    productRepository.saveSync(establishmentId, prod);
+    productRepository.upsertSync(establishmentId, prod);
   }
 }
 

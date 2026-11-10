@@ -37,14 +37,16 @@ import { useI18n } from '../../i18n/I18nContext.tsx';
 interface ItemCardModalProps {
   isOpen: boolean;
   onClose: () => void;
-  material: RawMaterialItem | null;
+  material?: RawMaterialItem | null;
+  materialId?: string | null;
   establishmentId?: string;
 }
 
 export const ItemCardModal: React.FC<ItemCardModalProps> = ({
   isOpen,
   onClose,
-  material,
+  material: materialProp,
+  materialId,
   establishmentId = 'default',
 }) => {
   const { formatNumber } = useI18n();
@@ -54,6 +56,15 @@ export const ItemCardModal: React.FC<ItemCardModalProps> = ({
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
   const [refreshKey, setRefreshKey] = useState<number>(0);
+
+  const material = useMemo(() => {
+    if (materialProp) return materialProp;
+    if (materialId) {
+      const all = warehouseService.getMaterials(establishmentId);
+      return all.find((m) => m.id === materialId) || null;
+    }
+    return null;
+  }, [materialProp, materialId, establishmentId]);
 
   const cardData = useMemo(() => {
     if (!material) return null;

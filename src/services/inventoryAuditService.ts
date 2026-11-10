@@ -278,6 +278,55 @@ class InventoryAuditService {
   }
 
   /**
+   * Canonical discrepancy calculation for an item:
+   * Estimated = Opening + In - Out (inTransit is excluded from section estimated stock).
+   * Variance = Physical - Estimated.
+   */
+  public calculateItemDiscrepancy(record: {
+    openingStockBase: number;
+    totalInBase: number;
+    totalOutBase: number;
+    inTransitBase?: number;
+    physicalStockBase: number;
+    costPerUnit?: number;
+    extraSemiFinishedBase?: number;
+  }): {
+    estimatedStockBase: number;
+    discrepancyQuantityBase: number;
+    discrepancyValueEGP: number;
+    discrepancyPercent: number;
+    discrepancyStatus: 'surplus' | 'deficit' | 'balanced';
+  } {
+    const estimatedStockBase = Math.max(0, record.openingStockBase + record.totalInBase - record.totalOutBase);
+    const extra = record.extraSemiFinishedBase || 0;
+    const totalPhysical = record.physicalStockBase + extra;
+    const discrepancyQuantityBase = Math.round((totalPhysical - estimatedStockBase) * 1000) / 1000;
+    const cost = record.costPerUnit || 1;
+    const discrepancyValueEGP = Math.round(discrepancyQuantityBase * cost * 100) / 100;
+    const discrepancyPercent =
+      estimatedStockBase > 0
+        ? Math.round((discrepancyQuantityBase / estimatedStockBase) * 1000) / 10
+        : discrepancyQuantityBase !== 0
+        ? 100
+        : 0;
+
+    const discrepancyStatus: 'surplus' | 'deficit' | 'balanced' =
+      discrepancyQuantityBase > 0.001
+        ? 'surplus'
+        : discrepancyQuantityBase < -0.001
+        ? 'deficit'
+        : 'balanced';
+
+    return {
+      estimatedStockBase,
+      discrepancyQuantityBase,
+      discrepancyValueEGP,
+      discrepancyPercent,
+      discrepancyStatus,
+    };
+  }
+
+  /**
    * Updates physical count for an item (supports typing keyboard in any unit).
    */
   public recordPhysicalCount(

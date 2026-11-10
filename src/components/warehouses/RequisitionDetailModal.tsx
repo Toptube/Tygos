@@ -84,6 +84,9 @@ export const RequisitionDetailModal: React.FC<RequisitionDetailModalProps> = ({
     role === 'tenant_admin' ||
     role === 'general_manager';
 
+  const isSubmitted = requisition.status === 'submitted';
+  const isDispatched = requisition.status === 'dispatched';
+
   // Handle Dispatch by Storekeeper (Applies any line quantity/notes edits first)
   const handleDispatch = () => {
     setIsSubmitting(true);
@@ -315,6 +318,7 @@ export const RequisitionDetailModal: React.FC<RequisitionDetailModalProps> = ({
                               type="number"
                               min="0"
                               step="any"
+                              data-testid={`approved-qty-input-${line.id}`}
                               defaultValue={line.approvedQuantityBase || line.requestedQuantityBase}
                               onChange={(e) => {
                                 const val = parseFloat(e.target.value) || 0;
@@ -341,7 +345,10 @@ export const RequisitionDetailModal: React.FC<RequisitionDetailModalProps> = ({
                             </span>
                             {line.approvedQuantityBase &&
                               line.approvedQuantityBase !== line.requestedQuantityBase && (
-                                <div className="text-[10px] text-amber-600 dark:text-amber-400 font-bold">
+                                <div
+                                  data-testid={`diff-badge-${line.id}`}
+                                  className="text-[10px] text-amber-600 dark:text-amber-400 font-bold"
+                                >
                                   (عدّلها أمين المخزن)
                                 </div>
                               )}
@@ -357,6 +364,7 @@ export const RequisitionDetailModal: React.FC<RequisitionDetailModalProps> = ({
                               <input
                                 type="radio"
                                 name={`receipt-${line.id}`}
+                                data-testid={`radio-received-${line.id}`}
                                 checked={currentLineReceipt.received}
                                 onChange={() =>
                                   setReceiptState((prev) => ({
@@ -373,6 +381,7 @@ export const RequisitionDetailModal: React.FC<RequisitionDetailModalProps> = ({
                               <input
                                 type="radio"
                                 name={`receipt-${line.id}`}
+                                data-testid={`radio-rejected-${line.id}`}
                                 checked={!currentLineReceipt.received}
                                 onChange={() =>
                                   setReceiptState((prev) => ({
@@ -415,6 +424,7 @@ export const RequisitionDetailModal: React.FC<RequisitionDetailModalProps> = ({
                         {isDispatched && !currentLineReceipt.received && isChef ? (
                           <input
                             type="text"
+                            data-testid={`rejection-reason-input-${line.id}`}
                             placeholder="اكتب سبب عدم الاستلام..."
                             value={currentLineReceipt.rejectionReason}
                             onChange={(e) =>
@@ -457,6 +467,7 @@ export const RequisitionDetailModal: React.FC<RequisitionDetailModalProps> = ({
             <Button
               type="button"
               variant="primary"
+              data-testid="dispatch-requisition-btn"
               onClick={handleDispatch}
               disabled={isSubmitting}
               className="gap-1.5 font-bold shrink-0 bg-amber-600 hover:bg-amber-700 text-white"
@@ -478,6 +489,7 @@ export const RequisitionDetailModal: React.FC<RequisitionDetailModalProps> = ({
             <Button
               type="button"
               variant="primary"
+              data-testid="confirm-receipt-btn"
               onClick={handleConfirmReceipt}
               disabled={isSubmitting}
               className="gap-1.5 font-bold shrink-0 bg-emerald-600 hover:bg-emerald-700 text-white"

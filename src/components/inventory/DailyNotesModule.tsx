@@ -38,7 +38,9 @@ import { dailyNotesService, DailyNote, DailyNoteStatus } from '../../services/da
 import { ItemCardModal } from '../warehouses/ItemCardModal.tsx';
 
 export const DailyNotesModule: React.FC = () => {
-  const { user, establishmentId = 'default' } = useAuth();
+  const { currentUser, currentEstablishment } = useAuth();
+  const user = currentUser;
+  const establishmentId = currentEstablishment?.id || 'default';
   const { showToast } = useToast();
 
   const [notes, setNotes] = useState<DailyNote[]>([]);
@@ -181,7 +183,7 @@ export const DailyNotesModule: React.FC = () => {
         <div className="flex flex-wrap items-center gap-2">
           <Button
             type="button"
-            variant="default"
+            variant="primary"
             size="sm"
             onClick={() => setIsNewNoteOpen(true)}
             className="gap-1.5 font-bold bg-amber-600 hover:bg-amber-700 text-white shadow-sm"
@@ -377,7 +379,7 @@ export const DailyNotesModule: React.FC = () => {
                   {!isResolved ? (
                     <Button
                       type="button"
-                      variant="default"
+                      variant="primary"
                       size="sm"
                       onClick={() => {
                         setResolvingNote(note);
@@ -446,7 +448,7 @@ export const DailyNotesModule: React.FC = () => {
               <Button type="button" variant="outline" onClick={() => setResolvingNote(null)}>
                 إلغاء
               </Button>
-              <Button type="submit" variant="default" className="bg-emerald-600 text-white font-bold">
+              <Button type="submit" variant="primary" className="bg-emerald-600 text-white font-bold">
                 اعتماد حل المشكلة ✓
               </Button>
             </div>
@@ -532,7 +534,7 @@ export const DailyNotesModule: React.FC = () => {
               <Button type="button" variant="outline" onClick={() => setIsNewNoteOpen(false)}>
                 إلغاء
               </Button>
-              <Button type="submit" variant="default" className="bg-amber-600 text-white font-bold">
+              <Button type="submit" variant="primary" className="bg-amber-600 text-white font-bold">
                 حفظ الملاحظة
               </Button>
             </div>

@@ -43,7 +43,10 @@ import {
   MoreHorizontal,
   FolderTree,
   Warehouse,
+  ClipboardCheck,
+  CheckCircle2,
 } from 'lucide-react';
+import { warehouseService, InAppNotification } from '../../services/warehouseService.ts';
 import { getScreenTitle } from '../../i18n/glossary.ts';
 import { useAuth } from '../../context/AuthContext.tsx';
 import { useI18n } from '../../i18n/I18nContext.tsx';
@@ -86,10 +89,27 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [roleDropdownOpen, setRoleDropdownOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const [isTourOpen, setIsTourOpen] = useState(false);
   const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({});
   const { showToast } = useToast();
+
+  const estId = currentEstablishment?.id || 'default';
+  const [notifications, setNotifications] = useState<InAppNotification[]>(() =>
+    warehouseService.getNotifications(estId)
+  );
+
+  React.useEffect(() => {
+    const refresh = () => setNotifications(warehouseService.getNotifications(estId));
+    const timer = setInterval(refresh, 4000);
+    refresh();
+    return () => clearInterval(timer);
+  }, [estId]);
+
+  const unreadNotifs = notifications.filter(
+    (n) => !n.isRead && (n.targetRoles.length === 0 || n.targetRoles.includes(role))
+  );
 
   const toggleGroup = (groupKey: string) => {
     setCollapsedGroups((prev) => ({ ...prev, [groupKey]: !prev[groupKey] }));
@@ -247,6 +267,20 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
       icon: Warehouse,
       group: 'menu_cost',
       roles: ['tenant_admin', 'general_manager', 'warehouse_manager', 'store_manager', 'storekeeper', 'head_chef', 'section_manager', 'cost_accountant', 'financial_manager', 'super_admin'],
+    },
+    {
+      id: 'inventory_audit',
+      label: isAr ? 'الجرد الفعلي والانحراف' : 'Inventory Audit',
+      icon: ClipboardCheck,
+      group: 'menu_cost',
+      roles: ['cost_accountant', 'store_manager', 'warehouse_manager', 'tenant_admin', 'general_manager', 'financial_manager', 'super_admin'],
+    },
+    {
+      id: 'daily_notes',
+      label: isAr ? 'الملاحظات اليومية' : 'Daily Notes',
+      icon: MessageSquare,
+      group: 'menu_cost',
+      roles: ['cost_accountant', 'store_manager', 'warehouse_manager', 'head_chef', 'tenant_admin', 'general_manager', 'super_admin'],
     },
     {
       id: 'purchasing',
@@ -433,22 +467,129 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
         {/* End Zone: ONLY 2 Icons (Notifications + More Menu ⋯) */}
         <div className="flex items-center gap-1.5 shrink-0">
           {/* 1. Notifications / Alerts */}
-          <Button
-            type="button"
-            variant="secondary"
-            size="sm"
-            onClick={() => setIsAuditReportModalOpen(true)}
-            className="relative min-w-[40px] min-h-[40px] p-2 rounded-xl"
-            aria-label={isAr ? 'التنبيهات وسجل العمليات' : 'Notifications & Activity Log'}
-            title={isAr ? 'التنبيهات وسجل العمليات' : 'Notifications & Activity Log'}
-          >
-            <Bell className="w-4 h-4 text-slate-600 dark:text-slate-300" />
-            {pendingRequestsCount > 0 && (
-              <span className="absolute -top-1 -end-1 w-4 h-4 bg-rose-500 text-white text-[9px] font-mono font-bold rounded-full flex items-center justify-center">
-                {pendingRequestsCount}
-              </span>
+          <div className="relative">
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={() => {
+                setNotificationsOpen(!notificationsOpen);
+                setMoreMenuOpen(false);
+              }}
+              className="relative min-w-[40px] min-h-[40px] p-2 rounded-xl"
+              aria-label={isAr ? 'التنبيهات وسجل العمليات' : 'Notifications & Activity Log'}
+              title={isAr ? 'التنبيهات وسجل العمليات' : 'Notifications & Activity Log'}
+              data-testid="header-notifications-button"
+            >
+              <Bell className="w-4 h-4 text-slate-600 dark:text-slate-300" />
+              {(unreadNotifs.length > 0 || pendingRequestsCount > 0) && (
+                <span className="absolute -top-1 -end-1 w-4 h-4 bg-rose-500 text-white text-[9px] font-mono font-bold rounded-full flex items-center justify-center animate-pulse">
+                  {unreadNotifs.length + pendingRequestsCount}
+                </span>
+              )}
+            </Button>
+
+            {notificationsOpen && (
+              <div
+                className="fixed inset-x-3 top-16 sm:inset-x-auto sm:end-14 sm:w-88 bg-white dark:bg-[#0b101e] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl p-3.5 z-50 text-xs space-y-3 max-h-[80vh] overflow-y-auto animate-fade-in"
+                data-testid="header-notifications-menu"
+              >
+                <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800">
+                  <div className="flex items-center gap-1.5">
+                    <Bell className="w-4 h-4 text-cyan-500" />
+                    <span className="font-black text-slate-900 dark:text-white">
+                      {isAr ? 'الإشعارات والطلبيات' : 'Notifications & Orders'}
+                    </span>
+                    {unreadNotifs.length > 0 && (
+                      <span className="px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-cyan-100 dark:bg-cyan-950/60 text-cyan-600 dark:text-cyan-400">
+                        {unreadNotifs.length}
+                      </span>
+                    )}
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setNotificationsOpen(false)}
+                    aria-label={isAr ? 'إغلاق' : 'Close'}
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+
+                {/* Notifications List */}
+                <div className="space-y-2 max-h-64 overflow-y-auto">
+                  {unreadNotifs.length === 0 ? (
+                    <div className="py-6 text-center text-slate-400 text-xs">
+                      {isAr ? 'لا توجد إشعارات جديدة غير مقروءة' : 'No new unread notifications'}
+                    </div>
+                  ) : (
+                    unreadNotifs.map((notif) => (
+                      <div
+                        key={notif.id}
+                        onClick={() => {
+                          warehouseService.markNotificationAsRead(estId, notif.id);
+                          setNotifications(warehouseService.getNotifications(estId));
+                          if (notif.linkView) {
+                            setActiveView(notif.linkView);
+                          }
+                          setNotificationsOpen(false);
+                        }}
+                        className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 hover:border-cyan-500/50 cursor-pointer transition-colors space-y-1"
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-slate-900 dark:text-white text-xs">
+                            {notif.title}
+                          </span>
+                          <span className="text-[10px] text-slate-400 font-mono">
+                            {new Date(notif.createdAt).toLocaleTimeString('ar-EG', {
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-slate-600 dark:text-slate-300 leading-snug">
+                          {notif.message}
+                        </p>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                {/* Actions Footer */}
+                <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-2">
+                  {unreadNotifs.length > 0 && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="xs"
+                      onClick={() => {
+                        unreadNotifs.forEach((n) => warehouseService.markNotificationAsRead(estId, n.id));
+                        setNotifications(warehouseService.getNotifications(estId));
+                      }}
+                      className="text-cyan-600 dark:text-cyan-400"
+                    >
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>{isAr ? 'تحديد الكل كمقروء' : 'Mark all read'}</span>
+                    </Button>
+                  )}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="xs"
+                    onClick={() => {
+                      setNotificationsOpen(false);
+                      setIsAuditReportModalOpen(true);
+                    }}
+                    className="ms-auto"
+                  >
+                    <Shield className="w-3.5 h-3.5 text-slate-500" />
+                    <span>{isAr ? 'سجل العمليات' : 'Audit Log'}</span>
+                  </Button>
+                </div>
+              </div>
             )}
-          </Button>
+          </div>
 
           {/* 2. More Menu (⋯) */}
           <div className="relative">

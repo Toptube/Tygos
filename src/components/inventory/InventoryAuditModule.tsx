@@ -55,7 +55,9 @@ import { multiUnitService } from '../../services/multiUnitService.ts';
 import { ItemCardModal } from '../warehouses/ItemCardModal.tsx';
 
 export const InventoryAuditModule: React.FC = () => {
-  const { user, establishmentId = 'default' } = useAuth();
+  const { currentUser, currentEstablishment } = useAuth();
+  const user = currentUser;
+  const establishmentId = currentEstablishment?.id || 'default';
   const { showToast } = useToast();
 
   const [branches, setBranches] = useState<Branch[]>([]);
@@ -348,7 +350,7 @@ export const InventoryAuditModule: React.FC = () => {
 
           <Button
             type="button"
-            variant="default"
+            variant="primary"
             size="sm"
             onClick={() => handleClosePeriodAction(true)}
             disabled={currentPeriod?.type === 'closed'}
@@ -823,7 +825,7 @@ export const InventoryAuditModule: React.FC = () => {
               <Button type="button" variant="outline" onClick={() => setIsPurchaseModalOpen(false)}>
                 إلغاء
               </Button>
-              <Button type="submit" variant="default" className="bg-emerald-600 text-white font-bold">
+              <Button type="submit" variant="primary" className="bg-emerald-600 text-white font-bold">
                 تأكيد الاستلام بالمخزن
               </Button>
             </div>

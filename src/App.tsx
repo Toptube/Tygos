@@ -68,6 +68,12 @@ const InventoryModule = React.lazy(() =>
 const WarehousesModule = React.lazy(() =>
   import('./components/warehouses/WarehousesModule.tsx').then((m) => ({ default: m.WarehousesModule }))
 );
+const InventoryAuditModule = React.lazy(() =>
+  import('./components/inventory/InventoryAuditModule.tsx').then((m) => ({ default: m.InventoryAuditModule }))
+);
+const DailyNotesModule = React.lazy(() =>
+  import('./components/inventory/DailyNotesModule.tsx').then((m) => ({ default: m.DailyNotesModule }))
+);
 const PurchasingModule = React.lazy(() =>
   import('./components/purchasing/PurchasingModule.tsx').then((m) => ({ default: m.PurchasingModule }))
 );
@@ -223,6 +229,10 @@ const AppContent: React.FC = () => {
         return <CostControlModule />;
       case 'inventory':
         return <InventoryModule />;
+      case 'inventory_audit':
+        return <InventoryAuditModule />;
+      case 'daily_notes':
+        return <DailyNotesModule />;
       case 'warehouses':
         return <WarehousesModule />;
       case 'purchasing':
