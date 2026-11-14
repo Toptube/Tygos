@@ -73,7 +73,9 @@ export type MovementType =
   | 'waste' // هالك وتالف
   | 'transfer' // تحويل بين المخازن
   | 'inventory_audit' // جرد فعلي
-  | 'reconciliation'; // تسوية انحراف
+  | 'reconciliation' // تسوية انحراف
+  | 'prep_batch_consume' // استهلاك تشغيل دفعة تجهيز
+  | 'prep_revert_to_raw'; // إرجاع رصيد تجهيز لخامات
 
 export interface StockMovementRecord {
   id: string;
@@ -643,7 +645,8 @@ export class WarehouseService {
     prepStation: string,
     quantityBase: number,
     orderSerial: string,
-    actorName: string
+    actorName: string,
+    customNotes?: string
   ): { success: boolean; deductedFromWhId: string; newStock: number } {
     const targetWh = this.resolveSectionWarehouseForStation(establishmentId, prepStation);
     const materials = this.getMaterials(establishmentId);
@@ -682,7 +685,7 @@ export class WarehouseService {
       balanceAfterBase: newSectionStock,
       referenceDoc: `فاتورة مبيعات #${orderSerial}`,
       actorName,
-      notes: `خصم من محطة [${prepStation}] بمخزن [${targetWh.nameAr}]`,
+      notes: customNotes || `خصم من محطة [${prepStation}] بمخزن [${targetWh.nameAr}]`,
     });
 
     return {
@@ -704,6 +707,19 @@ export class WarehouseService {
     } catch {
       return [];
     }
+  }
+
+  public getItemLedger(
+    materialId: string,
+    locationId?: string,
+    establishmentId: string = 'default'
+  ): StockMovementRecord[] {
+    const filtered = this.getMovements(establishmentId).filter((m) => {
+      if (m.materialId !== materialId) return false;
+      if (locationId && m.fromLocationId !== locationId && m.toLocationId !== locationId) return false;
+      return true;
+    });
+    return [...filtered].reverse();
   }
 
   public recordMovement(
@@ -1217,6 +1233,7 @@ export class WarehouseService {
 
     // Update material properties
     mat.costPerUnit = Math.round(newAvgCost * 1000) / 1000;
+    mat.effectiveUnitCost = Math.round((newAvgCost / Math.max(0.01, 1 - (mat.wastePercentage || 0) / 100)) * 10000) / 10000;
     mat.purchasePrice = Math.round(newAvgCost * (mat.conversionFactor || 1) * 100) / 100;
     mat.currentStock = Math.round(totalQty * 1000) / 1000;
 
@@ -1250,6 +1267,42 @@ export class WarehouseService {
       newStock: mat.currentStock,
       newAvgCost: mat.costPerUnit,
     };
+  }
+
+  public recordPurchaseReceipt(
+    establishmentId: string,
+    materialId: string,
+    quantity: number,
+    unitPrice: number,
+    supplierName: string = 'مورد محلي',
+    referenceDoc: string = 'فاتورة شراء'
+  ) {
+    const mainWh = this.getWarehouses(establishmentId).find((w) => w.type === 'main') || this.getWarehouses(establishmentId)[0];
+    return this.receivePurchaseOrder(establishmentId, {
+      materialId,
+      quantityBase: quantity,
+      unitPriceBase: unitPrice,
+      targetWarehouseId: mainWh.id,
+      supplierName,
+      invoiceNumber: referenceDoc,
+      actorName: 'أمين المخزن',
+    });
+  }
+
+  public adjustPhysicalStock(
+    warehouseId: string,
+    materialId: string,
+    newQuantity: number,
+    notes: string = 'تسوية جردية',
+    establishmentId: string = 'default'
+  ): void {
+    const materials = this.getMaterials(establishmentId);
+    const mat = materials.find((m) => m.id === materialId);
+    if (!mat) return;
+    if (!mat.warehouseStockMap) mat.warehouseStockMap = {};
+    mat.warehouseStockMap[warehouseId] = newQuantity;
+    mat.currentStock = Object.values(mat.warehouseStockMap).reduce((a, b) => a + b, 0);
+    this.saveMaterials(establishmentId, materials);
   }
 
   // -----------------------------------------------------------

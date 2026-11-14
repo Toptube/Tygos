@@ -40,6 +40,7 @@ import {
   Truck,
   Layers,
   FileSpreadsheet,
+  Sparkles,
 } from 'lucide-react';
 import { Button } from '../common/Button.tsx';
 import { ModalShell } from '../common/ModalShell.tsx';
@@ -53,6 +54,11 @@ import {
 } from '../../services/inventoryAuditService.ts';
 import { multiUnitService } from '../../services/multiUnitService.ts';
 import { ItemCardModal } from '../warehouses/ItemCardModal.tsx';
+import {
+  semiFinishedService,
+  SemiFinishedItem,
+  DecomposedRawRequirement,
+} from '../../services/semiFinishedService.ts';
 
 export const InventoryAuditModule: React.FC = () => {
   const { currentUser, currentEstablishment } = useAuth();
@@ -64,6 +70,9 @@ export const InventoryAuditModule: React.FC = () => {
   const [warehouses, setWarehouses] = useState<WarehouseLocation[]>([]);
   const [selectedBranchId, setSelectedBranchId] = useState<string>('all');
   const [selectedWarehouseId, setSelectedWarehouseId] = useState<string>('');
+
+  // Duration preset: 'week' | 'month' | 'custom'
+  const [durationPreset, setDurationPreset] = useState<'week' | 'month' | 'custom'>('week');
 
   // Date range (defaults to current week)
   const [startDate, setStartDate] = useState<string>(() => {
@@ -78,6 +87,16 @@ export const InventoryAuditModule: React.FC = () => {
   const [currentPeriod, setCurrentPeriod] = useState<AuditPeriod | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'surplus' | 'deficit' | 'balanced'>('all');
+
+  // Remaining Preparations Modal state (Package 4 - Section 7)
+  const [isRemainingPrepsModalOpen, setIsRemainingPrepsModalOpen] = useState<boolean>(false);
+  const [selectedPrepIdForRemaining, setSelectedPrepIdForRemaining] = useState<string>('');
+  const [remainingPrepAmount, setRemainingPrepAmount] = useState<number>(5);
+  const [remainingPrepPortionId, setRemainingPrepPortionId] = useState<string>('');
+  const [decomposedPreview, setDecomposedPreview] = useState<DecomposedRawRequirement[]>([]);
+
+  // Daily Report Modal state (Package 3 - Section 0-د)
+  const [isDailyReportModalOpen, setIsDailyReportModalOpen] = useState<boolean>(false);
 
   // Item Card Modal state
   const [selectedMaterialIdForCard, setSelectedMaterialIdForCard] = useState<string | null>(null);
@@ -259,6 +278,79 @@ export const InventoryAuditModule: React.FC = () => {
     }
   };
 
+  // Duration Presets (Package 3 - Section 0-ج)
+  const handleSelectDurationPreset = (preset: 'week' | 'month' | 'custom') => {
+    setDurationPreset(preset);
+    const today = new Date();
+    const endStr = today.toISOString().split('T')[0];
+    setEndDate(endStr);
+
+    if (preset === 'week') {
+      const d = new Date();
+      d.setDate(d.getDate() - 6);
+      setStartDate(d.toISOString().split('T')[0]);
+    } else if (preset === 'month') {
+      const d = new Date();
+      d.setDate(d.getDate() - 29);
+      setStartDate(d.toISOString().split('T')[0]);
+    }
+  };
+
+  // Remaining Preparations Preview (Package 4 - Section 7)
+  const handleUpdateRemainingPreview = (prepId: string, amount: number, portionId?: string) => {
+    setSelectedPrepIdForRemaining(prepId);
+    setRemainingPrepAmount(amount);
+    setRemainingPrepPortionId(portionId || '');
+    if (!prepId || amount <= 0) {
+      setDecomposedPreview([]);
+      return;
+    }
+    const decomposed = semiFinishedService.calculateEquivalentRawForRemainingPrep(
+      establishmentId,
+      prepId,
+      amount,
+      portionId
+    );
+    setDecomposedPreview(decomposed);
+  };
+
+  // Confirm Remaining Preparations and Add to Raw Physical Audit
+  const handleConfirmRemainingPreparations = () => {
+    if (!currentPeriod || decomposedPreview.length === 0) return;
+
+    try {
+      decomposedPreview.forEach((raw) => {
+        const item = currentPeriod.items.find((i) => i.materialId === raw.materialId);
+        if (item) {
+          const currentExtra = item.extraSemiFinishedBase || 0;
+          const newExtra = currentExtra + raw.requiredBaseQty;
+          inventoryAuditService.recordPhysicalCount(
+            establishmentId,
+            currentPeriod.id,
+            raw.materialId,
+            item.physicalStockBase,
+            'base',
+            item.reason,
+            item.notes ? `${item.notes} | منها بالتجهيزات: ${raw.viaPrepNameAr}` : `منها بالتجهيزات: ${raw.viaPrepNameAr}`,
+            user?.fullName || 'محاسب التكاليف',
+            undefined,
+            newExtra
+          );
+        }
+      });
+
+      loadPeriod();
+      setIsRemainingPrepsModalOpen(false);
+      showToast({
+        title: 'تم اعتماد مكافئ التجهيزات المتبقية وإضافتها للجرد الفعلي بنجاح ✓',
+        message: 'تم دمج الخامات المكافئة تحت خانة «منها داخل تجهيزات» دون مساس بالأرصدة النظرية',
+        type: 'success',
+      });
+    } catch (err: any) {
+      showToast({ title: err.message || 'خطأ في اعتماد التجهيزات', type: 'error' });
+    }
+  };
+
   // Filter items in table
   const filteredItems = useMemo(() => {
     if (!currentPeriod) return [];
@@ -329,11 +421,39 @@ export const InventoryAuditModule: React.FC = () => {
             type="button"
             variant="outline"
             size="sm"
+            onClick={() => {
+              setIsRemainingPrepsModalOpen(true);
+              const preps = semiFinishedService.getPreparations(establishmentId);
+              if (preps.length > 0 && !selectedPrepIdForRemaining) {
+                handleUpdateRemainingPreview(preps[0].id, 5);
+              }
+            }}
+            className="gap-1.5 font-bold text-cyan-700 dark:text-cyan-400 border-cyan-300 dark:border-cyan-700 bg-cyan-50 dark:bg-cyan-950/40"
+          >
+            <Layers className="w-4 h-4 text-cyan-600" />
+            <span>إدخال التجهيزات المتبقية (عجين/صوص)</span>
+          </Button>
+
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => setIsDailyReportModalOpen(true)}
+            className="gap-1.5 font-bold text-purple-700 dark:text-purple-400 border-purple-300 dark:border-purple-700 bg-purple-50 dark:bg-purple-950/40"
+          >
+            <FileSpreadsheet className="w-4 h-4 text-purple-600" />
+            <span>التقرير اليومي التلقائي</span>
+          </Button>
+
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
             onClick={() => setIsPurchaseModalOpen(true)}
             className="gap-1.5 font-bold"
           >
             <Plus className="w-4 h-4 text-emerald-600" />
-            <span>استلام مشتريات (للمخزن الرئيسي)</span>
+            <span>استلام مشتريات</span>
           </Button>
 
           <Button
@@ -345,7 +465,7 @@ export const InventoryAuditModule: React.FC = () => {
             className="gap-1.5 font-bold text-slate-700 dark:text-slate-200"
           >
             <Unlock className="w-4 h-4 text-amber-500" />
-            <span>جرد اختباري (تدقيق)</span>
+            <span>جرد اختباري</span>
           </Button>
 
           <Button
@@ -357,7 +477,7 @@ export const InventoryAuditModule: React.FC = () => {
             className="gap-1.5 font-bold bg-cyan-600 hover:bg-cyan-700 text-white shadow-sm"
           >
             <Lock className="w-4 h-4" />
-            <span>إغلاق فعلي للفترة (قفل)</span>
+            <span>إغلاق فعلي للفترة</span>
           </Button>
 
           <Button
@@ -421,30 +541,72 @@ export const InventoryAuditModule: React.FC = () => {
           </select>
         </div>
 
-        {/* Start Date */}
-        <div>
-          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-            من تاريخ:
-          </label>
-          <input
-            type="date"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-            className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
-          />
-        </div>
-
-        {/* End Date */}
-        <div>
-          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-            إلى تاريخ:
-          </label>
-          <input
-            type="date"
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-            className="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
-          />
+        {/* Date Range & Duration Presets (Package 3 - Section 0-ج) */}
+        <div className="sm:col-span-2 space-y-1">
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-bold text-slate-700 dark:text-slate-300">
+              فترة الجرد:
+            </label>
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() => handleSelectDurationPreset('week')}
+                className={`px-2 py-0.5 text-[11px] font-bold rounded cursor-pointer ${
+                  durationPreset === 'week'
+                    ? 'bg-cyan-600 text-white'
+                    : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
+                }`}
+              >
+                أسبوع
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSelectDurationPreset('month')}
+                className={`px-2 py-0.5 text-[11px] font-bold rounded cursor-pointer ${
+                  durationPreset === 'month'
+                    ? 'bg-cyan-600 text-white'
+                    : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
+                }`}
+              >
+                شهر
+              </button>
+              <button
+                type="button"
+                onClick={() => setDurationPreset('custom')}
+                className={`px-2 py-0.5 text-[11px] font-bold rounded cursor-pointer ${
+                  durationPreset === 'custom'
+                    ? 'bg-cyan-600 text-white'
+                    : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
+                }`}
+              >
+                مخصصة
+              </button>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => {
+                  setStartDate(e.target.value);
+                  setDurationPreset('custom');
+                }}
+                className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+              />
+            </div>
+            <div>
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => {
+                  setEndDate(e.target.value);
+                  setDurationPreset('custom');
+                }}
+                className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+              />
+            </div>
+          </div>
         </div>
       </div>
 
@@ -645,6 +807,14 @@ export const InventoryAuditModule: React.FC = () => {
                         }
                         className="w-28 px-2 py-1 text-center font-mono font-bold text-xs rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
                       />
+                      {item.extraSemiFinishedBase && item.extraSemiFinishedBase > 0 ? (
+                        <div className="text-[10px] text-cyan-700 dark:text-cyan-300 font-bold mt-1">
+                          منها بالتجهيزات: +{fmt(item.extraSemiFinishedBase)}
+                          <span className="block text-slate-500 font-mono">
+                            الإجمالي: {fmt(item.totalActualStockBase)}
+                          </span>
+                        </div>
+                      ) : null}
                     </td>
 
                     {/* Variance Qty */}
@@ -830,6 +1000,216 @@ export const InventoryAuditModule: React.FC = () => {
               </Button>
             </div>
           </form>
+        </ModalShell>
+      )}
+
+      {/* 8. Remaining Preparations Modal (Package 4 - Section 7) */}
+      {isRemainingPrepsModalOpen && (
+        <ModalShell
+          isOpen={isRemainingPrepsModalOpen}
+          onClose={() => setIsRemainingPrepsModalOpen(false)}
+          title="إدخال التجهيزات المتبقية (تحويل المتبقي لخامات أولية)"
+          size="lg"
+        >
+          <div className="space-y-4" dir="rtl">
+            <div className="p-3.5 rounded-xl bg-cyan-50 dark:bg-cyan-950/40 border border-cyan-200 dark:border-cyan-800 text-xs text-cyan-900 dark:text-cyan-200 space-y-1">
+              <p className="font-bold">تحويل المتبقي من التجهيزات والصيغ لخامات أولية بالجرد:</p>
+              <p>
+                أدخل الكميات المتبقية على خط الطهي أو الثلاجات (مثل: 5 كجم صوص بيتزا أو 6 بولة أرز أو 10 قطع عجين)، وسيقوم النظام فوراً بتفكيكها إلى مكافئها الدقيق من الخامات الأولية وإضافتها لخانة «منها داخل تجهيزات» دون مساس بالأرصدة النظرية.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  اختر التجهيز المتبقي:
+                </label>
+                <select
+                  value={selectedPrepIdForRemaining}
+                  onChange={(e) =>
+                    handleUpdateRemainingPreview(e.target.value, remainingPrepAmount, remainingPrepPortionId)
+                  }
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-bold"
+                >
+                  <option value="">-- اختر التجهيز --</option>
+                  {semiFinishedService.getPreparations(establishmentId).map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.nameAr} ({p.category}) - {p.totalYield} {p.yieldUnit}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  الكمية المتبقية:
+                </label>
+                <input
+                  type="number"
+                  min="0.1"
+                  step="any"
+                  value={remainingPrepAmount}
+                  onChange={(e) =>
+                    handleUpdateRemainingPreview(
+                      selectedPrepIdForRemaining,
+                      parseFloat(e.target.value) || 0,
+                      remainingPrepPortionId
+                    )
+                  }
+                  className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white font-mono font-bold"
+                />
+              </div>
+            </div>
+
+            {/* If prep has portions, allow choosing portion */}
+            {(() => {
+              const selectedPrep = semiFinishedService.getPreparationById(
+                establishmentId,
+                selectedPrepIdForRemaining
+              );
+              if (!selectedPrep || selectedPrep.portions.length === 0) return null;
+              return (
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    أو اختر بالحصص المسمّاة:
+                  </label>
+                  <select
+                    value={remainingPrepPortionId}
+                    onChange={(e) =>
+                      handleUpdateRemainingPreview(
+                        selectedPrepIdForRemaining,
+                        remainingPrepAmount,
+                        e.target.value
+                      )
+                    }
+                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white"
+                  >
+                    <option value="">بالوحدة المباشرة ({selectedPrep.yieldUnit})</option>
+                    {selectedPrep.portions.map((portion) => (
+                      <option key={portion.id} value={portion.id}>
+                        {portion.nameAr} ({portion.sizeInYieldUnits} {selectedPrep.yieldUnit})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              );
+            })()}
+
+            {/* Live Decomposition Preview Card */}
+            {decomposedPreview.length > 0 && (
+              <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                    <Sparkles className="w-4 h-4 text-cyan-600" />
+                    المعاينة الفورية قبل الاعتماد (يعادل بالخامات الأولية):
+                  </span>
+                  <span className="text-[11px] font-mono text-cyan-700 dark:text-cyan-400">
+                    {decomposedPreview.length} خامات أولية
+                  </span>
+                </div>
+
+                <div className="divide-y divide-slate-200 dark:divide-slate-800 text-xs">
+                  {decomposedPreview.map((raw) => (
+                    <div key={raw.materialId} className="py-2 flex items-center justify-between">
+                      <span className="font-bold text-slate-800 dark:text-slate-200">
+                        {raw.materialNameAr}
+                      </span>
+                      <span className="font-mono font-bold text-cyan-700 dark:text-cyan-400">
+                        {raw.requiredBaseQty} {raw.baseUnit}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="flex justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">
+              <Button type="button" variant="outline" size="sm" onClick={() => setIsRemainingPrepsModalOpen(false)}>
+                إلغاء
+              </Button>
+              <Button
+                type="button"
+                variant="primary"
+                size="sm"
+                disabled={decomposedPreview.length === 0}
+                onClick={handleConfirmRemainingPreparations}
+                className="bg-cyan-600 hover:bg-cyan-700 text-white font-bold"
+              >
+                اعتماد وإضافة للجرد الفعلي للخامات
+              </Button>
+            </div>
+          </div>
+        </ModalShell>
+      )}
+
+      {/* 9. Daily Report Modal (Package 3 - Section 0-د) */}
+      {isDailyReportModalOpen && currentPeriod && (
+        <ModalShell
+          isOpen={isDailyReportModalOpen}
+          onClose={() => setIsDailyReportModalOpen(false)}
+          title="التقرير اليومي التلقائي لحركة الجرد والانحراف"
+          size="xl"
+        >
+          <div className="space-y-4" dir="rtl">
+            <div className="p-3.5 rounded-xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800 text-xs text-purple-900 dark:text-purple-200">
+              <p className="font-bold">حركة الأيام التلقائية خلال الفترة:</p>
+              <p>
+                تفصيل حركة كل يوم على حدة: إجمالي الوارد، المنصرف، ورصيد الجرد والانحراف المسجل مع الأسباب والملاحظات المدونة.
+              </p>
+            </div>
+
+            <div className="overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-xl">
+              <table className="w-full text-xs text-start">
+                <thead className="bg-slate-50 dark:bg-slate-900/60 font-bold border-b border-slate-200 dark:border-slate-800">
+                  <tr>
+                    <th className="p-3 text-start">التاريخ</th>
+                    <th className="p-3 text-end text-emerald-600">إجمالي الوارد (+)</th>
+                    <th className="p-3 text-end text-rose-600">إجمالي المنصرف (−)</th>
+                    <th className="p-3 text-end font-bold">الرصيد الفعلي</th>
+                    <th className="p-3 text-end font-bold">الانحراف</th>
+                    <th className="p-3 text-start">الحالة</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                  {currentPeriod.items[0]?.dailyRecords?.map((daily, idx) => {
+                    const dayIn = currentPeriod.items.reduce((s, it) => s + (it.dailyRecords[idx]?.inBase || 0), 0);
+                    const dayOut = currentPeriod.items.reduce((s, it) => s + (it.dailyRecords[idx]?.outBase || 0), 0);
+                    const dayCount = currentPeriod.items.reduce((s, it) => s + (it.dailyRecords[idx]?.physicalCountBase || 0), 0);
+                    const dayVar = currentPeriod.items.reduce((s, it) => s + (it.dailyRecords[idx]?.varianceBase || 0), 0);
+
+                    return (
+                      <tr key={daily.date} className="hover:bg-slate-50/60 dark:hover:bg-slate-800/40">
+                        <td className="p-3 font-mono font-bold text-slate-800 dark:text-slate-200">
+                          {daily.date}
+                        </td>
+                        <td className="p-3 text-end font-mono text-emerald-600">+{fmt(dayIn)}</td>
+                        <td className="p-3 text-end font-mono text-rose-600">−{fmt(dayOut)}</td>
+                        <td className="p-3 text-end font-mono font-bold text-slate-900 dark:text-white">
+                          {fmt(dayCount)}
+                        </td>
+                        <td className="p-3 text-end font-mono font-bold">
+                          <span className={dayVar > 0 ? 'text-emerald-600' : dayVar < 0 ? 'text-rose-600' : 'text-slate-400'}>
+                            {dayVar > 0 ? `+${fmt(dayVar)}` : fmt(dayVar)}
+                          </span>
+                        </td>
+                        <td className="p-3">
+                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                            {daily.isClosed ? 'مغلق' : 'نشط'}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="flex justify-end pt-3 border-t border-slate-200 dark:border-slate-800">
+              <Button type="button" variant="outline" size="sm" onClick={() => setIsDailyReportModalOpen(false)}>
+                إغلاق
+              </Button>
+            </div>
+          </div>
         </ModalShell>
       )}
 

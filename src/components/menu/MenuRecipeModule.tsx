@@ -52,6 +52,7 @@ import { calculateIngredientLineCost, STANDARD_UNITS } from '../../services/unit
 import { calculateFoodCostPercentage, calculateGrossMargin, calculateSuggestedSellingPrice } from '../../domain/formulas.ts';
 import { categoryService, CategoryNode, normalizeArabicText } from '../../services/categoryService.ts';
 import { DuplicatesResolverModal } from './DuplicatesResolverModal.tsx';
+import { semiFinishedService, SemiFinishedItem, PreparationPortion } from '../../services/semiFinishedService.ts';
 
 type ActiveDishTab = 'info' | 'recipe' | 'pricing' | 'history';
 
@@ -148,9 +149,13 @@ export const MenuRecipeModule: React.FC = () => {
   const [quickMatStock, setQuickMatStock] = useState(10);
   const [quickMatWaste, setQuickMatWaste] = useState(5);
 
-  // New ingredient selection in recipe tab
+  // New ingredient selection in recipe tab (Raw vs Semi-Finished Preparation)
   const [isAddIngredientOpen, setIsAddIngredientOpen] = useState(false);
+  const [ingredientModalTab, setIngredientModalTab] = useState<'raw' | 'semi_finished'>('raw');
   const [ingredientSearch, setIngredientSearch] = useState('');
+  const [selectedPrepForAdd, setSelectedPrepForAdd] = useState<SemiFinishedItem | null>(null);
+  const [selectedPortionIdForAdd, setSelectedPortionIdForAdd] = useState<string>('yield');
+  const [prepQuantityForAdd, setPrepQuantityForAdd] = useState<number>(1);
 
   // Toast notification
   const [generalToast, setGeneralToast] = useState<string | null>(null);
@@ -388,8 +393,25 @@ export const MenuRecipeModule: React.FC = () => {
     setSaveErrorMsg(null);
 
     try {
-      // Recalculate true cost based on recipe ingredients
-      const rawCost = (draftDish.recipeIngredients || []).reduce((sum, item) => sum + item.totalCost, 0);
+      // Recalculate true cost based on recipe ingredients (with dynamic prep costs)
+      const updatedIngredients = (draftDish.recipeIngredients || []).map((item) => {
+        if (item.type === 'semi_finished') {
+          const prep = semiFinishedService.getPreparationById(item.ingredientId);
+          if (prep) {
+            const portion = item.portionId ? prep.portions.find((p) => p.id === item.portionId) : undefined;
+            const currentUnitCost = portion ? portion.calculatedCost : prep.wacUnitCost;
+            const currentTotal = Math.round(item.quantity * currentUnitCost * 100) / 100;
+            return {
+              ...item,
+              unitCost: currentUnitCost,
+              totalCost: currentTotal,
+            };
+          }
+        }
+        return item;
+      });
+
+      const rawCost = updatedIngredients.reduce((sum, item) => sum + item.totalCost, 0);
       const pkgCost = (draftDish.packagingItems || []).reduce((sum, item) => sum + item.cost, 0);
       const portions = Math.max(1, draftDish.servingsYield || 1);
       const portionCost = (rawCost + pkgCost + (draftDish.consumablesCost || 0) + (draftDish.utilitiesCost || 0)) / portions;
@@ -408,6 +430,7 @@ export const MenuRecipeModule: React.FC = () => {
 
       const finalProduct: MenuItemProduct = {
         ...draftDish,
+        recipeIngredients: updatedIngredients,
         trueCost: portionCost,
         foodCostPercentage: foodCostPct,
         grossMarginPercentage: marginPct,
@@ -518,6 +541,42 @@ export const MenuRecipeModule: React.FC = () => {
     }
 
     setIsAddIngredientOpen(false);
+  };
+
+  // Add Semi-Finished Preparation or Portion to Draft Recipe
+  const handleAddPrepToDraft = (prep: SemiFinishedItem, portionId?: string, qty: number = 1) => {
+    if (!draftDish) return;
+    const items = [...(draftDish.recipeIngredients || [])];
+    const portion = portionId && portionId !== 'yield' ? prep.portions.find((p) => p.id === portionId) : undefined;
+    const existing = items.find((i) => i.ingredientId === prep.id && (portion ? i.portionId === portion.id : !i.portionId));
+
+    const unit = portion ? portion.nameAr : prep.yieldUnit;
+    const unitCost = portion ? portion.calculatedCost : prep.wacUnitCost;
+    const quantity = Math.max(0.01, qty);
+    const totalCost = Math.round(quantity * unitCost * 100) / 100;
+
+    if (existing) {
+      existing.quantity += quantity;
+      existing.totalCost = Math.round(existing.quantity * existing.unitCost * 100) / 100;
+    } else {
+      items.push({
+        ingredientId: prep.id,
+        ingredientNameAr: prep.nameAr,
+        ingredientNameEn: prep.nameEn,
+        quantity: quantity,
+        unit: unit,
+        unitCost: unitCost,
+        totalCost: totalCost,
+        type: 'semi_finished',
+        portionId: portion?.id,
+        portionNameAr: portion?.nameAr,
+      });
+    }
+
+    setDraftDish({ ...draftDish, recipeIngredients: items });
+    setHasUnsavedChanges(true);
+    setIsAddIngredientOpen(false);
+    setSelectedPrepForAdd(null);
   };
 
   // In-Recipe Quick Material Creation
@@ -1226,14 +1285,26 @@ export const MenuRecipeModule: React.FC = () => {
                     ) : (
                       draftDish.recipeIngredients.map((item) => (
                         <div
-                          key={item.ingredientId}
+                          key={item.portionId ? `${item.ingredientId}-${item.portionId}` : item.ingredientId}
                           data-testid={`ingredient-row-${item.ingredientId}`}
                           className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
                         >
                           <div className="min-w-0">
-                            <h4 className="font-bold text-slate-900 dark:text-white truncate">
-                              {item.ingredientNameAr}
-                            </h4>
+                            <div className="flex items-center gap-2">
+                              <h4 className="font-bold text-slate-900 dark:text-white truncate">
+                                {item.ingredientNameAr}
+                              </h4>
+                              {item.type === 'semi_finished' && (
+                                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800 shrink-0">
+                                  تجهيز
+                                </span>
+                              )}
+                              {item.portionNameAr && (
+                                <span className="text-[11px] text-cyan-600 dark:text-cyan-400 font-medium">
+                                  ({item.portionNameAr})
+                                </span>
+                              )}
+                            </div>
                             <div className="text-[11px] text-slate-400">
                               <span>الوحدة: {item.unit}</span>
                               {canViewFinancials && (
@@ -1241,6 +1312,11 @@ export const MenuRecipeModule: React.FC = () => {
                                   <span className="mx-1.5">·</span>
                                   <span>سعر الوحدة: {item.unitCost} ج.م</span>
                                 </>
+                              )}
+                              {item.type === 'semi_finished' && (
+                                <span className="block text-[10px] text-slate-500 mt-0.5">
+                                  تُفكك تلقائياً للخامات عند البيع والجرد
+                                </span>
                               )}
                             </div>
                           </div>
@@ -1469,66 +1545,288 @@ export const MenuRecipeModule: React.FC = () => {
         </div>
       )}
 
-      {/* Select Material Modal inside Recipe Tab */}
+      {/* Select Material / Semi-Finished Prep Modal inside Recipe Tab */}
       {isAddIngredientOpen && (
         <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xs animate-fade-in">
-          <div className="w-full max-w-md bg-white dark:bg-[#0b101e] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl p-4 space-y-3 text-slate-900 dark:text-slate-100">
+          <div className="w-full max-w-lg bg-white dark:bg-[#0b101e] border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl p-4 space-y-3 text-slate-900 dark:text-slate-100">
             <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
-              <h3 className="text-sm font-bold">اختر خامة لإضافتها للوصفة</h3>
-              <Button type="button" variant="ghost" size="sm" onClick={() => setIsAddIngredientOpen(false)}>
+              <h3 className="text-sm font-bold">
+                {selectedPrepForAdd ? `إضافة تجهيز: ${selectedPrepForAdd.nameAr}` : 'اختر مكوناً للوصفة'}
+              </h3>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setIsAddIngredientOpen(false);
+                  setSelectedPrepForAdd(null);
+                }}
+              >
                 <X className="w-4 h-4" />
               </Button>
             </div>
 
-            <div className="flex items-center gap-2">
-              <div className="relative flex-1">
-                <Search className="w-4 h-4 absolute start-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                <input
-                  type="text"
-                  placeholder="ابحث في الخامات..."
-                  value={ingredientSearch}
-                  onChange={(e) => setIngredientSearch(e.target.value)}
-                  className="w-full ps-9 pe-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs"
-                />
+            {/* Main Tabs: Raw Materials vs Semi-Finished Preps */}
+            {!selectedPrepForAdd && (
+              <div className="flex items-center gap-1.5 p-1 rounded-xl bg-slate-100 dark:bg-slate-900">
+                <button
+                  type="button"
+                  onClick={() => setIngredientModalTab('raw')}
+                  className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
+                    ingredientModalTab === 'raw'
+                      ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-xs'
+                      : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+                  }`}
+                  data-testid="tab-recipe-add-raw"
+                >
+                  خامات أولية ({rawMaterials.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIngredientModalTab('semi_finished')}
+                  className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
+                    ingredientModalTab === 'semi_finished'
+                      ? 'bg-white dark:bg-slate-800 text-cyan-600 dark:text-cyan-400 shadow-xs'
+                      : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+                  }`}
+                  data-testid="tab-recipe-add-semi"
+                >
+                  تجهيزات وتحضيرات ({semiFinishedService.getAllPreparations().length})
+                </button>
               </div>
+            )}
 
-              <Button
-                type="button"
-                variant="outline"
-                size="xs"
-                onClick={() => setIsQuickAddMaterialOpen(true)}
-                className="gap-1 font-bold whitespace-nowrap"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                <span>خامة جديدة</span>
-              </Button>
-            </div>
+            {/* TAB 1: RAW MATERIALS */}
+            {ingredientModalTab === 'raw' && !selectedPrepForAdd && (
+              <>
+                <div className="flex items-center gap-2">
+                  <div className="relative flex-1">
+                    <Search className="w-4 h-4 absolute start-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <input
+                      type="text"
+                      placeholder="ابحث في الخامات..."
+                      value={ingredientSearch}
+                      onChange={(e) => setIngredientSearch(e.target.value)}
+                      className="w-full ps-9 pe-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs"
+                    />
+                  </div>
 
-            <div className="max-h-64 overflow-y-auto space-y-1.5 divide-y divide-slate-100 dark:divide-slate-800/60">
-              {rawMaterials
-                .filter((m) =>
-                  m.nameAr.toLowerCase().includes(ingredientSearch.toLowerCase()) ||
-                  m.nameEn.toLowerCase().includes(ingredientSearch.toLowerCase())
-                )
-                .map((mat) => (
-                  <button
-                    key={mat.id}
+                  <Button
                     type="button"
-                    onClick={() => handleAddIngredientToDraft(mat)}
-                    className="w-full p-2.5 rounded-xl flex items-center justify-between text-start hover:bg-cyan-50 dark:hover:bg-cyan-950/40 transition-colors cursor-pointer text-xs"
+                    variant="outline"
+                    size="xs"
+                    onClick={() => setIsQuickAddMaterialOpen(true)}
+                    className="gap-1 font-bold whitespace-nowrap"
                   >
-                    <div>
-                      <span className="font-bold block text-slate-900 dark:text-white">{mat.nameAr}</span>
-                      <span className="text-[10px] text-slate-400">الوحدة: {mat.consumptionUnit}</span>
-                    </div>
-                    {canViewFinancials && (
-                      <span className="font-mono font-bold text-slate-600 dark:text-slate-300">
-                        {mat.effectiveUnitCost} ج.م / {mat.consumptionUnit}
-                      </span>
-                    )}
-                  </button>
-                ))}
-            </div>
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>خامة جديدة</span>
+                  </Button>
+                </div>
+
+                <div className="max-h-64 overflow-y-auto space-y-1.5 divide-y divide-slate-100 dark:divide-slate-800/60">
+                  {rawMaterials
+                    .filter((m) =>
+                      m.nameAr.toLowerCase().includes(ingredientSearch.toLowerCase()) ||
+                      m.nameEn.toLowerCase().includes(ingredientSearch.toLowerCase())
+                    )
+                    .map((mat) => (
+                      <button
+                        key={mat.id}
+                        type="button"
+                        onClick={() => handleAddIngredientToDraft(mat)}
+                        className="w-full p-2.5 rounded-xl flex items-center justify-between text-start hover:bg-cyan-50 dark:hover:bg-cyan-950/40 transition-colors cursor-pointer text-xs"
+                      >
+                        <div>
+                          <span className="font-bold block text-slate-900 dark:text-white">{mat.nameAr}</span>
+                          <span className="text-[10px] text-slate-400">الوحدة: {mat.consumptionUnit}</span>
+                        </div>
+                        {canViewFinancials && (
+                          <span className="font-mono font-bold text-slate-600 dark:text-slate-300">
+                            {mat.effectiveUnitCost} ج.م / {mat.consumptionUnit}
+                          </span>
+                        )}
+                      </button>
+                    ))}
+                </div>
+              </>
+            )}
+
+            {/* TAB 2: SEMI-FINISHED PREPARATIONS */}
+            {ingredientModalTab === 'semi_finished' && !selectedPrepForAdd && (
+              <>
+                <div className="flex items-center gap-2">
+                  <div className="relative flex-1">
+                    <Search className="w-4 h-4 absolute start-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <input
+                      type="text"
+                      placeholder="ابحث في التجهيزات (عجين/صوص/أرز)..."
+                      value={ingredientSearch}
+                      onChange={(e) => setIngredientSearch(e.target.value)}
+                      className="w-full ps-9 pe-3 py-1.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs"
+                    />
+                  </div>
+                </div>
+
+                <div className="max-h-64 overflow-y-auto space-y-2">
+                  {semiFinishedService
+                    .getAllPreparations()
+                    .filter((p) =>
+                      p.nameAr.toLowerCase().includes(ingredientSearch.toLowerCase()) ||
+                      p.nameEn.toLowerCase().includes(ingredientSearch.toLowerCase())
+                    )
+                    .map((prep) => (
+                      <div
+                        key={prep.id}
+                        className="p-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 hover:border-cyan-500/50 transition-colors space-y-2"
+                        data-testid={`prep-pick-row-${prep.id}`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="font-bold text-slate-900 dark:text-white text-xs">
+                                {prep.nameAr}
+                              </span>
+                              <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400">
+                                {prep.producingDepartment === 'kitchen' ? 'المطبخ' : prep.producingDepartment === 'bar' ? 'البار' : prep.producingDepartment === 'bakery' ? 'المخبز' : prep.producingDepartment === 'pastry' ? 'الحلواني' : prep.producingDepartment}
+                              </span>
+                            </div>
+                            <span className="text-[11px] text-slate-400 block mt-0.5">
+                              التكلفة: {prep.wacUnitCost.toFixed(2)} ج.م / {prep.yieldUnit}
+                            </span>
+                          </div>
+
+                          <Button
+                            type="button"
+                            variant="primary"
+                            size="xs"
+                            onClick={() => {
+                              setSelectedPrepForAdd(prep);
+                              setSelectedPortionIdForAdd(prep.portions && prep.portions.length > 0 ? prep.portions[0].id : 'yield');
+                              setPrepQuantityForAdd(1);
+                            }}
+                            className="font-bold"
+                            data-testid={`prep-select-btn-${prep.id}`}
+                          >
+                            اختيار وتحديد الحصة
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </>
+            )}
+
+            {/* SUB-VIEW: PORTION / QUANTITY CONFIGURATION FOR CHOSEN PREPARATION */}
+            {selectedPrepForAdd && (
+              <div className="space-y-4 pt-1" data-testid="prep-portion-selector-panel">
+                <div className="p-3 rounded-xl bg-cyan-50 dark:bg-cyan-950/40 border border-cyan-200 dark:border-cyan-800 space-y-1">
+                  <div className="font-bold text-cyan-900 dark:text-cyan-200 text-xs">
+                    {selectedPrepForAdd.nameAr} · {selectedPrepForAdd.producingDepartment === 'kitchen' ? 'المطبخ' : selectedPrepForAdd.producingDepartment === 'bar' ? 'البار' : selectedPrepForAdd.producingDepartment === 'bakery' ? 'المخبز' : selectedPrepForAdd.producingDepartment === 'pastry' ? 'الحلواني' : selectedPrepForAdd.producingDepartment}
+                  </div>
+                  <div className="text-[11px] text-cyan-700 dark:text-cyan-300">
+                    نوع التجهيز: {selectedPrepForAdd.type === 'compound' ? 'مركب من خامات' : 'تشغيل وطبخ'} · الوحدة القياسية: {selectedPrepForAdd.yieldUnit}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                    طريقة القياس في الطبق:
+                  </label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {selectedPrepForAdd.portions && selectedPrepForAdd.portions.length > 0 && selectedPrepForAdd.portions.map((port) => (
+                      <button
+                        key={port.id}
+                        type="button"
+                        onClick={() => setSelectedPortionIdForAdd(port.id)}
+                        className={`p-2.5 rounded-xl text-start border transition-all cursor-pointer text-xs ${
+                          selectedPortionIdForAdd === port.id
+                            ? 'bg-cyan-50 dark:bg-cyan-950/60 border-cyan-500 font-bold text-cyan-900 dark:text-cyan-200'
+                            : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300'
+                        }`}
+                        data-testid={`portion-option-${port.id}`}
+                      >
+                        <div className="font-bold">{port.nameAr}</div>
+                        <div className="text-[10px] text-slate-400">
+                          {port.sizeInYieldUnits} {selectedPrepForAdd.yieldUnit} · {port.calculatedCost.toFixed(2)} ج.م
+                        </div>
+                      </button>
+                    ))}
+
+                    <button
+                      type="button"
+                      onClick={() => setSelectedPortionIdForAdd('yield')}
+                      className={`p-2.5 rounded-xl text-start border transition-all cursor-pointer text-xs ${
+                        selectedPortionIdForAdd === 'yield'
+                          ? 'bg-cyan-50 dark:bg-cyan-950/60 border-cyan-500 font-bold text-cyan-900 dark:text-cyan-200'
+                          : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300'
+                      }`}
+                      data-testid="portion-option-yield"
+                    >
+                      <div className="font-bold">بالوزن/الحجم المباشر</div>
+                      <div className="text-[10px] text-slate-400">
+                        وحدة {selectedPrepForAdd.yieldUnit} · {selectedPrepForAdd.wacUnitCost.toFixed(2)} ج.م
+                      </div>
+                    </button>
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300">
+                    الكمية المستخدمة في هذا الطبق:
+                  </label>
+                  <div className="w-44">
+                    <NumericInput
+                      value={prepQuantityForAdd}
+                      onChange={(q) => setPrepQuantityForAdd(Math.max(0.01, q))}
+                      min={0.01}
+                      step={selectedPortionIdForAdd === 'yield' ? 10 : 1}
+                      unit={
+                        selectedPortionIdForAdd === 'yield'
+                          ? selectedPrepForAdd.yieldUnit
+                          : selectedPrepForAdd.portions.find((p) => p.id === selectedPortionIdForAdd)?.nameAr || 'حصة'
+                      }
+                      showSteppers={true}
+                    />
+                  </div>
+                </div>
+
+                {/* Instant Real-Time Decomposition Explanation */}
+                <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs space-y-1">
+                  <div className="font-bold text-slate-800 dark:text-slate-200">
+                    ملاحظة الخصم التلقائي:
+                  </div>
+                  <p className="text-[11px] text-slate-500 leading-relaxed">
+                    {prepQuantityForAdd}{' '}
+                    {selectedPortionIdForAdd === 'yield'
+                      ? selectedPrepForAdd.yieldUnit
+                      : selectedPrepForAdd.portions.find((p) => p.id === selectedPortionIdForAdd)?.nameAr}{' '}
+                    من «{selectedPrepForAdd.nameAr}» تخصم مكافئ الخامات الأولية تلقائياً من مخزن قسم [
+                    {selectedPrepForAdd.producingDepartment === 'kitchen' ? 'المطبخ' : selectedPrepForAdd.producingDepartment === 'bar' ? 'البار' : selectedPrepForAdd.producingDepartment === 'bakery' ? 'المخبز' : selectedPrepForAdd.producingDepartment === 'pastry' ? 'الحلواني' : selectedPrepForAdd.producingDepartment}] عند البيع من الكاشير وتضاف للجرد الفعلي.
+                  </p>
+                </div>
+
+                <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setSelectedPrepForAdd(null)}
+                  >
+                    رجوع لقائمة التجهيزات
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="primary"
+                    size="sm"
+                    onClick={() => handleAddPrepToDraft(selectedPrepForAdd, selectedPortionIdForAdd, prepQuantityForAdd)}
+                    className="font-bold"
+                    data-testid="confirm-add-prep-to-recipe-btn"
+                  >
+                    + أضف التجهيز للوصفة
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

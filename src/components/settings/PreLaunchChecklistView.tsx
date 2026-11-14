@@ -26,6 +26,7 @@ import {
   FolderTree,
   Warehouse,
   ClipboardCheck,
+  ChefHat,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.tsx';
 import { useI18n } from '../../i18n/I18nContext.tsx';
@@ -162,6 +163,16 @@ const CHECKLIST_STEPS: ChecklistStep[] = [
     descAr: 'تأكد من شاشة الجرد والانحراف بالوحدات المختلطة، استبعاد بضاعة في الطريق، تمييز الفروق (أخضر للزيادة وأحمر للعجز)، الإغلاق الفعلي وترحيل قيود التسوية، الملاحظات اليومية وفتح كارت الصنف، وتحول زر الكاشير للأصفر ثم الرمادي عند نفاد الخامة أو حصص الخبز، مع حجب تفاصيل النواقص عن منيو العميل.',
     descEn: 'Confirm physical audit with mixed units, in-transit segregation, surplus/deficit visual cues, official period close ledger reconciliations, daily notes linking to item card, and cashier yellow/gray out-of-stock states while keeping raw inventory hidden from customer menu.',
     icon: <ClipboardCheck className="w-5 h-5 text-emerald-500" />,
+  },
+  {
+    id: 'semi_finished_preparations',
+    categoryAr: 'التجهيزات والتحضيرات',
+    categoryEn: 'Semi-Finished Preparations',
+    titleAr: 'فحص التجهيزات كمرشّح تحويل وتفكيكها للخامات في البيع والجرد ودفعات الإنتاج',
+    titleEn: 'Verify Semi-Finished Preparations, BOM Decomposition & Batches',
+    descAr: 'تأكد من تعريف التجهيزات بالصيغة (عجين بيتزا، صوصات، أرز مسلوق) وتفكيكها للخامات عند البيع وخصمها من مخزن القسم، مع إمكانية تفعيل تسجيل الدفعات، وديناميكية انتشار التكلفة، وجرد التجهيزات المتبقية واحتساب خاماتها المكافئة، ومنع الدوران التكراري، وحجب التجهيزات عن طلبيات الشراء.',
+    descEn: 'Confirm on-formula semi-finished preparations (dough, sauces, steamed rice), dynamic decomposition to raw materials on POS sales and physical audit, optional batch tracking, cost propagation, remaining prep audit, circular dependency prevention, and omission from purchase orders.',
+    icon: <ChefHat className="w-5 h-5 text-indigo-500" />,
   },
   {
     id: 'privacy_anonymize',

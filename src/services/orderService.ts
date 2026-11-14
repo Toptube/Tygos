@@ -19,9 +19,10 @@ import { orderTransport } from './orderTransport.ts';
 import { tableService } from './tableService.ts';
 import { shiftTreasuryService } from './shiftTreasuryService.ts';
 import { customerService, Coupon, calculateOrderDiscounts } from './customerService.ts';
-import { dataService } from './dataService.ts';
+import { dataService, MenuItemProduct } from './dataService.ts';
 import { warehouseService } from './warehouseService.ts';
 import { productAvailabilityService } from './productAvailabilityService.ts';
+import { semiFinishedService } from './semiFinishedService.ts';
 import { domainEvents } from '../events/domainEvents.ts';
 import { calculateTax } from '../domain/formulas.ts';
 import { generateUuid } from '../sync/syncTypes.ts';
@@ -55,6 +56,68 @@ export interface PaymentTransactionResult {
 }
 
 class OrderService {
+  /**
+   * Settles an order completely in one call (creating and processing payment).
+   */
+  public async settleOrder(
+    estId: string,
+    orderSource: 'pos' | 'qr',
+    tableOrTakeaway: string,
+    items: Array<{ product: MenuItemProduct; quantity: number }>,
+    paymentMethod: 'cash' | 'card' = 'cash',
+    amountPaid: number = 0,
+    actorName: string = 'كاشير'
+  ): Promise<any> {
+    let activeShift = shiftTreasuryService.getActiveShift(estId);
+    if (!activeShift) {
+      activeShift = shiftTreasuryService.openShift(estId, {
+        cashierUsername: 'cashier-test',
+        cashierName: actorName,
+        openingFloat: 500,
+        note: 'وردية اختبار آلية',
+      });
+    }
+
+    const orderItems: CustomerOrderItem[] = items.map((it) => ({
+      productId: it.product.id,
+      nameAr: it.product.nameAr,
+      nameEn: it.product.nameEn || it.product.nameAr,
+      price: it.product.sellingPrice,
+      quantity: it.quantity,
+      station: (it.product.prepStation || (it.product as any).preparationStation || 'kitchen') as any,
+    }));
+
+    const totals = this.calculateTotals({ items: orderItems });
+    const order = await this.saveAndSend(
+      estId,
+      {
+        establishmentId: estId,
+        serviceType: 'dine_in',
+        tableNumber: tableOrTakeaway.replace('table-', ''),
+        customerName: 'عميل الصالة',
+        customerPhone: '',
+        items: orderItems,
+        subtotal: totals.subtotal,
+        taxAmount: totals.taxAmount,
+        serviceFee: totals.serviceChargeAmount,
+        deliveryFee: totals.deliveryFee,
+        discountAmount: totals.totalDiscount,
+        totalAmount: totals.totalAmount,
+        source: orderSource === 'qr' ? 'qr_menu' : orderSource,
+        stationStatuses: {},
+      },
+      actorName
+    );
+
+    return this.processPaymentTransaction(estId, {
+      orderId: order.id,
+      method: paymentMethod,
+      cashReceived: amountPaid || totals.totalAmount,
+      actorName,
+      actorRole: 'cashier',
+    });
+  }
+
   /**
    * Computes order totals from items, discount/coupon/loyalty, service charge, and tax.
    */
@@ -570,14 +633,77 @@ class OrderService {
         }
 
         for (const ing of prod.recipeIngredients) {
-          warehouseService.deductSalesStock(
-            estId,
-            ing.ingredientId,
-            prod.prepStation || 'kitchen',
-            ing.quantity * item.quantity,
-            savedOrder.serialNumber,
-            input.actorName || 'كاشير'
-          );
+          if (ing.type === 'semi_finished') {
+            const prep = semiFinishedService.getPreparationById(estId, ing.ingredientId);
+            const totalPrepNeeded = ing.quantity * item.quantity;
+
+            if (prep?.enableBatchTracking && (prep.currentBatchStock || 0) > 0) {
+              const portionSize = ing.portionId
+                ? (prep.portions.find((p) => p.id === ing.portionId)?.sizeInYieldUnits || 1)
+                : 1;
+              const yieldNeeded = totalPrepNeeded * portionSize;
+
+              if (prep.currentBatchStock >= yieldNeeded) {
+                // Deduct entire requirement from preparation batch stock
+                prep.currentBatchStock -= yieldNeeded;
+                semiFinishedService.savePreparations(estId, semiFinishedService.getPreparations(estId));
+              } else {
+                // Partial deduction from batch stock, remaining decomposed to raw
+                const coveredByBatch = prep.currentBatchStock;
+                const uncoveredYield = yieldNeeded - coveredByBatch;
+                prep.currentBatchStock = 0;
+                semiFinishedService.savePreparations(estId, semiFinishedService.getPreparations(estId));
+
+                const uncoveredPortions = uncoveredYield / portionSize;
+                const decomposed = semiFinishedService.decomposePreparationToRaw(
+                  estId,
+                  ing.ingredientId,
+                  uncoveredPortions,
+                  ing.portionId || ing.unit
+                );
+                for (const d of decomposed) {
+                  warehouseService.deductSalesStock(
+                    estId,
+                    d.materialId,
+                    prod.prepStation || 'kitchen',
+                    d.requiredBaseQty,
+                    savedOrder.serialNumber,
+                    input.actorName || 'كاشير',
+                    `استهلاك عبر تجهيز: ${ing.ingredientNameAr} (${prod.nameAr} × ${item.quantity}) - بدون دفعة مسجلة`
+                  );
+                }
+              }
+            } else {
+              // Default Mode: "On-Formula" (على الصيغة) - decompose automatically to raw materials
+              const decomposed = semiFinishedService.decomposePreparationToRaw(
+                estId,
+                ing.ingredientId,
+                totalPrepNeeded,
+                ing.portionId || ing.unit
+              );
+              for (const d of decomposed) {
+                warehouseService.deductSalesStock(
+                  estId,
+                  d.materialId,
+                  prod.prepStation || 'kitchen',
+                  d.requiredBaseQty,
+                  savedOrder.serialNumber,
+                  input.actorName || 'كاشير',
+                  `استهلاك عبر تجهيز: ${ing.ingredientNameAr} (${prod.nameAr} × ${item.quantity})`
+                );
+              }
+            }
+          } else {
+            // Direct raw material ingredient
+            warehouseService.deductSalesStock(
+              estId,
+              ing.ingredientId,
+              prod.prepStation || 'kitchen',
+              ing.quantity * item.quantity,
+              savedOrder.serialNumber,
+              input.actorName || 'كاشير'
+            );
+          }
         }
       }
     }

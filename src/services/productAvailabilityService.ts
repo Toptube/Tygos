@@ -15,7 +15,8 @@
 
 import { productRepository, rawMaterialRepository } from '../repositories/repositories.ts';
 import { warehouseService } from './warehouseService.ts';
-import { MenuItemProduct, ProductRecipeItem } from './dataService.ts';
+import { MenuItemProduct, ProductRecipeItem, dataService } from './dataService.ts';
+import { semiFinishedService } from './semiFinishedService.ts';
 
 export type AvailabilityStatus = 'available' | 'low_stock' | 'out_of_stock';
 
@@ -81,20 +82,80 @@ class ProductAvailabilityService {
     let minPortions = Infinity;
     let bottleneckName: string | undefined = undefined;
 
-    const requirements: RawRequirementItem[] = recipe.map((rec: ProductRecipeItem) => {
-      const mat = materials.find((m) => m.id === rec.ingredientId);
-      const sectionStock = mat?.warehouseStockMap?.[targetWh.id] || 0;
-      const reqPerPortion = rec.quantity || 1;
+    // Flatten raw materials and decomposed semi-finished preparations
+    const flatRawMap: Record<string, { materialId: string; materialNameAr: string; requiredQty: number }> = {};
+
+    recipe.forEach((rec: ProductRecipeItem) => {
+      if (rec.type === 'semi_finished') {
+        const prep = semiFinishedService.getPreparationById(establishmentId, rec.ingredientId);
+        // If preparation has batch tracking and active batch stock, check that stock first
+        if (prep?.enableBatchTracking && (prep.currentBatchStock || 0) > 0) {
+          const prepPortions = rec.portionId
+            ? (prep.portions.find((p) => p.id === rec.portionId)?.sizeInYieldUnits || 1)
+            : 1;
+          const portionsFromPrep = Math.floor((prep.currentBatchStock || 0) / (prepPortions * (rec.quantity || 1)));
+          if (portionsFromPrep < minPortions) {
+            minPortions = portionsFromPrep;
+            bottleneckName = prep.nameAr;
+          }
+        } else {
+          // Decompose to raw materials
+          const decomposed = semiFinishedService.decomposePreparationToRaw(
+            establishmentId,
+            rec.ingredientId,
+            rec.quantity || 1,
+            rec.portionId || rec.unit
+          );
+          decomposed.forEach((d) => {
+            if (!flatRawMap[d.materialId]) {
+              flatRawMap[d.materialId] = {
+                materialId: d.materialId,
+                materialNameAr: d.materialNameAr,
+                requiredQty: 0,
+              };
+            }
+            flatRawMap[d.materialId].requiredQty += d.requiredBaseQty;
+          });
+        }
+      } else {
+        if (!flatRawMap[rec.ingredientId]) {
+          flatRawMap[rec.ingredientId] = {
+            materialId: rec.ingredientId,
+            materialNameAr: rec.ingredientNameAr,
+            requiredQty: 0,
+          };
+        }
+        flatRawMap[rec.ingredientId].requiredQty += rec.quantity || 1;
+      }
+    });
+
+    const flatList = Object.values(flatRawMap);
+
+    const requirements: RawRequirementItem[] = flatList.map((flat) => {
+      const mat = materials.find((m) => m.id === flat.materialId || m.nameAr === flat.materialNameAr);
+      if (!mat) {
+        // Untracked utility / pantry item (e.g., water, pinch of salt not tracked in stock)
+        return {
+          ingredientId: flat.materialId,
+          ingredientNameAr: flat.materialNameAr,
+          requiredPerPortionBase: flat.requiredQty || 1,
+          availableSectionStockBase: 999999,
+          portionsPossible: 999,
+          isBottleneck: false,
+        };
+      }
+      const sectionStock = mat.warehouseStockMap?.[targetWh.id] || 0;
+      const reqPerPortion = flat.requiredQty || 1;
 
       const portionsPossible = reqPerPortion > 0 ? Math.floor(sectionStock / reqPerPortion) : 999;
       if (portionsPossible < minPortions) {
         minPortions = portionsPossible;
-        bottleneckName = rec.ingredientNameAr;
+        bottleneckName = flat.materialNameAr;
       }
 
       return {
-        ingredientId: rec.ingredientId,
-        ingredientNameAr: rec.ingredientNameAr,
+        ingredientId: flat.materialId,
+        ingredientNameAr: flat.materialNameAr,
         requiredPerPortionBase: reqPerPortion,
         availableSectionStockBase: sectionStock,
         portionsPossible: Math.max(0, portionsPossible),
@@ -231,14 +292,24 @@ class ProductAvailabilityService {
     prod.updatedAt = new Date().toISOString();
 
     if (!prod.auditHistory) prod.auditHistory = [];
+    const detailsAr = isAvailable
+      ? `قام [${actorName}] بإعادة إتاحة المنتج [${prod.nameAr}] للبيع في الكاشير والمنيو`
+      : `قام [${actorName}] بإيقاف إتاحة المنتج [${prod.nameAr}] مؤقتاً لنفاد الخامات`;
+
     prod.auditHistory.unshift({
       timestamp: new Date().toISOString(),
       user: actorName,
       action: isAvailable ? 'تفعيل إتاحة الصنف' : 'إيقاف الصنف مؤقتاً',
-      details: isAvailable
-        ? `قام [${actorName}] بإعادة إتاحة المنتج [${prod.nameAr}] للبيع في الكاشير والمنيو`
-        : `قام [${actorName}] بإيقاف إتاحة المنتج [${prod.nameAr}] مؤقتاً لنفاد الخامات`,
+      details: detailsAr,
     });
+
+    void dataService.logAudit(
+      establishmentId,
+      'AVAILABILITY_OVERRIDE',
+      detailsAr,
+      'pos',
+      actorName
+    );
 
     productRepository.upsertSync(establishmentId, prod);
     return prod;

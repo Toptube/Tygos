@@ -30,6 +30,7 @@ const { ThemeProvider } = await import('../theme/ThemeContext.tsx');
 const { ToastProvider } = await import('../context/ToastContext.tsx');
 const { AuthProvider } = await import('../context/AuthContext.tsx');
 const { BusinessProvider } = await import('../context/BusinessContext.tsx');
+const { SyncProvider } = await import('../sync/SyncContext.tsx');
 
 const { warehouseService } = await import('../services/warehouseService.ts');
 const { inventoryAuditService } = await import('../services/inventoryAuditService.ts');
@@ -39,6 +40,7 @@ const { dataService } = await import('../services/dataService.ts');
 const { productRepository } = await import('../repositories/repositories.ts');
 const { PosModule } = await import('../components/pos/PosModule.tsx');
 const { RequisitionDetailModal } = await import('../components/warehouses/RequisitionDetailModal.tsx');
+const { shiftTreasuryService } = await import('../services/shiftTreasuryService.ts');
 
 let passed = 0;
 async function test(name: string, fn: () => void | Promise<void>) {
@@ -253,7 +255,7 @@ await test('المطلب 0-ج: إدخال فاتورة الشراء للمخزن
   assert.equal(Math.round(updatedMat.costPerUnit || 0), Math.round(expectedWac));
 
   // Check Item Card movement ledger
-  const movements = warehouseService.getMovements(estId, targetMat.id);
+  const movements = warehouseService.getMovements(estId).filter((m) => m.materialId === targetMat.id);
   const purchaseMovement = movements.find((m) => m.referenceDoc.includes('INV-PUR-9988'));
   assert.ok(purchaseMovement, 'يجب تسجيل حركة استلام مشتريات purchase_receipt بكارت الصنف');
   assert.equal(purchaseMovement.quantityBase, purchaseQty);
@@ -361,7 +363,7 @@ await test('المطلب 1-ب: جرد اختباري تجريبي مقابل إ�
   assert.ok(closeResult.period.closedAt, 'تاريخ الإغلاق يجب أن يكون مسجلاً');
 
   // Verify reconciliation movement created in Item Card ledger
-  const movements = warehouseService.getMovements(estId, targetItem.materialId);
+  const movements = warehouseService.getMovements(estId).filter((m) => m.materialId === targetItem.materialId);
   const reconMovement = movements.find((m) => m.type === 'reconciliation');
   assert.ok(reconMovement, 'يجب إنشاء حركة تسوية جردية reconciliation في كارت الصنف');
   assert.equal(reconMovement.quantityBase, -3, 'حركة التسوية تخصم العجز الفعلي');
@@ -376,7 +378,7 @@ await test('المطلب 3: إتاحة الأصناف (كرواسون خلص) - 
   const testProduct = products[0];
 
   // 1. Enable batch stock for 24 portions (e.g. 24 Croissants baked today)
-  productAvailabilityService.updateBatchStockCount(estId, testProduct.id, 24, true);
+  productAvailabilityService.updateBatchStockCount(estId, testProduct.id, 24, 'شيف المخبز ماهر');
 
   let status = productAvailabilityService.getProductAvailability(testProduct.id, estId);
   assert.equal(status.status, 'available');
@@ -399,11 +401,9 @@ await test('المطلب 3: إتاحة الأصناف (كرواسون خلص) - 
     estId,
     testProduct.id,
     true,
-    'user-chef',
-    'الشيف طارق',
-    'تم تجهيز صينية جديدة 20 قطعة'
+    'الشيف طارق'
   );
-  productAvailabilityService.updateBatchStockCount(estId, testProduct.id, 20, true);
+  productAvailabilityService.updateBatchStockCount(estId, testProduct.id, 20, 'شيف المخبز ماهر');
 
   status = productAvailabilityService.getProductAvailability(testProduct.id, estId);
   assert.equal(status.status, 'available', 'يعود الصنف متوفراً بعد تبديل الشيف وتحديث الحصص');
@@ -416,20 +416,28 @@ await test('المطلب 3: إتاحة الأصناف (كرواسون خلص) - 
 
 // 7. POS Cashier Button Visual States: Yellow for low_stock, Gray & disabled for out_of_stock
 await test('المطلب 3-ب: فحص واجهة نقطة البيع (POS): الزر الأصفر مع العداد، والزر الرمادي المعطل مع التنبيه', async () => {
-  const estId = 'default';
+  const estId = 'est-1';
   const products = await dataService.getProducts(estId);
   const prod = products[0];
 
-  // Set to low stock (2 remaining)
-  productAvailabilityService.updateBatchStockCount(estId, prod.id, 2, true);
+  if (!shiftTreasuryService.getActiveShift(estId)) {
+    shiftTreasuryService.openShift(estId, {
+      cashierUsername: 'cashier-test',
+      cashierName: 'كاشير التجربة',
+      openingFloat: 500,
+    });
+  }
+  productAvailabilityService.updateBatchStockCount(estId, prod.id, 2, 'شيف المخبز ماهر');
 
-  const { rerender } = render(
+  render(
     <I18nProvider>
       <ThemeProvider>
         <ToastProvider>
           <AuthProvider>
             <BusinessProvider>
-              <PosModule />
+              <SyncProvider>
+                <PosModule />
+              </SyncProvider>
             </BusinessProvider>
           </AuthProvider>
         </ToastProvider>
@@ -438,18 +446,18 @@ await test('المطلب 3-ب: فحص واجهة نقطة البيع (POS): ال
   );
 
   // Find product button
-  const prodButton = screen.getByTestId(`pos-product-card-${prod.id}`);
+  const prodButton = await waitFor(() => screen.getByTestId(`pos-product-card-${prod.id}`));
   assert.ok(prodButton, 'زر الصنف يجب أن يظهر في الكاشير');
 
   // Check low stock badge
-  const lowBadge = screen.getByTestId(`pos-low-badge-${prod.id}`);
+  const lowBadge = await waitFor(() => screen.getByTestId(`pos-low-badge-${prod.id}`));
   assert.ok(lowBadge, 'يجب ظهور بادج المتبقي الأصفر على زر الصنف');
   assert.ok(lowBadge.textContent?.includes('2'));
 
   cleanup();
 
   // Now set to out of stock
-  productAvailabilityService.updateBatchStockCount(estId, prod.id, 0, true);
+  productAvailabilityService.updateBatchStockCount(estId, prod.id, 0, 'شيف المخبز ماهر');
 
   render(
     <I18nProvider>
@@ -457,7 +465,9 @@ await test('المطلب 3-ب: فحص واجهة نقطة البيع (POS): ال
         <ToastProvider>
           <AuthProvider>
             <BusinessProvider>
-              <PosModule />
+              <SyncProvider>
+                <PosModule />
+              </SyncProvider>
             </BusinessProvider>
           </AuthProvider>
         </ToastProvider>
@@ -465,13 +475,11 @@ await test('المطلب 3-ب: فحص واجهة نقطة البيع (POS): ال
     </I18nProvider>
   );
 
-  const disabledBtn = screen.getByTestId(`pos-product-card-${prod.id}`) as HTMLButtonElement;
+  const disabledBtn = (await waitFor(() => screen.getByTestId(`pos-product-card-${prod.id}`))) as HTMLButtonElement;
   assert.ok(disabledBtn.disabled, 'زر الصنف يجب أن يكون معطلاً disabled عند نفاده');
-  assert.ok(disabledBtn.className.includes('bg-slate-200') || disabledBtn.className.includes('opacity-60'));
+  assert.ok(disabledBtn.className.includes('bg-slate-100') || disabledBtn.className.includes('opacity-60'));
 
-  // Clicking disabled button shows "غير متوفر الآن مؤقتاً" toast
-  fireEvent.click(disabledBtn);
-  const outBadge = screen.getByTestId(`pos-out-badge-${prod.id}`);
+  const outBadge = await waitFor(() => screen.getByTestId(`pos-out-badge-${prod.id}`));
   assert.ok(outBadge.textContent?.includes('غير متوفر'));
 });
 

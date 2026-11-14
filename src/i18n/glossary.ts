@@ -108,6 +108,13 @@ export const SCREEN_GLOSSARY: Record<string, GlossaryEntry> = {
     titleEn: 'Warehouses & Supply',
     subtitleEn: 'Manage branches, warehouses, item cards, and requisitions',
   },
+  semi_finished: {
+    id: 'semi_finished',
+    titleAr: 'التجهيزات (عجين/صوص)',
+    subtitleAr: 'إدارة التجهيزات والمارينيهات والصوصات وتفكيكها للخامات في البيع والجرد',
+    titleEn: 'Preparations (BOM)',
+    subtitleEn: 'Semi-finished prep formulas, dough, sauces, and dynamic BOM decomposition',
+  },
   inventory_audit: {
     id: 'inventory_audit',
     titleAr: 'الجرد الفعلي والانحراف',

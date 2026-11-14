@@ -26,6 +26,7 @@ import {
 import { useI18n } from '../../i18n/I18nContext.tsx';
 import { useAuth } from '../../context/AuthContext.tsx';
 import { useBusiness } from '../../context/BusinessContext.tsx';
+import { semiFinishedService } from '../../services/semiFinishedService.ts';
 
 interface JourneyProgressBarProps {
   currentStep?: 1 | 2 | 3 | 4 | 5 | 6 | 7;
@@ -50,6 +51,7 @@ export const JourneyProgressBar: React.FC<JourneyProgressBarProps> = ({
 
   const materialsCount = rawMaterials.length;
   const dishesCount = menuProducts.length;
+  const preparationsCount = semiFinishedService.getAllPreparations().length;
   const dishesMissingRecipe = menuProducts.filter(
     (p) => !p.recipeIngredients || p.recipeIngredients.length === 0
   );
@@ -153,6 +155,19 @@ export const JourneyProgressBar: React.FC<JourneyProgressBarProps> = ({
               {materialsCount}
             </strong>
           </div>
+
+          <button
+            type="button"
+            onClick={() => setActiveView('semi_finished')}
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-cyan-500/50 cursor-pointer transition-colors"
+            data-testid="journey-preparations-count-btn"
+            title={isAr ? 'عرض شاشة التجهيزات (عجين/صوص)' : 'View Preparations'}
+          >
+            <span className="text-slate-500">{isAr ? 'التجهيزات:' : 'Preps:'}</span>
+            <strong className="font-mono text-cyan-600 dark:text-cyan-400" data-testid="journey-preparations-count">
+              {preparationsCount}
+            </strong>
+          </button>
 
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
             <span className="text-slate-500">{isAr ? 'المنتجات:' : 'Products:'}</span>

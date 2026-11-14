@@ -101,6 +101,7 @@ export interface RawMaterialItem {
   assignedWarehouseId?: string; // مخزن الصرف الافتراضي للخامة
 
   reorderPoint: number;
+  lowStockThreshold?: number; // حد التنبيه الأصفر القابل للضبط
   supplierName?: string;
   expirationDate?: string;
   createdAt: string;
@@ -108,13 +109,17 @@ export interface RawMaterialItem {
 }
 
 export interface ProductRecipeItem {
+  type?: 'raw_material' | 'semi_finished';
   ingredientId: string;
   ingredientNameAr: string;
   ingredientNameEn: string;
-  quantity: number; // in ingredient's consumption unit
+  quantity: number; // in ingredient's consumption unit or portion count
   unit: string;
   unitCost: number;
   totalCost: number;
+  portionId?: string; // id of named portion
+  portionNameAr?: string; // e.g. "قطعة عجين", "بولة رز", "ملعقتان كبيرتان"
+  costPerUnit?: number;
 }
 
 export interface MenuItemProduct {

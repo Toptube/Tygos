@@ -248,6 +248,13 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
       roles: ['tenant_admin', 'general_manager', 'kitchen_manager', 'bar_manager', 'cost_accountant', 'super_admin'],
     },
     {
+      id: 'semi_finished',
+      label: isAr ? 'التجهيزات (عجين/صوص)' : 'Preparations (BOM)',
+      icon: ChefHat,
+      group: 'menu_cost',
+      roles: ['tenant_admin', 'general_manager', 'head_chef', 'kitchen_manager', 'bar_manager', 'section_manager', 'cost_accountant', 'super_admin'],
+    },
+    {
       id: 'cost_control',
       label: t('navigation.costControl', 'Cost Control & Variance'),
       icon: Scale,
