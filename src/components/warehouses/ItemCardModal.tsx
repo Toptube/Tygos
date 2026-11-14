@@ -256,7 +256,7 @@ export const ItemCardModal: React.FC<ItemCardModalProps> = ({
             </div>
           </div>
 
-          <button
+          <Button variant="unstyled"
             type="button"
             onClick={() => {
               setLocationFilter('all');
@@ -269,7 +269,7 @@ export const ItemCardModal: React.FC<ItemCardModalProps> = ({
           >
             <RefreshCw className="w-3 h-3" />
             <span>إعادة ضبط</span>
-          </button>
+          </Button>
         </div>
 
         {/* 4. Movements Ledger Table */}

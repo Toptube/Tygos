@@ -67,7 +67,7 @@ export const CostControlModule: React.FC = () => {
             className="px-3.5 py-2 text-xs font-semibold rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
           >
             <Sliders className="w-4 h-4" />
-            <span>{isAr ? 'محاكاة التكلفة (What-If)' : 'Cost Simulation'}</span>
+            <span>{isAr ? 'حاسبة التجربة' : 'Experiment Calculator'}</span>
           </Button>
           <Button
             onClick={() => {

@@ -559,6 +559,30 @@ export class UiPreferencesRepository {
     this.adapter.setItemSync('tygos_hide_assistant_button', hide ? 'true' : 'false');
   }
 
+  public getEditDishId(): string | null {
+    return this.adapter.getItemSync('tygos_edit_dish_id');
+  }
+
+  public setEditDishId(dishId: string): void {
+    this.adapter.setItemSync('tygos_edit_dish_id', dishId);
+  }
+
+  public clearEditDishId(): void {
+    this.adapter.removeItemSync('tygos_edit_dish_id');
+  }
+
+  public getActiveDishTabIntent(): string | null {
+    return this.adapter.getItemSync('tygos_active_dish_tab_intent');
+  }
+
+  public setActiveDishTabIntent(tab: string): void {
+    this.adapter.setItemSync('tygos_active_dish_tab_intent', tab);
+  }
+
+  public clearActiveDishTabIntent(): void {
+    this.adapter.removeItemSync('tygos_active_dish_tab_intent');
+  }
+
   public getStorageUsageBytes(): number {
     let totalBytes = 0;
     for (const key of this.adapter.keysSync()) {

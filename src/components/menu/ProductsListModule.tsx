@@ -34,6 +34,7 @@ import { useI18n } from '../../i18n/I18nContext.tsx';
 import { MenuItemProduct } from '../../services/dataService.ts';
 import { categoryService, normalizeArabicText } from '../../services/categoryService.ts';
 import { DuplicatesResolverModal } from './DuplicatesResolverModal.tsx';
+import { uiPreferencesRepository } from '../../repositories/repositories.ts';
 
 interface ProductsListModuleProps {
   onOpenDishDrawer?: (dish: MenuItemProduct) => void;
@@ -193,9 +194,7 @@ export const ProductsListModule: React.FC<ProductsListModuleProps> = ({
     if (onOpenDishDrawer) {
       onOpenDishDrawer(p);
     } else {
-      try {
-        localStorage.setItem('tygos_edit_dish_id', p.id);
-      } catch {}
+      uiPreferencesRepository.setEditDishId(p.id);
       setActiveView('menu');
     }
   };
@@ -303,7 +302,7 @@ export const ProductsListModule: React.FC<ProductsListModuleProps> = ({
 
         {/* Status Filters */}
         <div className="flex flex-wrap items-center gap-1.5 p-1 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs">
-          <button
+          <Button variant="unstyled"
             type="button"
             onClick={() => setStatusFilter('all')}
             className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
@@ -313,9 +312,9 @@ export const ProductsListModule: React.FC<ProductsListModuleProps> = ({
             }`}
           >
             الكل ({menuProducts.length})
-          </button>
+          </Button>
 
-          <button
+          <Button variant="unstyled"
             type="button"
             onClick={() => setStatusFilter('ready')}
             className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
@@ -325,9 +324,9 @@ export const ProductsListModule: React.FC<ProductsListModuleProps> = ({
             }`}
           >
             جاهز للبيع
-          </button>
+          </Button>
 
-          <button
+          <Button variant="unstyled"
             type="button"
             onClick={() => setStatusFilter('missing')}
             className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
@@ -337,9 +336,9 @@ export const ProductsListModule: React.FC<ProductsListModuleProps> = ({
             }`}
           >
             ينقصه وصفة
-          </button>
+          </Button>
 
-          <button
+          <Button variant="unstyled"
             type="button"
             onClick={() => setStatusFilter('inactive')}
             className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
@@ -349,7 +348,7 @@ export const ProductsListModule: React.FC<ProductsListModuleProps> = ({
             }`}
           >
             غير متاح
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -375,7 +374,7 @@ export const ProductsListModule: React.FC<ProductsListModuleProps> = ({
                 className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden shadow-xs"
               >
                 {/* Category Header */}
-                <button
+                <Button variant="unstyled"
                   type="button"
                   onClick={() => toggleGroup(grp.category)}
                   className="w-full p-4 flex items-center justify-between bg-slate-50/70 dark:bg-slate-950/40 border-b border-slate-100 dark:border-slate-800/80 text-start cursor-pointer transition-colors hover:bg-slate-100/50"
@@ -398,7 +397,7 @@ export const ProductsListModule: React.FC<ProductsListModuleProps> = ({
                   <span className="text-[11px] text-slate-400">
                     {isCollapsed ? 'توسيع' : 'طي'}
                   </span>
-                </button>
+                </Button>
 
                 {/* Products Grid in Category */}
                 {!isCollapsed && (
@@ -429,7 +428,7 @@ export const ProductsListModule: React.FC<ProductsListModuleProps> = ({
                               </div>
 
                               {/* Direct "Available for Sale" Switch */}
-                              <button
+                              <Button variant="unstyled"
                                 type="button"
                                 data-testid={`toggle-sale-${prod.id}`}
                                 onClick={(e) => handleToggleActive(prod, e)}
@@ -442,7 +441,7 @@ export const ProductsListModule: React.FC<ProductsListModuleProps> = ({
                               >
                                 {prod.isActive ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
                                 <span>{prod.isActive ? 'متاح للبيع' : 'معطل'}</span>
-                              </button>
+                              </Button>
                             </div>
 
                             {/* Status and Recipe Indicators */}
@@ -506,7 +505,7 @@ export const ProductsListModule: React.FC<ProductsListModuleProps> = ({
                             </span>
 
                             <div className="flex items-center gap-1">
-                              <button
+                              <Button variant="unstyled"
                                 type="button"
                                 onClick={(e) => {
                                   e.stopPropagation();
@@ -516,9 +515,9 @@ export const ProductsListModule: React.FC<ProductsListModuleProps> = ({
                                 title="تعديل الصنف"
                               >
                                 <Edit2 className="w-3.5 h-3.5" />
-                              </button>
+                              </Button>
 
-                              <button
+                              <Button variant="unstyled"
                                 type="button"
                                 data-testid={`delete-product-${prod.id}`}
                                 onClick={(e) => handleRequestDelete(prod, e)}
@@ -526,7 +525,7 @@ export const ProductsListModule: React.FC<ProductsListModuleProps> = ({
                                 title="حذف الصنف"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
-                              </button>
+                              </Button>
                             </div>
                           </div>
                         </div>

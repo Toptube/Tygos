@@ -83,6 +83,11 @@ const PurchasingModule = React.lazy(() =>
 const FinanceModule = React.lazy(() =>
   import('./components/finance/FinanceModule.tsx').then((m) => ({ default: m.FinanceModule }))
 );
+const OverheadAllocationModule = React.lazy(() =>
+  import('./components/finance/OverheadAllocationModule.tsx').then((m) => ({
+    default: m.OverheadAllocationModule,
+  }))
+);
 const TreasuryAndShiftsModule = React.lazy(() =>
   import('./components/finance/TreasuryAndShiftsModule.tsx').then((m) => ({ default: m.TreasuryAndShiftsModule }))
 );
@@ -245,6 +250,8 @@ const AppContent: React.FC = () => {
         return <PurchasingModule />;
       case 'finance':
         return <FinanceModule />;
+      case 'overhead_allocation':
+        return <OverheadAllocationModule />;
       case 'treasury':
         return <TreasuryAndShiftsModule />;
       case 'tax':

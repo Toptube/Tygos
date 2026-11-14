@@ -435,25 +435,25 @@ export const KitchenDisplaySystem: React.FC = () => {
                         {/* Batch Stock Controls if enabled */}
                         {prod.enableBatchStock && (
                           <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg">
-                            <button
+                            <Button variant="unstyled"
                               type="button"
                               onClick={() => handleUpdateProductBatch(prod, -1)}
                               className="p-1 rounded bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200"
                               title="إنقاص"
                             >
                               <Minus className="w-3.5 h-3.5" />
-                            </button>
+                            </Button>
                             <span className="px-2 text-xs font-mono font-bold text-slate-900 dark:text-white">
                               {prod.batchStockCount || 0}
                             </span>
-                            <button
+                            <Button variant="unstyled"
                               type="button"
                               onClick={() => handleUpdateProductBatch(prod, 1)}
                               className="p-1 rounded bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-200"
                               title="زيادة"
                             >
                               <Plus className="w-3.5 h-3.5" />
-                            </button>
+                            </Button>
                           </div>
                         )}
 

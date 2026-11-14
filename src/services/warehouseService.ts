@@ -656,6 +656,15 @@ export class WarehouseService {
       return { success: false, deductedFromWhId: targetWh.id, newStock: 0 };
     }
 
+    // Untracked materials (e.g. filtered water, salt): cost is counted in recipes, stock never deducted
+    if (mat.isStockTracked === false) {
+      return {
+        success: true,
+        deductedFromWhId: targetWh.id,
+        newStock: mat.warehouseStockMap?.[targetWh.id] || mat.currentStock || 0,
+      };
+    }
+
     if (!mat.warehouseStockMap) {
       mat.warehouseStockMap = {
         'wh-main': Math.round(mat.currentStock * 0.7),

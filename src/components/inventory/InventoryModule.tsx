@@ -58,9 +58,11 @@ export const InventoryModule: React.FC = () => {
   // Dish Usage Modal (تستخدم في كام طبق؟)
   const [usageMat, setUsageMat] = useState<RawMaterialItem | null>(null);
 
-  // Price Impact Modal (تنبيه أثر تغيير السعر)
+  // Price & Threshold Edit Modal (تنبيه أثر تغيير السعر)
   const [editingMat, setEditingMat] = useState<RawMaterialItem | null>(null);
   const [newPrice, setNewPrice] = useState<number>(0);
+  const [newLowThreshold, setNewLowThreshold] = useState<number>(0);
+  const [newIsStockTracked, setNewIsStockTracked] = useState<boolean>(true);
   const [showImpactModal, setShowImpactModal] = useState(false);
 
   // Filter raw materials
@@ -90,6 +92,8 @@ export const InventoryModule: React.FC = () => {
   const handleOpenPriceEdit = (mat: RawMaterialItem) => {
     setEditingMat(mat);
     setNewPrice(mat.purchasePrice);
+    setNewLowThreshold(mat.lowStockThreshold ?? (mat.reorderPoint || 5) * (mat.conversionFactor || 1));
+    setNewIsStockTracked(mat.isStockTracked !== false);
     setShowImpactModal(false);
   };
 
@@ -99,17 +103,19 @@ export const InventoryModule: React.FC = () => {
     return materialDishesMap[editingMat.id] || [];
   }, [editingMat, materialDishesMap]);
 
-  // Save new material price
+  // Save new material price & stock tracking config
   const handleSaveMaterialPrice = async () => {
     if (!editingMat) return;
     const updated: RawMaterialItem = {
       ...editingMat,
       purchasePrice: newPrice,
+      lowStockThreshold: newLowThreshold,
+      isStockTracked: newIsStockTracked,
     };
     await updateRawMaterial(updated);
     setEditingMat(null);
     setShowImpactModal(false);
-    setToastMessage(isAr ? `تم تحديث سعر [${editingMat.nameAr}] بنجاح` : `Updated price for [${editingMat.nameEn}]`);
+    setToastMessage(isAr ? `تم تحديث بيانات [${editingMat.nameAr}] بنجاح ✓` : `Updated [${editingMat.nameEn}]`);
     setTimeout(() => setToastMessage(''), 3000);
   };
 
@@ -170,7 +176,7 @@ export const InventoryModule: React.FC = () => {
       {/* 3. Tab Switcher & Search Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-[#0b101e] p-3 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs">
         <div className="flex items-center gap-2">
-          <button
+          <Button variant="unstyled"
             type="button"
             onClick={() => setActiveTab('materials')}
             className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
@@ -180,9 +186,9 @@ export const InventoryModule: React.FC = () => {
             }`}
           >
             {isAr ? 'بطاقات الخامات المباشرة' : 'Raw Material Cards'}
-          </button>
+          </Button>
 
-          <button
+          <Button variant="unstyled"
             type="button"
             onClick={() => setActiveTab('balances')}
             className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
@@ -192,7 +198,7 @@ export const InventoryModule: React.FC = () => {
             }`}
           >
             {isAr ? 'أرصدة المستودعات التفصيلية' : 'Warehouse Balances'}
-          </button>
+          </Button>
         </div>
 
         <div className="relative w-full sm:w-64">
@@ -212,7 +218,9 @@ export const InventoryModule: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" data-testid="raw-materials-grid">
           {filteredMaterials.map((mat) => {
             const usingDishes = materialDishesMap[mat.id] || [];
-            const isLowStock = mat.currentStock <= (mat.reorderPoint || 5) * (mat.conversionFactor || 1);
+            const isUntracked = mat.isStockTracked === false;
+            const thresholdBase = mat.lowStockThreshold ?? (mat.reorderPoint || 5) * (mat.conversionFactor || 1);
+            const isLowStock = !isUntracked && mat.currentStock <= thresholdBase;
 
             return (
               <div
@@ -220,7 +228,7 @@ export const InventoryModule: React.FC = () => {
                 data-testid={`material-card-${mat.id}`}
                 className="p-4 rounded-2xl bg-white dark:bg-[#0b101e] border border-slate-200 dark:border-slate-800 shadow-xs space-y-3"
               >
-                {/* Header: Name, Unit, Low Stock Badge */}
+                {/* Header: Name, Unit, Low Stock / Untracked Badge */}
                 <div className="flex items-start justify-between gap-2">
                   <div>
                     <h3 className="text-sm font-bold text-slate-900 dark:text-white line-clamp-1">
@@ -233,7 +241,11 @@ export const InventoryModule: React.FC = () => {
                     </div>
                   </div>
 
-                  {isLowStock ? (
+                  {isUntracked ? (
+                    <span className="px-2 py-0.5 text-[10px] font-bold rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-300 dark:border-slate-700 shrink-0">
+                      {isAr ? 'بدون رصيد (تكلفة فقط)' : 'Cost Only'}
+                    </span>
+                  ) : isLowStock ? (
                     <span className="px-2 py-0.5 text-[10px] font-bold rounded-lg bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 border border-rose-300 dark:border-rose-800/80 shrink-0">
                       {isAr ? 'تحت الحد' : 'Low Stock'}
                     </span>
@@ -249,7 +261,7 @@ export const InventoryModule: React.FC = () => {
                   <div>
                     <span className="text-[10px] text-slate-400 block">{isAr ? 'الرصيد المتاح' : 'Stock'}</span>
                     <strong className="text-sm font-mono font-bold text-slate-900 dark:text-white" dir="ltr">
-                      {mat.currentStock} {mat.consumptionUnit}
+                      {isUntracked ? (isAr ? 'غير متتبع' : 'Untracked') : `${mat.currentStock} ${mat.consumptionUnit}`}
                     </strong>
                   </div>
 
@@ -275,7 +287,7 @@ export const InventoryModule: React.FC = () => {
 
                 {/* Dish Usage Button Link: "تستخدم في كام طبق؟" */}
                 <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex items-center justify-between text-xs">
-                  <button
+                  <Button variant="unstyled"
                     type="button"
                     onClick={() => setUsageMat(mat)}
                     className="text-cyan-600 dark:text-cyan-400 hover:underline font-bold flex items-center gap-1 cursor-pointer"
@@ -286,7 +298,7 @@ export const InventoryModule: React.FC = () => {
                         ? `تستخدم في ${usingDishes.length} أطباق`
                         : `Used in ${usingDishes.length} dishes`}
                     </span>
-                  </button>
+                  </Button>
 
                   <span className="text-[10px] text-slate-400 font-mono">
                     {isAr ? 'هالك:' : 'Waste:'} {mat.wastePercentage || 0}%
@@ -427,6 +439,33 @@ export const InventoryModule: React.FC = () => {
                   }}
                   className="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 font-mono text-base font-bold text-cyan-600 dark:text-cyan-400"
                 />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-slate-500 block mb-1 font-bold">
+                    {isAr ? `حد التنبيه الأصفر (${editingMat.consumptionUnit}):` : 'Yellow Alert Threshold:'}
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    disabled={!newIsStockTracked}
+                    value={newLowThreshold}
+                    onChange={(e) => setNewLowThreshold(Math.max(0, Number(e.target.value) || 0))}
+                    className="w-full p-2 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 font-mono text-xs font-bold disabled:opacity-50"
+                  />
+                </div>
+                <label className="flex items-center gap-2 p-2 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 cursor-pointer mt-4 sm:mt-0">
+                  <input
+                    type="checkbox"
+                    checked={!newIsStockTracked}
+                    onChange={(e) => setNewIsStockTracked(!e.target.checked)}
+                    className="rounded border-slate-300 text-cyan-600"
+                  />
+                  <span className="text-[11px] font-bold">
+                    {isAr ? 'بدون رصيد مخزني (ماء/ملح)' : 'Cost-only (no stock)'}
+                  </span>
+                </label>
               </div>
 
               {/* Price Impact Warning Card */}

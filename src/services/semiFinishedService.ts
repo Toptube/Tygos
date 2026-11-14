@@ -92,6 +92,7 @@ export interface SemiFinishedItem {
   ingredients: PreparationIngredient[];
   totalYield: number; // الناتج الكلي للصيغة بالوحدة الصغرى
   yieldUnit: string; // 'جرام' | 'مل' | 'قطعة'
+  prepTimeMinutes?: number; // زمن التحضير الفعلي بالدقائق (اختياري)
 
   // Processing specific
   processingRawQty?: number; // e.g. 50g raw rice
@@ -732,6 +733,7 @@ class SemiFinishedService {
         ingredients: prepData.ingredients || [],
         totalYield: prepData.totalYield || 1000,
         yieldUnit: prepData.yieldUnit || 'جرام',
+        prepTimeMinutes: prepData.prepTimeMinutes,
         processingRawQty: prepData.processingRawQty,
         processingCookedQty: prepData.processingCookedQty,
         processingMaterialId: prepData.processingMaterialId,
@@ -762,9 +764,15 @@ class SemiFinishedService {
       if (prepData.categoryNodeId) savedItem.categoryNodeId = prepData.categoryNodeId;
       if (prepData.producingDepartment) savedItem.producingDepartment = prepData.producingDepartment;
       if (prepData.type) savedItem.type = prepData.type;
+      const batchToggledOff =
+        prepData.enableBatchTracking === false && savedItem.enableBatchTracking === true;
+      if (prepData.enableBatchTracking !== undefined) {
+        savedItem.enableBatchTracking = !!prepData.enableBatchTracking;
+      }
       if (prepData.ingredients) savedItem.ingredients = prepData.ingredients;
       if (prepData.totalYield !== undefined) savedItem.totalYield = prepData.totalYield;
       if (prepData.yieldUnit) savedItem.yieldUnit = prepData.yieldUnit;
+      if (prepData.prepTimeMinutes !== undefined) savedItem.prepTimeMinutes = prepData.prepTimeMinutes;
       if (prepData.processingRawQty !== undefined) savedItem.processingRawQty = prepData.processingRawQty;
       if (prepData.processingCookedQty !== undefined) savedItem.processingCookedQty = prepData.processingCookedQty;
       if (prepData.processingMaterialId) savedItem.processingMaterialId = prepData.processingMaterialId;
@@ -778,6 +786,13 @@ class SemiFinishedService {
         action: 'تعديل الصيغة',
         details: prepData.notes || `تم تحديث مكونات وصيغة التجهيز (الناتج: ${oldYield} -> ${savedItem.totalYield})`,
       });
+
+      if (batchToggledOff && savedItem.currentBatchStock > 0) {
+        this.savePreparations(establishmentId, list);
+        this.toggleBatchTracking(establishmentId, savedItem.id, false, actorName);
+        const reloaded = this.getPreparationById(establishmentId, savedItem.id);
+        if (reloaded) savedItem = reloaded;
+      }
     }
 
     // Recalculate cost

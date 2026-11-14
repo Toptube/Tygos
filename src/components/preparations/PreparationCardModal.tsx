@@ -151,7 +151,7 @@ export const PreparationCardModal: React.FC<PreparationCardModalProps> = ({
 
         {/* Tab Navigation */}
         <div className="flex items-center gap-1.5 border-b border-slate-200 dark:border-slate-800 pb-2 overflow-x-auto">
-          <button
+          <Button variant="unstyled"
             type="button"
             onClick={() => setActiveTab('formula')}
             className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer ${
@@ -161,9 +161,9 @@ export const PreparationCardModal: React.FC<PreparationCardModalProps> = ({
             }`}
           >
             الصيغة والمكونات ({prep.ingredients.length})
-          </button>
+          </Button>
 
-          <button
+          <Button variant="unstyled"
             type="button"
             onClick={() => setActiveTab('portions')}
             className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer ${
@@ -173,9 +173,9 @@ export const PreparationCardModal: React.FC<PreparationCardModalProps> = ({
             }`}
           >
             الحصص المعيارية ({prep.portions.length})
-          </button>
+          </Button>
 
-          <button
+          <Button variant="unstyled"
             type="button"
             onClick={() => setActiveTab('products')}
             className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer ${
@@ -185,9 +185,9 @@ export const PreparationCardModal: React.FC<PreparationCardModalProps> = ({
             }`}
           >
             المنتجات المتأثرة ({affectedProducts.length})
-          </button>
+          </Button>
 
-          <button
+          <Button variant="unstyled"
             type="button"
             onClick={() => setActiveTab('consumption')}
             className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer ${
@@ -197,10 +197,10 @@ export const PreparationCardModal: React.FC<PreparationCardModalProps> = ({
             }`}
           >
             الاستهلاك التراكمي
-          </button>
+          </Button>
 
           {prep.enableBatchTracking && (
-            <button
+            <Button variant="unstyled"
               type="button"
               onClick={() => setActiveTab('batches')}
               className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer ${
@@ -210,10 +210,10 @@ export const PreparationCardModal: React.FC<PreparationCardModalProps> = ({
               }`}
             >
               سجل الدفعات ({prep.batches?.length || 0})
-            </button>
+            </Button>
           )}
 
-          <button
+          <Button variant="unstyled"
             type="button"
             onClick={() => setActiveTab('history')}
             className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer ${
@@ -223,7 +223,7 @@ export const PreparationCardModal: React.FC<PreparationCardModalProps> = ({
             }`}
           >
             سجل التعديلات ({prep.auditHistory.length})
-          </button>
+          </Button>
         </div>
 
         {/* Tab 1: Formula & Ingredients */}

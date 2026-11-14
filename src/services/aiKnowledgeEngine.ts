@@ -267,6 +267,42 @@ Enables real-time P&L generation and trial balances with zero manual bookkeeping
     lastUpdated: '2026-11-03',
   },
   {
+    id: 'art-overhead-allocation',
+    slug: 'overhead-allocation-full-cost',
+    module: 'finance',
+    category: 'cost_control',
+    titleAr: 'المصاريف وتوزيعها وحساب التكلفة الكاملة للمنتج',
+    titleEn: 'Two-Stage Overhead Allocation & Full Product Costing',
+    summaryAr: 'كيفية تحميل المصاريف المباشرة وغير المباشرة على مرحلتين وحساب معدل التحميل وفروق التحميل وصافي ربح كل طبق.',
+    summaryEn: 'How direct & indirect expenses flow through Stage 1 (Shared) and Stage 2 (Products) to reveal full product profit.',
+    contentAr: `تحسب منظومة Tygos التكلفة الكاملة للمنتج عبر مرحلتين محكمتين:
+• المرحلة ١ (مشترك ← مراكز التكلفة): توزيع مصاريف الإدارة والصالة (مثل الإيجار) على المطبخ والبار والمخبز والحلواني حسب المساحة أو عدد العاملين أو النسبة اليدوية أو بالتساوي.
+• المرحلة ٢ (مركز التكلفة ← المنتجات): توزيع مصاريف كل قسم على منتجاته بالتساوي لكل حصة مباعة، أو كمية المبيعات، أو قيمة المبيعات، أو تكلفة الخامات، أو زمن التحضير بالدقائق، أو نسبة يدوية.
+• معادلة التكلفة الكاملة = خامات + تجهيزات + عمالة مباشرة + مصاريف غير مباشرة + مستهلكات.`,
+    contentEn: `Tygos calculates Full Product Cost across two stages: Stage 1 splits shared expenses across operating cost centers, and Stage 2 allocates each center's pool across its products using unit, sales, raw cost, prep minutes, or manual percents.`,
+    stepsAr: [
+      'افتح شاشة «المصاريف وتوزيعها» من قائمة المالية والرواتب.',
+      'استورد الرواتب من الموارد البشرية والمصاريف من المالية دون تكرار أو انسخ الشهر السابق.',
+      'اختر وضع التحميل المناسب للمنشأة (خامات فقط / خامات + نسبة ثابتة / التوزيع بالقواعد).',
+      'راجع تبويب ربحية الأقسام والمنتجات لاكتشاف أي صنف «خاسر بعد التحميل» وفروق التحميل نهاية الفترة.',
+    ],
+    stepsEn: [
+      'Open Overhead Allocation under Finance & HR.',
+      'Import HR payroll & Finance expenses without double-counting, or copy previous month.',
+      'Select establishment overhead mode.',
+      'Inspect department burden rates, absorption variances, and loss-making items after overhead.',
+    ],
+    commonMistakesAr: [
+      'استيراد تكلفة الخامات المشتراة كمصروف تشغيلي مما يسبب احتسابها مرتين.',
+      'ترك الشهر مفتوحاً بعد الإغلاق الرسمي للجرد — المنظومة تقفله تلقائياً.',
+    ],
+    commonMistakesEn: [
+      'Importing raw COGS purchases as overhead expenses causing double-counting.',
+      'Editing closed period expenses after official inventory close.',
+    ],
+    lastUpdated: '2026-11-14',
+  },
+  {
     id: 'art-privileged-security',
     slug: 'privileged-access-security',
     module: 'security',
@@ -520,7 +556,7 @@ export const APP_INTENTS: AppIntentDefinition[] = [
     targetView: 'menu',
     requiredRoles: ['tenant_admin', 'general_manager', 'kitchen_manager', 'bar_manager', 'cost_accountant', 'super_admin'],
     descriptionAr: 'محرك هندسة الوصفات وقائمة الطعام مع إدارة إصدارات الوصفات غير القابلة للتعديل وتفكيك التكلفة الحقيقية.',
-    descriptionEn: 'Recipe Engineering, Bill of Materials (BOM), immutable versioning, and portion yield tracking.',
+    descriptionEn: 'Recipe Engineering, ingredient breakdown, immutable versioning, and portion yield tracking.',
     defaultActionsAr: [
       { label: 'فتح قائمة الطعام والوصفات', action: 'NAV:menu' },
       { label: 'عرض بطاقة التكلفة الحقيقية', action: 'NAV:menu' },
@@ -544,12 +580,12 @@ export const APP_INTENTS: AppIntentDefinition[] = [
     descriptionEn: 'Cost Control & Variance cockpit comparing theoretical vs actual usage and waste drivers.',
     defaultActionsAr: [
       { label: 'فتح مراقبة التكاليف والانحراف', action: 'NAV:cost_control' },
-      { label: 'محاكاة أثر التكلفة (What-If)', action: 'ACTION:simulation' },
+      { label: 'حاسبة التجربة', action: 'ACTION:simulation' },
       { label: 'دليل معالجة الانحرافات', action: 'ARTICLE:variance-analysis-cost-control' },
     ],
     defaultActionsEn: [
       { label: 'Open Cost Control', action: 'NAV:cost_control' },
-      { label: 'Launch What-If Simulation', action: 'ACTION:simulation' },
+      { label: 'Launch Experiment Calculator', action: 'ACTION:simulation' },
       { label: 'Variance Management Guide', action: 'ARTICLE:variance-analysis-cost-control' },
     ],
   },
@@ -809,9 +845,9 @@ export function processAssistantQuery(
       (activeVersion?.costBreakdown?.utilitiesAllocation?.gas || 0) +
       (activeVersion?.costBreakdown?.consumablesCost || 0);
 
-    const contentAr = `بيانات التكلفة الحقيقية لصنف [${matchedRecipe.productNameAr}] (${matchedRecipe.code}):\n\n• التكلفة الحقيقية الشاملة للوجبة: $${trueCost.toFixed(2)}\n• نسبة تكلفة الطعام (Food Cost): ${foodCostPct.toFixed(1)}%\n• تكلفة المواد الخام الصافية: $${rawCost.toFixed(2)}\n• هالك التحضير والتشفية الممتص: $${wasteBuffer.toFixed(2)}\n• العمالة المباشرة والمنافع والمرافق: $${laborAndUtils.toFixed(2)}\n\nالإصدار المعتمد حالياً: ${activeVersion?.versionLabel} (مؤرشف ومحمي بأثر رجعي).`;
+    const contentAr = `بيانات التكلفة الحقيقية لصنف [${matchedRecipe.productNameAr}] (${matchedRecipe.code}):\n\n• التكلفة الحقيقية الشاملة للوجبة: ${trueCost.toFixed(2)} ج.م\n• نسبة تكلفة الطعام: ${foodCostPct.toFixed(1)}%\n• تكلفة المواد الخام الصافية: ${rawCost.toFixed(2)} ج.م\n• هالك التحضير والتشفية الممتص: ${wasteBuffer.toFixed(2)} ج.م\n• العمالة المباشرة والمنافع والمرافق: ${laborAndUtils.toFixed(2)} ج.م\n\nالإصدار المعتمد حالياً: ${activeVersion?.versionLabel} (مؤرشف ومحمي بأثر رجعي).`;
 
-    const contentEn = `True Product Cost breakdown for [${matchedRecipe.productNameEn}] (${matchedRecipe.code}):\n\n• True Portion Cost: $${trueCost.toFixed(2)}\n• Food Cost Percentage: ${foodCostPct.toFixed(1)}%\n• Net Raw Material Cost: $${rawCost.toFixed(2)}\n• Prep Trim & Yield Waste: $${wasteBuffer.toFixed(2)}\n• Direct Labor & Utilities: $${laborAndUtils.toFixed(2)}\n\nActive Effective Version: ${activeVersion?.versionLabel} (immutable historical record).`;
+    const contentEn = `True Product Cost breakdown for [${matchedRecipe.productNameEn}] (${matchedRecipe.code}):\n\n• True Portion Cost: ${trueCost.toFixed(2)} EGP\n• Food Cost Percentage: ${foodCostPct.toFixed(1)}%\n• Net Raw Material Cost: ${rawCost.toFixed(2)} EGP\n• Prep Trim & Yield Waste: ${wasteBuffer.toFixed(2)} EGP\n• Direct Labor & Utilities: ${laborAndUtils.toFixed(2)} EGP\n\nActive Effective Version: ${activeVersion?.versionLabel} (immutable historical record).`;
 
     return {
       id: `msg-cost-${Date.now()}`,
@@ -822,7 +858,7 @@ export function processAssistantQuery(
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       suggestedActions: [
         {
-          label: isAr ? 'عرض بطاقة الوصفة الهندسية (BOM)' : 'Open Recipe Engineering (BOM)',
+          label: isAr ? 'عرض الوصفة (رسبي)' : 'Open Recipe Card',
           query: isAr ? 'فتح الوصفة' : 'Open Recipe',
           action: 'NAV:menu',
         },
@@ -832,8 +868,8 @@ export function processAssistantQuery(
           action: 'NAV:cost_control',
         },
         {
-          label: isAr ? 'محاكاة أثر أسعار الموردين (What-If)' : 'Simulate What-If Price Drift',
-          query: isAr ? 'محاكاة التكلفة' : 'Simulate Cost',
+          label: isAr ? 'تجربة أثر الأسعار في حاسبة التجربة' : 'Open Experiment Calculator',
+          query: isAr ? 'حاسبة التجربة' : 'Simulate Cost',
           action: 'ACTION:simulation',
         },
       ],
@@ -929,9 +965,9 @@ export function processAssistantQuery(
     normQuery.includes('زياده') ||
     normQuery.includes('variance')
   ) {
-    const contentAr = `تحليل مسببات الأرباح والانحراف لشهر نوفمبر 2026:\n\n• صافي الربح الفعلي: $21,480 (انخفاض -3.8% مقارنة بالشهر السابق)\n• السبب الأول: ارتفاع أسعار شراء لحوم الأنجوس بنسبة 14.2% من الموردين.\n• السبب الثاني: زيادة نسبة هالك التشفية والتقطيع في قسم اللحوم بنسبة 11.5%.\n• أثر إيجابي: ارتفاع مبيعات المشروبات والحلويات بنسبة +5.4% عوض جزءاً من العجز.\n\nتوصية المحرك الذكي: تعديل السعر المستهدف لستيك الريب آي بمقدار $2.50 أو تشديد رقابة موازين التحضير.`;
+    const contentAr = `تحليل مسببات الأرباح والانحراف لشهر نوفمبر 2026:\n\n• صافي الربح الفعلي: 214,800 ج.م (انخفاض -3.8% مقارنة بالشهر السابق)\n• السبب الأول: ارتفاع أسعار شراء لحوم الأنجوس بنسبة 14.2% من الموردين.\n• السبب الثاني: زيادة نسبة هالك التشفية والتقطيع في قسم اللحوم بنسبة 11.5%.\n• أثر إيجابي: ارتفاع مبيعات المشروبات والحلويات بنسبة +5.4% عوض جزءاً من العجز.\n\nتوصية المحرك الذكي: تعديل السعر المستهدف لستيك الريب آي بمقدار 25.00 ج.م أو تشديد رقابة موازين التحضير.`;
 
-    const contentEn = `Profit Variance & Cause Decomposition for November 2026:\n\n• Actual Net Profit: $21,480 (-3.8% vs prior period)\n• Primary Driver: Supplier raw beef price inflation (+14.2%).\n• Secondary Driver: Butchery trim scrap excess (+11.5% in prep station).\n• Positive Offset: Beverage & dessert cross-selling expansion (+5.4%).\n\nRecommendation: Readjust Ribeye target selling price by +$2.50 or enforce prep portion scale calibration.`;
+    const contentEn = `Profit Variance & Cause Decomposition for November 2026:\n\n• Actual Net Profit: 214,800 EGP (-3.8% vs prior period)\n• Primary Driver: Supplier raw beef price inflation (+14.2%).\n• Secondary Driver: Butchery trim scrap excess (+11.5% in prep station).\n• Positive Offset: Beverage & dessert cross-selling expansion (+5.4%).\n\nRecommendation: Readjust Ribeye target selling price by +25.00 EGP or enforce prep portion scale calibration.`;
 
     return {
       id: `msg-profit-${Date.now()}`,
@@ -947,8 +983,8 @@ export function processAssistantQuery(
           action: 'NAV:dashboard',
         },
         {
-          label: isAr ? 'محاكاة أثر أسعار الموردين (What-If)' : 'Launch What-If Simulation',
-          query: isAr ? 'محاكاة التكلفة' : 'What-If Simulation',
+          label: isAr ? 'حاسبة التجربة' : 'Launch Experiment Calculator',
+          query: isAr ? 'حاسبة التجربة' : 'Simulate Cost',
           action: 'ACTION:simulation',
         },
         {
@@ -1021,7 +1057,7 @@ export function processAssistantQuery(
         query: isAr ? 'أسباب تغير الأرباح' : 'Analyze Profit Drivers',
       },
       {
-        label: isAr ? 'فتح حاسبة الوصفات (BOM)' : 'Open Recipes (BOM)',
+        label: isAr ? 'فتح حاسبة الوصفات (رسبي)' : 'Open Recipes',
         query: isAr ? 'فتح الوصفات' : 'Open Recipes',
         action: 'NAV:menu',
       },

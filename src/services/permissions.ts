@@ -28,6 +28,8 @@ export type PermissionAction =
   | 'inventory:adjust'
   | 'finance:view'
   | 'finance:edit'
+  | 'overhead:view'
+  | 'overhead:manage'
   | 'settings:view'
   | 'settings:edit'
   | 'customer_pii:view'
@@ -89,6 +91,7 @@ const ROLE_PERMISSIONS: Record<UserRole, PermissionAction[]> = {
     'order:trace',
     'inventory:view',
     'finance:view', 'finance:edit',
+    'overhead:view', 'overhead:manage',
     'settings:view',
     'customer_pii:view',
     'users:view', 'users:manage', 'users:reset_password', 'users:delete',
@@ -102,6 +105,7 @@ const ROLE_PERMISSIONS: Record<UserRole, PermissionAction[]> = {
     'menu:view', 'menu:pricing',
     'inventory:view',
     'finance:view',
+    'overhead:view', 'overhead:manage',
   ],
   tax_accountant: [
     'finance:view',

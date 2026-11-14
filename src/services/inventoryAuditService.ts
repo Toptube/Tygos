@@ -25,6 +25,7 @@ import { warehouseService, WarehouseLocation, StockMovementRecord } from './ware
 import { multiUnitService } from './multiUnitService.ts';
 import { RawMaterialItem } from './dataService.ts';
 import { dailyNotesService } from './dailyNotesService.ts';
+import { overheadService, getCurrentMonthKey } from './overheadService.ts';
 
 export type AuditPeriodType = 'draft' | 'closed';
 
@@ -75,6 +76,14 @@ export interface AuditPeriod {
   isOfficialClose?: boolean;
   notes?: string;
   items: AuditItemRecord[];
+  overheadVarianceSummary?: {
+    month: string;
+    totalExpenses: number;
+    totalCharged: number;
+    varianceAmount: number;
+    status: 'over_absorbed' | 'under_absorbed' | 'balanced';
+    labelAr: string;
+  };
   createdAt: string;
   updatedAt: string;
 }
@@ -513,6 +522,27 @@ class InventoryAuditService {
         }
       }
     });
+
+    const closingMonth =
+      period.endDate && period.endDate.length >= 7 ? period.endDate.slice(0, 7) : getCurrentMonthKey();
+    const ovCalc = overheadService.calculateFullProductCosting(establishmentId, closingMonth);
+    overheadService.lockMonth(establishmentId, closingMonth, closedBy, period.id);
+
+    const ovLabelAr =
+      ovCalc.varianceStatus === 'over_absorbed'
+        ? `فائض تحميل (زائد بمقدار ${Math.abs(ovCalc.totalOverheadVariance)} ج.م)`
+        : ovCalc.varianceStatus === 'under_absorbed'
+        ? `عجز تحميل (ناقص بمقدار ${Math.abs(ovCalc.totalOverheadVariance)} ج.م)`
+        : 'تحميل متوازن (صفر فروق)';
+
+    period.overheadVarianceSummary = {
+      month: closingMonth,
+      totalExpenses: ovCalc.totalActualExpenses,
+      totalCharged: ovCalc.totalChargedOverhead,
+      varianceAmount: ovCalc.totalOverheadVariance,
+      status: ovCalc.varianceStatus,
+      labelAr: ovLabelAr,
+    };
 
     warehouseService.saveMaterials(establishmentId, materials);
     periods[pIndex] = period;

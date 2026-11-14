@@ -174,15 +174,16 @@ export const DuplicatesResolverModal: React.FC<DuplicatesResolverModalProps> = (
                       </div>
 
                       {idx > 0 && (
-                        <button
+                        <Button
                           type="button"
+                          variant="unstyled"
                           disabled={resolvingId === item.id}
                           onClick={() => handleDeleteItem(item)}
                           className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors shrink-0"
                           title="حذف هذا المكرر الزائد"
                         >
                           <Trash2 className="w-4 h-4" />
-                        </button>
+                        </Button>
                       )}
                     </div>
                   ))}

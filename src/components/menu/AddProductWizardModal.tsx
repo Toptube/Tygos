@@ -232,11 +232,11 @@ export const AddProductWizardModal: React.FC<AddProductWizardModalProps> = ({
               </div>
               <div>
                 <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-slate-100">
-                  {isAr ? 'معالج إضافة منتج وبناء الوصفة (BOM)' : '3-Step Product & Recipe Builder'}
+                  {isAr ? 'معالج إضافة منتج وبناء الوصفة' : '3-Step Product & Recipe Builder'}
                 </h3>
                 <p className="text-[11px] text-slate-500">
                   {step === 1 && (isAr ? 'الخطوة ١: البيانات الأساسية والتسعير' : 'Step 1: Basic Info & Selling Price')}
-                  {step === 2 && (isAr ? 'الخطوة ٢: تركيب الوصفة وخامات الإعداد' : 'Step 2: Recipe Ingredients BOM')}
+                  {step === 2 && (isAr ? 'الخطوة ٢: تركيب الوصفة وخامات الإعداد' : 'Step 2: Recipe Ingredients')}
                   {step === 3 && (isAr ? 'الخطوة ٣: المعاينة الحية وهوامش الربح' : 'Step 3: True Cost & Margin Analysis')}
                 </p>
               </div>
@@ -268,7 +268,7 @@ export const AddProductWizardModal: React.FC<AddProductWizardModalProps> = ({
                 step === 2 ? 'border-cyan-500 text-cyan-600 dark:text-cyan-400 bg-cyan-500/5' : 'border-transparent text-slate-400'
               }`}
             >
-              2. {isAr ? 'تركيب الوصفة' : 'BOM Recipe'}
+              2. {isAr ? 'تركيب الوصفة' : 'Recipe'}
             </Button>
             <Button
               type="button"
@@ -454,9 +454,9 @@ export const AddProductWizardModal: React.FC<AddProductWizardModalProps> = ({
                 {/* Active Recipe Ingredients Table */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-xs font-bold text-slate-700 dark:text-slate-300">
-                    <span>{isAr ? 'مكونات الطبق المحددة (BOM):' : 'Configured Recipe Items (BOM):'}</span>
+                    <span>{isAr ? 'مكونات الطبق المحددة:' : 'Configured Recipe Items:'}</span>
                     <span className="font-mono text-cyan-600 dark:text-cyan-400">
-                      {isAr ? 'إجمالي الخامات:' : 'Raw Total:'} ${rawMaterialsTotalCost.toFixed(2)}
+                      {isAr ? 'إجمالي الخامات:' : 'Raw Total:'} {rawMaterialsTotalCost.toFixed(2)} {isAr ? 'ج.م' : 'EGP'}
                     </span>
                   </div>
 

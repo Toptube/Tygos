@@ -44,6 +44,7 @@ import {
 } from 'lucide-react';
 import { Button } from '../common/Button.tsx';
 import { ModalShell } from '../common/ModalShell.tsx';
+import { NumericInput } from '../common/NumericInput.tsx';
 import { useAuth } from '../../context/AuthContext.tsx';
 import { useToast } from '../../context/ToastContext.tsx';
 import {
@@ -253,7 +254,7 @@ export const SemiFinishedModule: React.FC = () => {
             </div>
             <div>
               <h1 className="text-xl font-black text-slate-900 dark:text-white">
-                التجهيزات والتحضيرات الأساسية (Semi-Finished Goods)
+                التجهيزات
               </h1>
               <p className="text-xs text-slate-500 mt-0.5">
                 هنا تكتب مرة واحدة إزاي الخامات بتتحول لعجين وصوصات وتتبيلات، والنظام هو اللي بيخصم الخامات لوحده تلقائياً عند البيع.
@@ -321,7 +322,7 @@ export const SemiFinishedModule: React.FC = () => {
       {/* 3. Category Tabs */}
       <div className="flex items-center gap-1.5 overflow-x-auto pb-1 border-b border-slate-200 dark:border-slate-800">
         {PREP_CATEGORIES.map((cat) => (
-          <button
+          <Button variant="unstyled"
             key={cat.id}
             type="button"
             onClick={() => setSelectedCategory(cat.id)}
@@ -332,7 +333,7 @@ export const SemiFinishedModule: React.FC = () => {
             }`}
           >
             {cat.nameAr}
-          </button>
+          </Button>
         ))}
       </div>
 
@@ -795,7 +796,7 @@ const PreparationEditorModal: React.FC<PreparationEditorModalProps> = ({
       <form onSubmit={handleSubmit} className="space-y-5" dir="rtl">
         {/* Tabs */}
         <div className="flex items-center gap-1.5 border-b border-slate-200 dark:border-slate-800 pb-2">
-          <button
+          <Button variant="unstyled"
             type="button"
             onClick={() => setActiveTab('data')}
             className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer ${
@@ -805,8 +806,8 @@ const PreparationEditorModal: React.FC<PreparationEditorModalProps> = ({
             }`}
           >
             1. بيانات التجهيز والمحطة
-          </button>
-          <button
+          </Button>
+          <Button variant="unstyled"
             type="button"
             onClick={() => setActiveTab('ingredients')}
             className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer ${
@@ -816,8 +817,8 @@ const PreparationEditorModal: React.FC<PreparationEditorModalProps> = ({
             }`}
           >
             2. المكونات والصيغة ({formData.ingredients?.length || 0})
-          </button>
-          <button
+          </Button>
+          <Button variant="unstyled"
             type="button"
             onClick={() => setActiveTab('yield')}
             className={`px-3.5 py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer ${
@@ -827,7 +828,7 @@ const PreparationEditorModal: React.FC<PreparationEditorModalProps> = ({
             }`}
           >
             3. الناتج والحصص المعيارية ({formData.portions?.length || 0})
-          </button>
+          </Button>
         </div>
 
         {/* Tab 1: General Data */}
@@ -907,6 +908,19 @@ const PreparationEditorModal: React.FC<PreparationEditorModalProps> = ({
                   <option value="processing">معالجة (خامة واحدة بمعامل طهي/تنظيف)</option>
                   <option value="portion">حصص معيارية فقط</option>
                 </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  زمن التحضير للدفعة (دقائق - اختياري):
+                </label>
+                <NumericInput
+                  value={formData.prepTimeMinutes ?? 0}
+                  onChange={(m) => setFormData({ ...formData, prepTimeMinutes: m })}
+                  min={0}
+                  step={5}
+                  unit="دقيقة"
+                />
               </div>
             </div>
 
@@ -1058,13 +1072,13 @@ const PreparationEditorModal: React.FC<PreparationEditorModalProps> = ({
                             {ing.totalCostSnapshot || 0} ج.م
                           </td>
                           <td className="p-2.5">
-                            <button
+                            <Button variant="unstyled"
                               type="button"
                               onClick={() => handleRemoveIngredient(ing.id)}
                               className="text-rose-500 hover:text-rose-700 p-1"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
-                            </button>
+                            </Button>
                           </td>
                         </tr>
                       ))}
@@ -1087,7 +1101,7 @@ const PreparationEditorModal: React.FC<PreparationEditorModalProps> = ({
                         اختيار المكون ووحدته:
                       </span>
                       <div className="flex items-center gap-2">
-                        <button
+                        <Button variant="unstyled"
                           type="button"
                           onClick={() => {
                             setSelectedIngType('raw_material');
@@ -1100,8 +1114,8 @@ const PreparationEditorModal: React.FC<PreparationEditorModalProps> = ({
                           }`}
                         >
                           خامات أولية
-                        </button>
-                        <button
+                        </Button>
+                        <Button variant="unstyled"
                           type="button"
                           onClick={() => {
                             setSelectedIngType('semi_finished');
@@ -1114,7 +1128,7 @@ const PreparationEditorModal: React.FC<PreparationEditorModalProps> = ({
                           }`}
                         >
                           تجهيزات متداخلة
-                        </button>
+                        </Button>
                       </div>
                     </div>
 
@@ -1288,13 +1302,13 @@ const PreparationEditorModal: React.FC<PreparationEditorModalProps> = ({
                         {p.sizeInYieldUnits} {formData.yieldUnit || 'جم'}
                       </span>
                     </div>
-                    <button
+                    <Button variant="unstyled"
                       type="button"
                       onClick={() => handleRemovePortion(p.id)}
                       className="text-rose-500 hover:text-rose-700 p-1"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
-                    </button>
+                    </Button>
                   </div>
                 ))}
               </div>

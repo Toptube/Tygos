@@ -79,7 +79,7 @@ export const FinanceModule: React.FC = () => {
         </div>
 
         <div className="flex p-1 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-bold">
-          <button
+          <Button variant="unstyled"
             type="button"
             onClick={() => setActiveTab('accounts')}
             className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
@@ -89,8 +89,8 @@ export const FinanceModule: React.FC = () => {
             }`}
           >
             دليل الحسابات
-          </button>
-          <button
+          </Button>
+          <Button variant="unstyled"
             type="button"
             onClick={() => setActiveTab('journal')}
             className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
@@ -100,8 +100,8 @@ export const FinanceModule: React.FC = () => {
             }`}
           >
             دفتر اليومية والقيود
-          </button>
-          <button
+          </Button>
+          <Button variant="unstyled"
             type="button"
             onClick={() => setActiveTab('trial_balance')}
             className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
@@ -111,7 +111,7 @@ export const FinanceModule: React.FC = () => {
             }`}
           >
             ميزان المراجعة
-          </button>
+          </Button>
         </div>
       </div>
 

@@ -45,6 +45,7 @@ import {
   Warehouse,
   ClipboardCheck,
   CheckCircle2,
+  Layers,
 } from 'lucide-react';
 import { warehouseService, InAppNotification } from '../../services/warehouseService.ts';
 import { getScreenTitle } from '../../i18n/glossary.ts';
@@ -242,14 +243,14 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
     },
     {
       id: 'menu',
-      label: isAr ? 'الوصفات (رسبي)' : 'Recipes (BOM)',
+      label: isAr ? 'الوصفات (رسبي)' : 'Recipes',
       icon: ChefHat,
       group: 'menu_cost',
       roles: ['tenant_admin', 'general_manager', 'kitchen_manager', 'bar_manager', 'cost_accountant', 'super_admin'],
     },
     {
       id: 'semi_finished',
-      label: isAr ? 'التجهيزات (عجين/صوص)' : 'Preparations (BOM)',
+      label: isAr ? 'التجهيزات' : 'Preparations',
       icon: ChefHat,
       group: 'menu_cost',
       roles: ['tenant_admin', 'general_manager', 'head_chef', 'kitchen_manager', 'bar_manager', 'section_manager', 'cost_accountant', 'super_admin'],
@@ -309,6 +310,13 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
       icon: DollarSign,
       group: 'finance_hr',
       roles: ['tenant_admin', 'general_manager', 'financial_manager', 'financial_accountant', 'super_admin'],
+    },
+    {
+      id: 'overhead_allocation',
+      label: isAr ? 'المصاريف وتوزيعها' : 'Overhead Allocation',
+      icon: Layers,
+      group: 'finance_hr',
+      roles: ['tenant_admin', 'general_manager', 'financial_manager', 'cost_accountant', 'super_admin'],
     },
     {
       id: 'tax',

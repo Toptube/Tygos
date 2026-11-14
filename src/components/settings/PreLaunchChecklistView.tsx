@@ -175,6 +175,16 @@ const CHECKLIST_STEPS: ChecklistStep[] = [
     icon: <ChefHat className="w-5 h-5 text-indigo-500" />,
   },
   {
+    id: 'overhead_and_full_costing',
+    categoryAr: 'التكلفة الكاملة والمصاريف',
+    categoryEn: 'Overhead & Full Costing',
+    titleAr: 'فحص تحميل المصاريف المباشرة وغير المباشرة وفروق التحميل',
+    titleEn: 'Verify Two-Stage Overhead Allocation & Absorption Variance',
+    descAr: 'تأكد من مراكز التكلفة، توزيع «مشترك» على الأقسام ثم المنتجات، أوضاع التحميل (خامات فقط / نسبة ثابتة / قواعد)، استيراد الرواتب والمالية دون تكرار، قفل الشهر عند الإغلاق الرسمي، وحجب الشاشة عن الكاشير والشيفات.',
+    descEn: 'Confirm cost centers, two-stage allocation, overhead modes, deduplicated HR/Finance import, month locking at official close, and strict RBAC blocking cashiers and chefs.',
+    icon: <ClipboardCheck className="w-5 h-5 text-cyan-600 dark:text-cyan-400" />,
+  },
+  {
     id: 'privacy_anonymize',
     categoryAr: 'الخصوصية',
     categoryEn: 'Privacy',

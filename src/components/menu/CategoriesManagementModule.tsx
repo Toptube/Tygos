@@ -195,7 +195,7 @@ export const CategoriesManagementModule: React.FC = () => {
 
         {/* Tree Switcher Tabs */}
         <div className="flex items-center gap-1.5 p-1 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs">
-          <button
+          <Button variant="unstyled"
             type="button"
             onClick={() => setActiveType('product')}
             className={`flex items-center gap-2 px-3 py-1.5 rounded-lg font-bold transition-all ${
@@ -206,9 +206,9 @@ export const CategoriesManagementModule: React.FC = () => {
           >
             <UtensilsCrossed className="w-3.5 h-3.5" />
             <span>أقسام المنتجات</span>
-          </button>
+          </Button>
 
-          <button
+          <Button variant="unstyled"
             type="button"
             onClick={() => setActiveType('material')}
             className={`flex items-center gap-2 px-3 py-1.5 rounded-lg font-bold transition-all ${
@@ -219,7 +219,7 @@ export const CategoriesManagementModule: React.FC = () => {
           >
             <Boxes className="w-3.5 h-3.5" />
             <span>أقسام الخامات</span>
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -270,7 +270,7 @@ export const CategoriesManagementModule: React.FC = () => {
                 {/* Level 1: Main Category Header */}
                 <div className="p-4 flex items-center justify-between gap-3 bg-slate-50/70 dark:bg-slate-950/40 border-b border-slate-100 dark:border-slate-800/80">
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <button
+                    <Button variant="unstyled"
                       type="button"
                       onClick={() => toggleExpand(mainNode.id)}
                       className="p-1 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
@@ -280,7 +280,7 @@ export const CategoriesManagementModule: React.FC = () => {
                       ) : (
                         <ChevronRight className="w-4 h-4 rtl:rotate-180" />
                       )}
-                    </button>
+                    </Button>
 
                     <div className="flex items-center gap-2">
                       <span className="w-3 h-3 rounded-full bg-cyan-500 shrink-0" />
@@ -315,7 +315,7 @@ export const CategoriesManagementModule: React.FC = () => {
                       <span>فرعي</span>
                     </Button>
 
-                    <button
+                    <Button variant="unstyled"
                       type="button"
                       onClick={() => handleMoveOrder(mainNode, 'up')}
                       disabled={mainIdx === 0}
@@ -323,9 +323,9 @@ export const CategoriesManagementModule: React.FC = () => {
                       title="تحريك لأعلى"
                     >
                       <ArrowUp className="w-3.5 h-3.5" />
-                    </button>
+                    </Button>
 
-                    <button
+                    <Button variant="unstyled"
                       type="button"
                       onClick={() => handleMoveOrder(mainNode, 'down')}
                       disabled={mainIdx === tree.length - 1}
@@ -333,34 +333,34 @@ export const CategoriesManagementModule: React.FC = () => {
                       title="تحريك لأسفل"
                     >
                       <ArrowDown className="w-3.5 h-3.5" />
-                    </button>
+                    </Button>
 
-                    <button
+                    <Button variant="unstyled"
                       type="button"
                       onClick={() => handleToggleActive(mainNode)}
                       className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
                       title={mainNode.active ? 'إخفاء' : 'إظهار'}
                     >
                       {mainNode.active ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5 text-rose-400" />}
-                    </button>
+                    </Button>
 
-                    <button
+                    <Button variant="unstyled"
                       type="button"
                       onClick={() => handleOpenEdit(mainNode)}
                       className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
                       title="تعديل الاسم"
                     >
                       <Edit2 className="w-3.5 h-3.5" />
-                    </button>
+                    </Button>
 
-                    <button
+                    <Button variant="unstyled"
                       type="button"
                       onClick={() => setDeleteTarget(mainNode)}
                       className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40"
                       title="حذف"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
-                    </button>
+                    </Button>
                   </div>
                 </div>
 
@@ -381,7 +381,7 @@ export const CategoriesManagementModule: React.FC = () => {
                           <div className="flex items-center justify-between gap-2">
                             <div className="flex items-center gap-2 min-w-0">
                               {hasSubChildren ? (
-                                <button
+                                <Button variant="unstyled"
                                   type="button"
                                   onClick={() => toggleExpand(subNode.id)}
                                   className="p-0.5 text-slate-400"
@@ -391,7 +391,7 @@ export const CategoriesManagementModule: React.FC = () => {
                                   ) : (
                                     <ChevronRight className="w-3.5 h-3.5 rtl:rotate-180" />
                                   )}
-                                </button>
+                                </Button>
                               ) : (
                                 <span className="w-2 h-2 rounded-full bg-slate-300 dark:bg-slate-700" />
                               )}
@@ -420,39 +420,39 @@ export const CategoriesManagementModule: React.FC = () => {
                                 <span>تصنيف</span>
                               </Button>
 
-                              <button
+                              <Button variant="unstyled"
                                 type="button"
                                 onClick={() => handleMoveOrder(subNode, 'up')}
                                 disabled={subIdx === 0}
                                 className="p-1 text-slate-400 hover:text-slate-700 disabled:opacity-30"
                               >
                                 <ArrowUp className="w-3 h-3" />
-                              </button>
+                              </Button>
 
-                              <button
+                              <Button variant="unstyled"
                                 type="button"
                                 onClick={() => handleMoveOrder(subNode, 'down')}
                                 disabled={subIdx === mainNode.children!.length - 1}
                                 className="p-1 text-slate-400 hover:text-slate-700 disabled:opacity-30"
                               >
                                 <ArrowDown className="w-3 h-3" />
-                              </button>
+                              </Button>
 
-                              <button
+                              <Button variant="unstyled"
                                 type="button"
                                 onClick={() => handleOpenEdit(subNode)}
                                 className="p-1 text-slate-400 hover:text-slate-700"
                               >
                                 <Edit2 className="w-3 h-3" />
-                              </button>
+                              </Button>
 
-                              <button
+                              <Button variant="unstyled"
                                 type="button"
                                 onClick={() => setDeleteTarget(subNode)}
                                 className="p-1 text-slate-400 hover:text-rose-600"
                               >
                                 <Trash2 className="w-3 h-3" />
-                              </button>
+                              </Button>
                             </div>
                           </div>
 
@@ -468,20 +468,20 @@ export const CategoriesManagementModule: React.FC = () => {
                                   <span className="font-bold text-slate-800 dark:text-slate-200">
                                     {classNode.nameAr}
                                   </span>
-                                  <button
+                                  <Button variant="unstyled"
                                     type="button"
                                     onClick={() => handleOpenEdit(classNode)}
                                     className="text-slate-400 hover:text-slate-700"
                                   >
                                     <Edit2 className="w-3 h-3" />
-                                  </button>
-                                  <button
+                                  </Button>
+                                  <Button variant="unstyled"
                                     type="button"
                                     onClick={() => setDeleteTarget(classNode)}
                                     className="text-slate-400 hover:text-rose-600"
                                   >
                                     <Trash2 className="w-3 h-3" />
-                                  </button>
+                                  </Button>
                                 </div>
                               ))}
                             </div>

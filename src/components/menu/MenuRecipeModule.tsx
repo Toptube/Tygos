@@ -53,6 +53,8 @@ import { calculateFoodCostPercentage, calculateGrossMargin, calculateSuggestedSe
 import { categoryService, CategoryNode, normalizeArabicText } from '../../services/categoryService.ts';
 import { DuplicatesResolverModal } from './DuplicatesResolverModal.tsx';
 import { semiFinishedService, SemiFinishedItem, PreparationPortion } from '../../services/semiFinishedService.ts';
+import { overheadService, getCurrentMonthKey } from '../../services/overheadService.ts';
+import { uiPreferencesRepository } from '../../repositories/repositories.ts';
 
 type ActiveDishTab = 'info' | 'recipe' | 'pricing' | 'history';
 
@@ -166,22 +168,20 @@ export const MenuRecipeModule: React.FC = () => {
 
   // Check for navigation tab / edit intents from Journey Bar
   useEffect(() => {
-    try {
-      const editId = localStorage.getItem('tygos_edit_dish_id');
-      const tabIntent = localStorage.getItem('tygos_active_dish_tab_intent') as ActiveDishTab;
-      localStorage.removeItem('tygos_edit_dish_id');
-      localStorage.removeItem('tygos_active_dish_tab_intent');
+    const editId = uiPreferencesRepository.getEditDishId();
+    const tabIntent = uiPreferencesRepository.getActiveDishTabIntent() as ActiveDishTab | null;
+    uiPreferencesRepository.clearEditDishId();
+    uiPreferencesRepository.clearActiveDishTabIntent();
 
-      if (editId) {
-        const found = menuProducts.find((p) => p.id === editId);
-        if (found) {
-          handleOpenDish(found, tabIntent || 'info');
-          return;
-        }
-      } else if (tabIntent && menuProducts.length > 0) {
-        handleOpenDish(menuProducts[0], tabIntent);
+    if (editId) {
+      const found = menuProducts.find((p) => p.id === editId);
+      if (found) {
+        handleOpenDish(found, tabIntent || 'info');
+        return;
       }
-    } catch {}
+    } else if (tabIntent && menuProducts.length > 0) {
+      handleOpenDish(menuProducts[0], tabIntent);
+    }
   }, [menuProducts]);
 
   // Filter products based on 3 levels + search
@@ -759,7 +759,7 @@ export const MenuRecipeModule: React.FC = () => {
         <div className="space-y-1.5">
           <div className="flex items-center justify-between text-xs font-bold text-slate-500">
             <span>الأقسام الرئيسية:</span>
-            <button
+            <Button variant="unstyled"
               type="button"
               onClick={() => {
                 setCategoryModalMode('main');
@@ -771,11 +771,11 @@ export const MenuRecipeModule: React.FC = () => {
             >
               <Plus className="w-3 h-3" />
               <span>+ قسم رئيسي</span>
-            </button>
+            </Button>
           </div>
 
           <div className="flex flex-wrap items-center gap-1.5">
-            <button
+            <Button variant="unstyled"
               type="button"
               onClick={() => {
                 setSelectedMainCatId('all');
@@ -789,10 +789,10 @@ export const MenuRecipeModule: React.FC = () => {
               }`}
             >
               الكل ({menuProducts.length})
-            </button>
+            </Button>
 
             {mainCategories.map((main) => (
-              <button
+              <Button variant="unstyled"
                 key={main.id}
                 type="button"
                 data-testid={`main-cat-${main.id}`}
@@ -808,7 +808,7 @@ export const MenuRecipeModule: React.FC = () => {
                 }`}
               >
                 {main.nameAr}
-              </button>
+              </Button>
             ))}
           </div>
         </div>
@@ -818,7 +818,7 @@ export const MenuRecipeModule: React.FC = () => {
           <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 space-y-1.5">
             <div className="flex items-center justify-between text-xs font-bold text-slate-500">
               <span>الأقسام الفرعية:</span>
-              <button
+              <Button variant="unstyled"
                 type="button"
                 onClick={() => {
                   setCategoryModalMode('sub');
@@ -830,11 +830,11 @@ export const MenuRecipeModule: React.FC = () => {
               >
                 <Plus className="w-3 h-3" />
                 <span>+ قسم فرعي</span>
-              </button>
+              </Button>
             </div>
 
             <div className="flex flex-wrap items-center gap-1.5">
-              <button
+              <Button variant="unstyled"
                 type="button"
                 onClick={() => {
                   setSelectedSubCatId('all');
@@ -847,10 +847,10 @@ export const MenuRecipeModule: React.FC = () => {
                 }`}
               >
                 كل الفروع
-              </button>
+              </Button>
 
               {subCategories.map((sub) => (
-                <button
+                <Button variant="unstyled"
                   key={sub.id}
                   type="button"
                   data-testid={`sub-cat-${sub.id}`}
@@ -865,7 +865,7 @@ export const MenuRecipeModule: React.FC = () => {
                   }`}
                 >
                   {sub.nameAr}
-                </button>
+                </Button>
               ))}
             </div>
           </div>
@@ -876,7 +876,7 @@ export const MenuRecipeModule: React.FC = () => {
           <div className="pt-2 border-t border-slate-100 dark:border-slate-800/80 flex flex-wrap items-center gap-1.5">
             <span className="text-[11px] font-bold text-slate-400 me-1">التصنيفات:</span>
             {classifications.map((cl) => (
-              <button
+              <Button variant="unstyled"
                 key={cl.id}
                 type="button"
                 onClick={() => setSelectedClassId(cl.id)}
@@ -887,7 +887,7 @@ export const MenuRecipeModule: React.FC = () => {
                 }`}
               >
                 {cl.nameAr}
-              </button>
+              </Button>
             ))}
           </div>
         )}
@@ -1054,7 +1054,7 @@ export const MenuRecipeModule: React.FC = () => {
 
             {/* 4 Tabs Bar */}
             <div className="flex border-b border-slate-200 dark:border-slate-800 px-4 gap-2 sm:gap-4 text-xs font-bold bg-slate-50/50 dark:bg-slate-900/50 shrink-0 overflow-x-auto">
-              <button
+              <Button variant="unstyled"
                 type="button"
                 onClick={() => setDishTab('info')}
                 className={`py-3 border-b-2 transition-colors cursor-pointer whitespace-nowrap ${
@@ -1064,9 +1064,9 @@ export const MenuRecipeModule: React.FC = () => {
                 }`}
               >
                 1. بيانات الطبق
-              </button>
+              </Button>
 
-              <button
+              <Button variant="unstyled"
                 type="button"
                 onClick={() => setDishTab('recipe')}
                 data-testid="dish-tab-recipe-button"
@@ -1077,10 +1077,10 @@ export const MenuRecipeModule: React.FC = () => {
                 }`}
               >
                 2. الوصفة والمكونات
-              </button>
+              </Button>
 
               {canViewFinancials && (
-                <button
+                <Button variant="unstyled"
                   type="button"
                   onClick={() => setDishTab('pricing')}
                   data-testid="dish-tab-pricing-button"
@@ -1091,10 +1091,10 @@ export const MenuRecipeModule: React.FC = () => {
                   }`}
                 >
                   3. السعر والربح
-                </button>
+                </Button>
               )}
 
-              <button
+              <Button variant="unstyled"
                 type="button"
                 onClick={() => setDishTab('history')}
                 className={`py-3 border-b-2 transition-colors cursor-pointer whitespace-nowrap ${
@@ -1104,7 +1104,7 @@ export const MenuRecipeModule: React.FC = () => {
                 }`}
               >
                 4. سجل التعديلات
-              </button>
+              </Button>
             </div>
 
             {/* Tab Contents */}
@@ -1184,6 +1184,49 @@ export const MenuRecipeModule: React.FC = () => {
                         unit="دقيقة"
                         showSteppers={true}
                       />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                        زمن التحضير لتوزيع المصاريف (دقائق - اختياري):
+                      </label>
+                      <NumericInput
+                        disabled={!canEdit}
+                        value={draftDish.prepTimeMinutes ?? draftDish.directLaborMinutes ?? 10}
+                        onChange={(m) => {
+                          setDraftDish({ ...draftDish, prepTimeMinutes: m });
+                          setHasUnsavedChanges(true);
+                        }}
+                        min={0}
+                        step={1}
+                        unit="دقيقة"
+                      />
+                      <span className="text-[10px] text-slate-400 mt-1 block">
+                        يُستخدم في توزيع الغاز والكهرباء والعمالة عند اختيار قاعدة «حسب زمن التحضير بالدقائق».
+                      </span>
+                    </div>
+
+                    <div>
+                      <label className="font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                        حد التنبيه الأصفر بالكاشير (حصص متبقية):
+                      </label>
+                      <NumericInput
+                        disabled={!canEdit}
+                        value={draftDish.lowStockThresholdPortions ?? 5}
+                        onChange={(v) => {
+                          setDraftDish({ ...draftDish, lowStockThresholdPortions: Math.max(1, v) });
+                          setHasUnsavedChanges(true);
+                        }}
+                        min={1}
+                        step={1}
+                        unit="حصة"
+                        showSteppers={true}
+                      />
+                      <span className="text-[10px] text-slate-400 mt-1 block">
+                        عند وصول الحصص المتاحة لهذا الرقم يتحول زر الصنف في الكاشير للون الأصفر.
+                      </span>
                     </div>
                   </div>
 
@@ -1387,7 +1430,15 @@ export const MenuRecipeModule: React.FC = () => {
               )}
 
               {/* Tab 3: Price & Profit (Financials) */}
-              {dishTab === 'pricing' && canViewFinancials && (
+              {dishTab === 'pricing' && canViewFinancials && (() => {
+                const fullCostReport = overheadService.calculateFullProductCosting(
+                  estId,
+                  getCurrentMonthKey(),
+                  [draftDish, ...menuProducts.filter((p) => p.id !== draftDish.id)]
+                );
+                const dishFullCost = fullCostReport.products.find((p) => p.productId === draftDish.id);
+
+                return (
                 <div className="space-y-4 text-xs">
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-center">
@@ -1415,6 +1466,91 @@ export const MenuRecipeModule: React.FC = () => {
                       </strong>
                     </div>
                   </div>
+
+                  {/* Full Cost Equation & Rules Breakdown (Package 5) */}
+                  {dishFullCost && (
+                    <div className="p-4 rounded-xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 space-y-3">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <h4 className="font-black text-slate-900 dark:text-white flex items-center gap-2">
+                          <TrendingUp className="w-4 h-4 text-cyan-600" />
+                          <span>تفصيل التكلفة الكاملة للمنتج (بعد تحميل المصاريف)</span>
+                        </h4>
+                        {dishFullCost.isLossAfterOverhead && (
+                          <span className="px-2.5 py-0.5 rounded text-[11px] font-bold bg-rose-100 text-rose-700 dark:bg-rose-950/60 dark:text-rose-300 border border-rose-300 dark:border-rose-800">
+                            خاسر بعد التحميل
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Equation Visual Formula */}
+                      <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex flex-wrap items-center gap-2 text-[11px] font-bold">
+                        <span className="px-2 py-1 rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                          خامات: <strong className="font-mono text-slate-900 dark:text-white">{dishFullCost.rawCost} ج.م</strong>
+                        </span>
+                        <span className="text-slate-400">+</span>
+                        <span className="px-2 py-1 rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                          تجهيزات: <strong className="font-mono text-slate-900 dark:text-white">{dishFullCost.prepCost} ج.م</strong>
+                        </span>
+                        <span className="text-slate-400">+</span>
+                        <span className="px-2 py-1 rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                          عمالة مباشرة: <strong className="font-mono text-cyan-700 dark:text-cyan-400">{dishFullCost.directLabor} ج.م</strong>
+                        </span>
+                        <span className="text-slate-400">+</span>
+                        <span className="px-2 py-1 rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                          مصاريف غير مباشرة: <strong className="font-mono text-amber-600 dark:text-amber-400">{dishFullCost.indirectOverhead} ج.م</strong>
+                        </span>
+                        <span className="text-slate-400">+</span>
+                        <span className="px-2 py-1 rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                          مستهلكات: <strong className="font-mono text-slate-900 dark:text-white">{dishFullCost.consumables} ج.م</strong>
+                        </span>
+                        <span className="text-slate-400">=</span>
+                        <span className="px-2.5 py-1 rounded bg-cyan-600 text-white font-mono">
+                          التكلفة الكاملة: {dishFullCost.fullCost} ج.م
+                        </span>
+                      </div>
+
+                      {/* Two Profit Comparisons */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="p-3 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 flex items-center justify-between">
+                          <div>
+                            <span className="text-[11px] text-slate-500 block">الربح على التكلفة الأولية (دون مصاريف عامة)</span>
+                            <strong className="text-base font-mono font-black text-slate-900 dark:text-white">
+                              {dishFullCost.primeProfit} ج.م
+                            </strong>
+                          </div>
+                          <span className="text-xs font-mono font-bold text-cyan-700 dark:text-cyan-400">
+                            {dishFullCost.primeMarginPercent}%
+                          </span>
+                        </div>
+
+                        <div className={`p-3 rounded-lg border flex items-center justify-between ${
+                          dishFullCost.fullProfit >= 0
+                            ? 'bg-emerald-50/60 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800'
+                            : 'bg-rose-50/70 dark:bg-rose-950/30 border-rose-300 dark:border-rose-800'
+                        }`}>
+                          <div>
+                            <span className="text-[11px] text-slate-600 dark:text-slate-300 block">صافي الربح على التكلفة الكاملة</span>
+                            <strong className={`text-base font-mono font-black ${
+                              dishFullCost.fullProfit >= 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
+                            }`}>
+                              {dishFullCost.fullProfit} ج.م
+                            </strong>
+                          </div>
+                          <span className={`text-xs font-mono font-bold ${
+                            dishFullCost.fullProfit >= 0 ? 'text-emerald-700 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'
+                          }`}>
+                            {dishFullCost.fullMarginPercent}%
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Applied Rules Statement */}
+                      <div className="text-[11px] text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-900 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-800">
+                        <strong className="text-slate-800 dark:text-slate-200">القاعدة المطبّقة في التحميل:</strong>{' '}
+                        {dishFullCost.appliedRulesAr}
+                      </div>
+                    </div>
+                  )}
 
                   <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-3">
                     <h4 className="font-bold text-slate-800 dark:text-slate-200">
@@ -1445,7 +1581,8 @@ export const MenuRecipeModule: React.FC = () => {
                     </div>
                   </div>
                 </div>
-              )}
+                );
+              })()}
 
               {/* Tab 4: History */}
               {dishTab === 'history' && (
@@ -1569,7 +1706,7 @@ export const MenuRecipeModule: React.FC = () => {
             {/* Main Tabs: Raw Materials vs Semi-Finished Preps */}
             {!selectedPrepForAdd && (
               <div className="flex items-center gap-1.5 p-1 rounded-xl bg-slate-100 dark:bg-slate-900">
-                <button
+                <Button variant="unstyled"
                   type="button"
                   onClick={() => setIngredientModalTab('raw')}
                   className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
@@ -1580,8 +1717,8 @@ export const MenuRecipeModule: React.FC = () => {
                   data-testid="tab-recipe-add-raw"
                 >
                   خامات أولية ({rawMaterials.length})
-                </button>
-                <button
+                </Button>
+                <Button variant="unstyled"
                   type="button"
                   onClick={() => setIngredientModalTab('semi_finished')}
                   className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
@@ -1591,8 +1728,8 @@ export const MenuRecipeModule: React.FC = () => {
                   }`}
                   data-testid="tab-recipe-add-semi"
                 >
-                  تجهيزات وتحضيرات ({semiFinishedService.getAllPreparations().length})
-                </button>
+                  التجهيزات ({semiFinishedService.getAllPreparations().length})
+                </Button>
               </div>
             )}
 
@@ -1630,7 +1767,7 @@ export const MenuRecipeModule: React.FC = () => {
                       m.nameEn.toLowerCase().includes(ingredientSearch.toLowerCase())
                     )
                     .map((mat) => (
-                      <button
+                      <Button variant="unstyled"
                         key={mat.id}
                         type="button"
                         onClick={() => handleAddIngredientToDraft(mat)}
@@ -1645,7 +1782,7 @@ export const MenuRecipeModule: React.FC = () => {
                             {mat.effectiveUnitCost} ج.م / {mat.consumptionUnit}
                           </span>
                         )}
-                      </button>
+                      </Button>
                     ))}
                 </div>
               </>
@@ -1734,7 +1871,7 @@ export const MenuRecipeModule: React.FC = () => {
                   </label>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {selectedPrepForAdd.portions && selectedPrepForAdd.portions.length > 0 && selectedPrepForAdd.portions.map((port) => (
-                      <button
+                      <Button variant="unstyled"
                         key={port.id}
                         type="button"
                         onClick={() => setSelectedPortionIdForAdd(port.id)}
@@ -1749,10 +1886,10 @@ export const MenuRecipeModule: React.FC = () => {
                         <div className="text-[10px] text-slate-400">
                           {port.sizeInYieldUnits} {selectedPrepForAdd.yieldUnit} · {port.calculatedCost.toFixed(2)} ج.م
                         </div>
-                      </button>
+                      </Button>
                     ))}
 
-                    <button
+                    <Button variant="unstyled"
                       type="button"
                       onClick={() => setSelectedPortionIdForAdd('yield')}
                       className={`p-2.5 rounded-xl text-start border transition-all cursor-pointer text-xs ${
@@ -1766,7 +1903,7 @@ export const MenuRecipeModule: React.FC = () => {
                       <div className="text-[10px] text-slate-400">
                         وحدة {selectedPrepForAdd.yieldUnit} · {selectedPrepForAdd.wacUnitCost.toFixed(2)} ج.م
                       </div>
-                    </button>
+                    </Button>
                   </div>
                 </div>
 

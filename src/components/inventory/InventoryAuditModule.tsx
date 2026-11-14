@@ -226,8 +226,11 @@ export const InventoryAuditModule: React.FC = () => {
       setCurrentPeriod({ ...period });
 
       if (isOfficial) {
+        const ovMsg = period.overheadVarianceSummary
+          ? ` — تم قفل مصاريف شهر [${period.overheadVarianceSummary.month}] (${period.overheadVarianceSummary.labelAr})`
+          : '';
         showToast({
-          title: `تم الإغلاق الفعلي للفترة بنجاح وتثبيت الأرصدة وتسجيل ${reconciliationEntries} قيد تسوية ✓`,
+          title: `تم الإغلاق الفعلي للفترة بنجاح وتثبيت الأرصدة وتسجيل ${reconciliationEntries} قيد تسوية ✓${ovMsg}`,
           type: 'success',
         });
       } else {
@@ -406,7 +409,7 @@ export const InventoryAuditModule: React.FC = () => {
             </div>
             <div>
               <h1 className="text-xl font-black text-slate-900 dark:text-white">
-                الجرد الفعلي ومراقبة الانحراف (BOM Variance)
+                الجرد الفعلي ومراقبة الانحراف
               </h1>
               <p className="text-xs text-slate-500 mt-0.5">
                 مقارنة الرصيد التقديري بالفعلي المعدود، استبعاد بضاعة «في الطريق»، وإغلاق الفترات المحاسبية.
@@ -548,7 +551,7 @@ export const InventoryAuditModule: React.FC = () => {
               فترة الجرد:
             </label>
             <div className="flex items-center gap-1">
-              <button
+              <Button variant="unstyled"
                 type="button"
                 onClick={() => handleSelectDurationPreset('week')}
                 className={`px-2 py-0.5 text-[11px] font-bold rounded cursor-pointer ${
@@ -558,8 +561,8 @@ export const InventoryAuditModule: React.FC = () => {
                 }`}
               >
                 أسبوع
-              </button>
-              <button
+              </Button>
+              <Button variant="unstyled"
                 type="button"
                 onClick={() => handleSelectDurationPreset('month')}
                 className={`px-2 py-0.5 text-[11px] font-bold rounded cursor-pointer ${
@@ -569,8 +572,8 @@ export const InventoryAuditModule: React.FC = () => {
                 }`}
               >
                 شهر
-              </button>
-              <button
+              </Button>
+              <Button variant="unstyled"
                 type="button"
                 onClick={() => setDurationPreset('custom')}
                 className={`px-2 py-0.5 text-[11px] font-bold rounded cursor-pointer ${
@@ -580,7 +583,7 @@ export const InventoryAuditModule: React.FC = () => {
                 }`}
               >
                 مخصصة
-              </button>
+              </Button>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-2">
@@ -659,6 +662,45 @@ export const InventoryAuditModule: React.FC = () => {
         </div>
       </div>
 
+      {/* Period Close Overhead Absorption Variance Banner (Package 5) */}
+      {currentPeriod?.overheadVarianceSummary && (
+        <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="space-y-0.5">
+            <div className="flex items-center gap-2 text-xs font-black text-slate-900 dark:text-white">
+              <Lock className="w-4 h-4 text-rose-600" />
+              <span>تم قفل مصاريف شهر {currentPeriod.overheadVarianceSummary.month} وحساب فروق التحميل</span>
+            </div>
+            <p className="text-xs text-slate-600 dark:text-slate-300">
+              {currentPeriod.overheadVarianceSummary.labelAr}
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-4 text-xs font-mono">
+            <div>
+              <span className="text-slate-500 block font-sans">المصاريف الفعلية</span>
+              <strong className="text-slate-900 dark:text-white">{fmt(currentPeriod.overheadVarianceSummary.totalExpenses)} ج.م</strong>
+            </div>
+            <div>
+              <span className="text-slate-500 block font-sans">المحمّل على المبيعات</span>
+              <strong className="text-cyan-700 dark:text-cyan-400">{fmt(currentPeriod.overheadVarianceSummary.totalCharged)} ج.م</strong>
+            </div>
+            <div>
+              <span className="text-slate-500 block font-sans">فروق التحميل</span>
+              <strong
+                className={
+                  currentPeriod.overheadVarianceSummary.status === 'over_absorbed'
+                    ? 'text-emerald-600'
+                    : currentPeriod.overheadVarianceSummary.status === 'under_absorbed'
+                    ? 'text-rose-600'
+                    : 'text-slate-700 dark:text-slate-300'
+                }
+              >
+                {fmt(currentPeriod.overheadVarianceSummary.varianceAmount)} ج.م
+              </strong>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 4. Table Filter & Search Controls */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
         <div className="relative w-full sm:w-72">
@@ -673,7 +715,7 @@ export const InventoryAuditModule: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-1.5 self-start sm:self-auto overflow-x-auto w-full sm:w-auto p-1 bg-slate-100 dark:bg-slate-800 rounded-xl">
-          <button
+          <Button variant="unstyled"
             type="button"
             onClick={() => setStatusFilter('all')}
             className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors ${
@@ -683,8 +725,8 @@ export const InventoryAuditModule: React.FC = () => {
             }`}
           >
             الكل ({currentPeriod?.items.length || 0})
-          </button>
-          <button
+          </Button>
+          <Button variant="unstyled"
             type="button"
             onClick={() => setStatusFilter('deficit')}
             className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors ${
@@ -694,8 +736,8 @@ export const InventoryAuditModule: React.FC = () => {
             }`}
           >
             عجز فقط (−)
-          </button>
-          <button
+          </Button>
+          <Button variant="unstyled"
             type="button"
             onClick={() => setStatusFilter('surplus')}
             className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors ${
@@ -705,8 +747,8 @@ export const InventoryAuditModule: React.FC = () => {
             }`}
           >
             فائض فقط (+)
-          </button>
-          <button
+          </Button>
+          <Button variant="unstyled"
             type="button"
             onClick={() => setStatusFilter('balanced')}
             className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-colors ${
@@ -716,7 +758,7 @@ export const InventoryAuditModule: React.FC = () => {
             }`}
           >
             مطابق
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -862,14 +904,14 @@ export const InventoryAuditModule: React.FC = () => {
 
                     {/* Item Card Trigger */}
                     <td className="py-3 px-2 text-center">
-                      <button
+                      <Button variant="unstyled"
                         type="button"
                         onClick={() => setSelectedMaterialIdForCard(item.materialId)}
                         className="p-1.5 rounded-lg text-slate-400 hover:text-cyan-600 hover:bg-cyan-50 dark:hover:bg-cyan-950/50 transition-colors"
                         title="فتح كارت الصنف"
                       >
                         <ExternalLink className="w-4 h-4" />
-                      </button>
+                      </Button>
                     </td>
                   </tr>
                 );
@@ -1168,6 +1210,7 @@ export const InventoryAuditModule: React.FC = () => {
                     <th className="p-3 text-end font-bold">الرصيد الفعلي</th>
                     <th className="p-3 text-end font-bold">الانحراف</th>
                     <th className="p-3 text-start">الحالة</th>
+                    <th className="p-3 text-center">تفاصيل اليوم</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -1193,9 +1236,30 @@ export const InventoryAuditModule: React.FC = () => {
                           </span>
                         </td>
                         <td className="p-3">
-                          <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
-                            {daily.isClosed ? 'مغلق' : 'نشط'}
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                            daily.isClosed
+                              ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-600'
+                              : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+                          }`}>
+                            {daily.isClosed ? 'مغلق (مجمد)' : 'نشط'}
                           </span>
+                        </td>
+                        <td className="p-3 text-center">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            data-testid={`inspect-day-${daily.date}`}
+                            onClick={() => {
+                              const firstItem = currentPeriod.items[0];
+                              if (firstItem) {
+                                setSelectedDayBreakdown({ date: daily.date, item: firstItem });
+                              }
+                            }}
+                            className="text-[11px] font-bold"
+                          >
+                            عرض الأصناف
+                          </Button>
                         </td>
                       </tr>
                     );
@@ -1206,6 +1270,70 @@ export const InventoryAuditModule: React.FC = () => {
 
             <div className="flex justify-end pt-3 border-t border-slate-200 dark:border-slate-800">
               <Button type="button" variant="outline" size="sm" onClick={() => setIsDailyReportModalOpen(false)}>
+                إغلاق
+              </Button>
+            </div>
+          </div>
+        </ModalShell>
+      )}
+
+      {/* 10. Day Breakdown Modal (تفاصيل اليوم لكل خامة) */}
+      {selectedDayBreakdown && currentPeriod && (
+        <ModalShell
+          isOpen={!!selectedDayBreakdown}
+          onClose={() => setSelectedDayBreakdown(null)}
+          title={`تفاصيل حركات يوم ${selectedDayBreakdown.date}`}
+          subtitle="الوارد (+) والمنصرف (−) والانحراف والملاحظات المسجلة (الأيام المغلقة مجمدة وغير قابلة للتعديل)"
+          size="lg"
+        >
+          <div className="space-y-3 text-xs" dir="rtl">
+            <div className="overflow-x-auto border border-slate-200 dark:border-slate-800 rounded-xl">
+              <table className="w-full text-start">
+                <thead className="bg-slate-50 dark:bg-slate-900/60 font-bold border-b border-slate-200 dark:border-slate-800">
+                  <tr>
+                    <th className="p-2.5 text-start">الخامة</th>
+                    <th className="p-2.5 text-end text-emerald-600">وارد (+)</th>
+                    <th className="p-2.5 text-end text-rose-600">منصرف (−)</th>
+                    <th className="p-2.5 text-end">الانحراف</th>
+                    <th className="p-2.5 text-start">السبب والملاحظات</th>
+                    <th className="p-2.5 text-center">الحالة</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                  {currentPeriod.items.map((it) => {
+                    const rec = it.dailyRecords.find((d) => d.date === selectedDayBreakdown.date);
+                    return (
+                      <tr key={it.materialId}>
+                        <td className="p-2.5 font-bold text-slate-900 dark:text-white">{it.materialNameAr}</td>
+                        <td className="p-2.5 text-end font-mono text-emerald-600">+{fmt(rec?.inBase || 0)}</td>
+                        <td className="p-2.5 text-end font-mono text-rose-600">−{fmt(rec?.outBase || 0)}</td>
+                        <td className="p-2.5 text-end font-mono font-bold">
+                          {rec?.varianceBase !== undefined
+                            ? (rec.varianceBase > 0 ? `+${fmt(rec.varianceBase)}` : fmt(rec.varianceBase))
+                            : '—'}
+                        </td>
+                        <td className="p-2.5 text-slate-600 dark:text-slate-300">
+                          {it.notes || it.reason || '—'}
+                        </td>
+                        <td className="p-2.5 text-center">
+                          {rec?.isClosed ? (
+                            <span className="px-2 py-0.5 rounded bg-rose-50 dark:bg-rose-950/40 text-rose-600 font-bold text-[10px]">
+                              مجمد
+                            </span>
+                          ) : (
+                            <span className="px-2 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 font-bold text-[10px]">
+                              مفتوح
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+            <div className="flex justify-end">
+              <Button type="button" variant="outline" size="sm" onClick={() => setSelectedDayBreakdown(null)}>
                 إغلاق
               </Button>
             </div>

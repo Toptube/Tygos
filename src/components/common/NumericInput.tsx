@@ -14,6 +14,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Plus, Minus } from 'lucide-react';
+import { Button } from './Button.tsx';
 
 interface NumericInputProps {
   value: number;
@@ -131,8 +132,9 @@ export const NumericInput: React.FC<NumericInputProps> = ({
   return (
     <div className={`relative flex items-center gap-1 ${className}`}>
       {showSteppers && (
-        <button
+        <Button
           type="button"
+          variant="unstyled"
           tabIndex={-1}
           disabled={disabled || (min !== undefined && value <= min)}
           onClick={() => handleStep(-step)}
@@ -140,7 +142,7 @@ export const NumericInput: React.FC<NumericInputProps> = ({
           title="تقليل"
         >
           <Minus className="w-3.5 h-3.5" />
-        </button>
+        </Button>
       )}
 
       <div className="relative flex-1 min-w-0">
@@ -167,8 +169,9 @@ export const NumericInput: React.FC<NumericInputProps> = ({
       </div>
 
       {showSteppers && (
-        <button
+        <Button
           type="button"
+          variant="unstyled"
           tabIndex={-1}
           disabled={disabled || (max !== undefined && value >= max)}
           onClick={() => handleStep(step)}
@@ -176,7 +179,7 @@ export const NumericInput: React.FC<NumericInputProps> = ({
           title="زيادة"
         >
           <Plus className="w-3.5 h-3.5" />
-        </button>
+        </Button>
       )}
     </div>
   );

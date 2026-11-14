@@ -133,8 +133,8 @@ class ProductAvailabilityService {
 
     const requirements: RawRequirementItem[] = flatList.map((flat) => {
       const mat = materials.find((m) => m.id === flat.materialId || m.nameAr === flat.materialNameAr);
-      if (!mat) {
-        // Untracked utility / pantry item (e.g., water, pinch of salt not tracked in stock)
+      if (!mat || mat.isStockTracked === false) {
+        // Untracked utility / pantry item (e.g., water, salt not tracked in stock)
         return {
           ingredientId: flat.materialId,
           ingredientNameAr: flat.materialNameAr,

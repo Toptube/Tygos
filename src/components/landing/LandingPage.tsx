@@ -131,8 +131,8 @@ export const LandingPage: React.FC<LandingPageProps> = ({
     {
       id: 'cost_engine',
       icon: ChefHat,
-      titleAr: 'محرك التكلفة الحقيقية (BOM)',
-      titleEn: 'True Cost Engineering (BOM)',
+      titleAr: 'محرك التكلفة الحقيقية',
+      titleEn: 'True Cost Engineering',
       actionAr: 'اعرف تكلفة طبقك للقرش: من أول اللحم والخضار لهالك التشفية، وقت الشيف، والغاز والكهربا.',
       actionEn: 'Discover your exact portion cost down to raw yield scraps, direct prep labor, and allocated gas/power.',
     },
@@ -142,7 +142,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       titleAr: 'كشف الهدر والانحرافات',
       titleEn: 'Waste & Variance Detection',
       actionAr: 'قارن اللي المفروض يخرج من المخزن باللي خرج فعلاً، وامسك أي تسريب أو زيادة في التوزيع قبل ما يخسرك.',
-      actionEn: 'Compare theoretical BOM consumption against physical inventory to catch waste and portion creep early.',
+      actionEn: 'Compare theoretical consumption against physical inventory to catch waste and portion creep early.',
     },
     {
       id: 'inventory',
@@ -222,7 +222,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       problemAr: 'كان الشيف يشتري لحوم بكميات ضخمة ومبيعات الستيك عالية، لكن صافي الربح مكنش متطابق مع حجم المبيعات.',
       problemEn: 'High-volume steak sales were hiding severe profit leaks due to unmeasured butchery fat and bone loss.',
       transformationAr: 'مع TYGOS، تم احتساب هالك التشفية بنسبة 16% وإضافته لتكلفة الطبق الحقيقية، واكتشفوا إن سعر البيع كان منخفضاً.',
-      transformationEn: 'Using TYGOS, 16% yield waste was incorporated into the BOM, uncovering that selling prices were undercutting cost.',
+      transformationEn: 'Using TYGOS, 16% yield waste was incorporated into the recipe, uncovering that selling prices were undercutting cost.',
       resultAr: 'النتيجة: ارتفع هامش ربح قسم اللحوم بنسبة 22% خلال شهرين فقط دون أي تراجع في رضا الزبائن.',
       resultEn: 'Result: Meat section gross margin increased by 22% in two months while keeping customer satisfaction high.',
     },
@@ -283,7 +283,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({
       titleAr: 'شيف المطبخ',
       titleEn: 'Executive Chef',
       descAr: 'عدّل مكونات الوصفات واضبط معايير التحضير (SOP).',
-      descEn: 'Fine-tune BOM ingredient portions and prep SOP steps.',
+      descEn: 'Fine-tune recipe ingredient portions and prep steps.',
     },
   ];
 

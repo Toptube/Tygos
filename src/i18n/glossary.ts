@@ -70,7 +70,7 @@ export const SCREEN_GLOSSARY: Record<string, GlossaryEntry> = {
     id: 'menu',
     titleAr: 'الوصفات (رسبي)',
     subtitleAr: 'بوابة كل منتجات المنشأة وحساب التكلفة الحقيقية للوصفة',
-    titleEn: 'Recipes (BOM)',
+    titleEn: 'Recipes',
     subtitleEn: 'Recipe gateway for all dishes, drinks, and true cost calculations',
   },
   products: {
@@ -110,17 +110,17 @@ export const SCREEN_GLOSSARY: Record<string, GlossaryEntry> = {
   },
   semi_finished: {
     id: 'semi_finished',
-    titleAr: 'التجهيزات (عجين/صوص)',
+    titleAr: 'التجهيزات',
     subtitleAr: 'إدارة التجهيزات والمارينيهات والصوصات وتفكيكها للخامات في البيع والجرد',
-    titleEn: 'Preparations (BOM)',
-    subtitleEn: 'Semi-finished prep formulas, dough, sauces, and dynamic BOM decomposition',
+    titleEn: 'Preparations',
+    subtitleEn: 'Semi-finished prep formulas, dough, sauces, and dynamic decomposition',
   },
   inventory_audit: {
     id: 'inventory_audit',
     titleAr: 'الجرد الفعلي والانحراف',
     subtitleAr: 'إدخال الجرد الفعلي ومقارنته بالرصيد التقديري وإغلاق الفترات',
     titleEn: 'Physical Audit & Variance',
-    subtitleEn: 'Physical inventory counting, BOM variance tracking, and period closing',
+    subtitleEn: 'Physical inventory counting, variance tracking, and period closing',
   },
   daily_notes: {
     id: 'daily_notes',
@@ -149,6 +149,13 @@ export const SCREEN_GLOSSARY: Record<string, GlossaryEntry> = {
     subtitleAr: 'ملخص الإيرادات والمصروفات وصافي الربح والقيود',
     titleEn: 'Finance & Profit',
     subtitleEn: 'Summary of revenue, expenses, net profit, and ledger',
+  },
+  overhead_allocation: {
+    id: 'overhead_allocation',
+    titleAr: 'المصاريف وتوزيعها',
+    subtitleAr: 'تحميل المصاريف المباشرة وغير المباشرة على مرحلتين وحساب التكلفة الكاملة',
+    titleEn: 'Overhead & Full Costing',
+    subtitleEn: 'Two-stage direct & indirect overhead allocation and full product cost',
   },
   tax: {
     id: 'tax',
@@ -203,7 +210,7 @@ export const SCREEN_GLOSSARY: Record<string, GlossaryEntry> = {
     id: 'what_if',
     titleAr: 'حاسبة التجربة',
     subtitleAr: 'شوف أثر تغيير السعر أو الكمية على ربحك قبل ما تغيّر فعلاً',
-    titleEn: 'What-If Calculator',
+    titleEn: 'Experiment Calculator',
     subtitleEn: 'Preview price or quantity changes on your profit first',
   },
   privileged_access: {
@@ -293,24 +300,24 @@ export function getDefaultViewsForRole(role: string): string[] {
       return [
         'super_admin', 'dashboard', 'pos', 'kds', 'tables_management', 'order_trace',
         'menu_management', 'qr_tables', 'products', 'categories', 'menu', 'cost_control', 'inventory', 'warehouses', 'inventory_audit', 'daily_notes', 'purchasing',
-        'treasury', 'finance', 'tax', 'hr', 'crm', 'chat', 'health', 'settings', 'users_roles'
+        'treasury', 'finance', 'overhead_allocation', 'tax', 'hr', 'crm', 'chat', 'health', 'settings', 'users_roles'
       ];
     case 'tenant_admin':
       return [
         'dashboard', 'pos', 'kds', 'tables_management', 'order_trace',
         'menu_management', 'qr_tables', 'products', 'categories', 'menu', 'cost_control', 'inventory', 'warehouses', 'inventory_audit', 'daily_notes', 'purchasing',
-        'treasury', 'finance', 'tax', 'hr', 'crm', 'chat', 'health', 'settings', 'users_roles'
+        'treasury', 'finance', 'overhead_allocation', 'tax', 'hr', 'crm', 'chat', 'health', 'settings', 'users_roles'
       ];
     case 'general_manager':
       return [
         'dashboard', 'pos', 'kds', 'tables_management', 'order_trace',
         'menu_management', 'qr_tables', 'products', 'categories', 'menu', 'cost_control', 'inventory', 'warehouses', 'inventory_audit', 'daily_notes', 'purchasing',
-        'treasury', 'finance', 'hr', 'crm', 'chat', 'health', 'users_roles'
+        'treasury', 'finance', 'overhead_allocation', 'hr', 'crm', 'chat', 'health', 'users_roles'
       ];
     case 'financial_manager':
       return [
         'dashboard', 'order_trace', 'categories', 'cost_control', 'warehouses', 'inventory_audit', 'daily_notes', 'purchasing',
-        'treasury', 'finance', 'tax', 'crm', 'chat', 'health', 'users_roles'
+        'treasury', 'finance', 'overhead_allocation', 'tax', 'crm', 'chat', 'health', 'users_roles'
       ];
     case 'warehouse_manager':
       return ['warehouses', 'inventory_audit', 'daily_notes', 'inventory', 'categories', 'purchasing', 'dashboard', 'chat'];
@@ -331,7 +338,7 @@ export function getDefaultViewsForRole(role: string): string[] {
     case 'store_manager':
       return ['warehouses', 'inventory_audit', 'daily_notes', 'inventory', 'categories', 'purchasing', 'dashboard', 'chat'];
     case 'cost_accountant':
-      return ['dashboard', 'inventory_audit', 'daily_notes', 'products', 'categories', 'menu', 'cost_control', 'inventory', 'warehouses', 'finance', 'chat'];
+      return ['dashboard', 'inventory_audit', 'daily_notes', 'products', 'categories', 'menu', 'cost_control', 'inventory', 'warehouses', 'finance', 'overhead_allocation', 'chat'];
     case 'financial_accountant':
       return ['dashboard', 'purchasing', 'treasury', 'finance', 'tax', 'chat'];
     case 'tax_accountant':

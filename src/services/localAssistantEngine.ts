@@ -65,7 +65,7 @@ export class LocalAssistantEngine {
     if (context.productsWithoutRecipe.length > 0) {
       const p = context.productsWithoutRecipe[0];
       suggestions.push({
-        label: isAr ? `أكمل وصفة [${p.nameAr}]` : `Complete BOM for [${p.nameEn}]`,
+        label: isAr ? `أكمل وصفة [${p.nameAr}]` : `Complete recipe for [${p.nameEn}]`,
         action: 'NAV:menu',
       });
     }
@@ -149,7 +149,7 @@ export class LocalAssistantEngine {
     }
 
     if (norm.includes('اضف منتج') || norm.includes('وصفه جديده') || norm.includes('add product')) {
-      const contentAr = `فتحت لك معالج بناء الصنف والوصفة (BOM) بثلاث خطوات لحساب التكلفة الحقيقية تلقائياً.`;
+      const contentAr = `فتحت لك معالج بناء الصنف والوصفة بثلاث خطوات لحساب التكلفة الحقيقية تلقائياً.`;
       const contentEn = `Opening 3-Step Product & Recipe Builder to compute true cost automatically.`;
 
       return {
@@ -183,9 +183,16 @@ export class LocalAssistantEngine {
     }
 
     // 3. Explanation of Calculation Formulas ("ليه تكلفة كذا؟" / "إزاي بتحسبوا الهالك؟")
-    if (norm.includes('ليه تكلفه') || norm.includes('حساب التكلفه') || norm.includes('ازاي بتحسب') || norm.includes('how to calculate cost')) {
-      const contentAr = `معادلة التكلفة الحقيقية في تايجوس لا تقتصر على سعر الشراء فقط، بل تجمع:\n\n1. تكلفة المكونات الصافية.\n2. هالك التشفية والتقشير الممتص (Yield Waste Buffer).\n3. وقت التحضير الفعلي مضروباً بأجر دقيقة العمالة.\n4. حصة الطبق من استهلاك الغاز والكهرباء والمياه.\n5. مستهلكات التقديم والتغليف.\n\nبهذه الطريقة، تسعّر أطباقك على أساس ربح صافٍ حقيقي لا يتآكل نهاية الشهر.`;
-      const contentEn = `True Cost in Tygos calculates beyond raw purchase cost:\n\n1. Net Raw Materials.\n2. Yield Waste Loss Buffer.\n3. Direct prep labor minutes × hourly wage.\n4. Allocated utilities (gas, power, water).\n5. Packaging and consumables.\n\nThis ensures healthy gross margins without end-of-month surprises.`;
+    if (
+      norm.includes('ليه تكلفه') ||
+      norm.includes('حساب التكلفه') ||
+      norm.includes('ازاي بتحسب') ||
+      norm.includes('تكلفه كامله') ||
+      norm.includes('فروق التحميل') ||
+      norm.includes('how to calculate cost')
+    ) {
+      const contentAr = `معادلة التكلفة الكاملة في تايجوس تجمع خمسة عناصر أساسية:\n\n1. المكونات الصافية من خامات وتجهيزات (بعد احتساب هالك التشفية).\n2. عمالة مباشرة (موزعة حسب زمن التحضير أو القاعدة المختارة).\n3. مصاريف غير مباشرة (إيجار، كهرباء، غاز، صيانة، إهلاك) موزعة على مرحلتين: مشترك ← مراكز التكلفة ← المنتجات.\n4. مستهلكات التقديم والتغليف.\n\nكما يُحسب «معدل التحميل» للوحدة و«فروق التحميل» (زائد أو ناقص) عند إغلاق الفترة.`;
+      const contentEn = `True & Full Cost in Tygos combines Raw + Preparations + Direct Labor + Two-Stage Indirect Overhead + Consumables, plus burden rate and absorption variance at period close.`;
 
       return {
         id: `msg-${Date.now()}`,
@@ -195,14 +202,15 @@ export class LocalAssistantEngine {
         contentEn,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         suggestedActions: [
-          { label: isAr ? 'فتح هندسة الوصفات' : 'Open Recipe BOM', action: 'NAV:menu' },
+          { label: isAr ? 'المصاريف وتوزيعها' : 'Overhead Allocation', action: 'NAV:overhead_allocation' },
+          { label: isAr ? 'الوصفات (رسبي)' : 'Open Recipes', action: 'NAV:menu' },
           { label: isAr ? 'تحليل الانحراف والهدر' : 'Variance Analytics', action: 'NAV:cost_control' },
         ],
         detailedExplanation: {
-          titleAr: 'المعادلة الرياضية المعتمدة',
-          titleEn: 'Approved Mathematical Formula',
-          bodyAr: 'التكلفة الشاملة = الخامات + الهالك + العمالة المباشرة + المنافع + المستهلكات.\nالسعر المقترح = التكلفة ÷ (1 - الهامش المستهدف).',
-          bodyEn: 'True Cost = Raw + Yield Waste + Direct Labor + Utilities + Packaging.\nTarget Price = True Cost / (1 - Target Margin %).',
+          titleAr: 'معادلة التكلفة الكاملة المعتمدة',
+          titleEn: 'Approved Full Cost Formula',
+          bodyAr: 'التكلفة الكاملة = خامات + تجهيزات + عمالة مباشرة + مصاريف غير مباشرة + مستهلكات.\nالسعر المقترح = التكلفة ÷ (1 - الهامش المستهدف).',
+          bodyEn: 'Full Cost = Raw + Prep + Direct Labor + Indirect Overhead + Consumables.\nTarget Price = Cost / (1 - Target Margin %).',
         },
       };
     }
@@ -242,8 +250,8 @@ export class LocalAssistantEngine {
     }
 
     // 5. Friendly General Fallback
-    const contentAr = `أنا معك في كل خطوة بتشغيل المنشأة.\n\nيمكنك أن تسألني عن كيفية إضافة خامة، تركيب وصفة (BOM)، إغلاق وردية الكاشير (Z-Report)، أو مقارنة الاستهلاك النظري بالفعلي لكشف الهدر.`;
-    const contentEn = `I am here to guide your operations.\n\nAsk me how to add ingredients, engineer recipe BOMs, close cashier shifts with Z-Reports, or audit theoretical vs actual food cost variance.`;
+    const contentAr = `أنا معك في كل خطوة بتشغيل المنشأة.\n\nيمكنك أن تسألني عن كيفية إضافة خامة، إعداد وصفة أو تجهيز، إغلاق وردية الكاشير، أو مقارنة الاستهلاك النظري بالفعلي لكشف الهدر.`;
+    const contentEn = `I am here to guide your operations.\n\nAsk me how to add ingredients, build recipes, close cashier shifts, or audit theoretical vs actual food cost variance.`;
 
     return {
       id: `msg-${Date.now()}`,

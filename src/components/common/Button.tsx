@@ -24,7 +24,8 @@ export type ButtonVariant =
   | 'danger'
   | 'success'
   | 'warning'
-  | 'tile';
+  | 'tile'
+  | 'unstyled';
 
 export type ButtonSize = 'xs' | 'sm' | 'md' | 'lg' | 'touch';
 
@@ -78,6 +79,7 @@ const VARIANT_CLASSES: Record<ButtonVariant, string> = {
     'bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 shadow-sm border border-amber-400/40',
   tile:
     'bg-white dark:bg-slate-900 hover:bg-cyan-50/60 dark:hover:bg-slate-800/90 active:bg-cyan-100/70 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-800 shadow-xs',
+  unstyled: '',
 };
 
 const SIZE_CLASSES: Record<ButtonSize, string> = {
@@ -144,6 +146,11 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       ? 'ring-2 ring-cyan-500 border-cyan-500 bg-cyan-50/90 dark:bg-cyan-950/50 text-cyan-900 dark:text-cyan-100 font-bold'
       : '';
 
+    const baseStyleClass =
+      variant === 'unstyled'
+        ? 'select-none transition-all duration-150 cursor-pointer active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 disabled:opacity-50 disabled:cursor-not-allowed'
+        : `inline-flex items-center justify-center font-semibold select-none transition-all duration-150 cursor-pointer active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 ${VARIANT_CLASSES[variant]} ${SIZE_CLASSES[size]} ${selectedClasses}`;
+
     return (
       <button
         ref={ref}
@@ -151,7 +158,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         disabled={isDisabled}
         aria-pressed={selected || undefined}
         onClick={handleClick}
-        className={`inline-flex items-center justify-center font-semibold select-none transition-all duration-150 cursor-pointer active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-950 disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 ${VARIANT_CLASSES[variant]} ${SIZE_CLASSES[size]} ${selectedClasses} ${className}`}
+        className={`${baseStyleClass} ${className}`}
         {...rest}
       >
         {effectiveLoading ? (

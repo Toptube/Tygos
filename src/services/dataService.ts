@@ -102,6 +102,7 @@ export interface RawMaterialItem {
 
   reorderPoint: number;
   lowStockThreshold?: number; // حد التنبيه الأصفر القابل للضبط
+  isStockTracked?: boolean; // false للخامات بدون رصيد مخزني مثل الماء والملح (تكلفة فقط ولا تُخصم من المخزون)
   supplierName?: string;
   expirationDate?: string;
   createdAt: string;
@@ -138,6 +139,7 @@ export interface MenuItemProduct {
   isActive: boolean;
   recipeIngredients: ProductRecipeItem[];
   directLaborMinutes: number;
+  prepTimeMinutes?: number; // زمن التحضير الفعلي بالدقائق (اختياري) لتوزيع المصاريف غير المباشرة
   laborHourlyRate: number;
   wasteLossBuffer: number;
   utilitiesCost: number;
@@ -288,6 +290,7 @@ class DataService {
 
     const newItem: RawMaterialItem = {
       ...input,
+      isStockTracked: input.isStockTracked !== undefined ? input.isStockTracked : true,
       id: `ing-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
       establishmentId: estId,
       effectiveUnitCost: effectiveCost,

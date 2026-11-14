@@ -201,6 +201,18 @@ export const GuidedTourModal: React.FC<GuidedTourModalProps> = ({ isOpen, onClos
       featureAr: 'حماية خصوصية بيانات العميل بعدم إظهار رقم الهاتف أو العنوان لتذاكر المطبخ.',
       featureEn: 'Customer PII protection by omitting phone/address from kitchen prep tickets.',
     },
+    {
+      id: 'step-overhead-allocation',
+      icon: Scale,
+      module: 'overhead_allocation',
+      color: 'from-cyan-600 to-emerald-600',
+      titleAr: '14. المصاريف وتوزيعها والتكلفة الكاملة للمنتج',
+      titleEn: '14. Overhead Allocation & Full Product Costing',
+      descAr: 'تحميل المصاريف المباشرة وغير المباشرة على مرحلتين من المركز «مشترك» ومراكز التكلفة على المنتجات، مع كشف أي صنف خاسر بعد التحميل وحساب فروق التحميل.',
+      descEn: 'Two-stage direct & indirect overhead allocation from Shared and departmental cost centers onto products, flagging loss-making items and absorption variances.',
+      featureAr: 'قفل الشهر تلقائياً عند الإغلاق الرسمي للفترة ومنع تكرار استيراد الرواتب.',
+      featureEn: 'Automatic month lock upon official period close and deduplicated HR/Finance import.',
+    },
   ];
 
   const current = tourSteps[currentStep];

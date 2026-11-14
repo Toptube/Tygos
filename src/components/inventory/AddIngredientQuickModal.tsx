@@ -48,6 +48,7 @@ export const AddIngredientQuickModal: React.FC<AddIngredientQuickModalProps> = (
   const [supplierName, setSupplierName] = useState('');
   const [reorderPoint, setReorderPoint] = useState<string>('2');
   const [expirationDate, setExpirationDate] = useState('');
+  const [isStockTracked, setIsStockTracked] = useState<boolean>(true);
 
   const [successToast, setSuccessToast] = useState(false);
 
@@ -132,12 +133,13 @@ export const AddIngredientQuickModal: React.FC<AddIngredientQuickModalProps> = (
       category,
       purchaseUnit,
       purchasePrice: price,
-      purchasedQuantity: qty,
+      purchasedQuantity: isStockTracked ? qty : 0,
       consumptionUnit,
       conversionFactor: factor,
       wastePercentage: waste,
-      currentStock: qty * factor,
-      reorderPoint: reorder * factor,
+      currentStock: isStockTracked ? qty * factor : 0,
+      reorderPoint: isStockTracked ? reorder * factor : 0,
+      isStockTracked,
       supplierName: supplierName.trim() || undefined,
       expirationDate: expirationDate || undefined,
     });
@@ -206,8 +208,8 @@ export const AddIngredientQuickModal: React.FC<AddIngredientQuickModalProps> = (
                 </span>
                 <span>
                   {isAr
-                    ? `هل تقصد [${potentialDuplicate.nameAr}] الموجودة بالفعل بسعر $${potentialDuplicate.purchasePrice}؟`
-                    : `Did you mean [${potentialDuplicate.nameEn}] which already exists at $${potentialDuplicate.purchasePrice}?`}
+                    ? `هل تقصد [${potentialDuplicate.nameAr}] الموجودة بالفعل بسعر ${potentialDuplicate.purchasePrice} ج.م؟`
+                    : `Did you mean [${potentialDuplicate.nameEn}] which already exists at ${potentialDuplicate.purchasePrice} EGP?`}
                 </span>
               </div>
             </div>
@@ -259,7 +261,7 @@ export const AddIngredientQuickModal: React.FC<AddIngredientQuickModalProps> = (
 
             <div>
               <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                {isAr ? 'سعر الشراء للوحدة ($)' : 'Purchase Price ($)'} *
+                {isAr ? 'سعر الشراء للوحدة (ج.م)' : 'Purchase Price (EGP)'} *
               </label>
               <input
                 type="number"
@@ -273,18 +275,40 @@ export const AddIngredientQuickModal: React.FC<AddIngredientQuickModalProps> = (
 
             <div>
               <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                {isAr ? 'الكمية المشتراة' : 'Quantity Purchased'} *
+                {isAr ? 'الكمية المشتراة' : 'Quantity Purchased'} {isStockTracked ? '*' : ''}
               </label>
               <input
                 type="number"
                 step="0.1"
-                min="1"
-                value={purchasedQuantity}
+                min="0"
+                disabled={!isStockTracked}
+                value={isStockTracked ? purchasedQuantity : '0'}
                 onChange={(e) => setPurchasedQuantity(e.target.value)}
-                className="w-full px-3 py-2 text-xs font-mono rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-cyan-500 focus:outline-none"
+                className="w-full px-3 py-2 text-xs font-mono rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 focus:border-cyan-500 focus:outline-none disabled:opacity-50"
               />
             </div>
           </div>
+
+          {/* Non-Stocked Material Toggle (e.g., filtered water / salt) */}
+          <label className="flex items-start gap-2.5 p-3 rounded-xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={!isStockTracked}
+              onChange={(e) => setIsStockTracked(!e.target.checked)}
+              data-testid="toggle-untracked-material"
+              className="mt-0.5 rounded border-slate-300 text-cyan-600 focus:ring-cyan-500"
+            />
+            <span className="text-[11px] text-slate-700 dark:text-slate-300 leading-relaxed">
+              <strong className="block">
+                {isAr ? 'خامة بدون رصيد مخزني (مثل الماء والملح)' : 'Non-stocked material (e.g., water or salt)'}
+              </strong>
+              <span className="text-slate-500">
+                {isAr
+                  ? 'لا يُخصم من المخزون ولا يُظهر نقصاً في الإتاحة، وتُحسب تكلفته فقط داخل الوصفات.'
+                  : 'Never deducted from stock or flagged as out-of-stock; its cost still applies inside recipes.'}
+              </span>
+            </span>
+          </label>
 
           {/* Live Calculated Metric Banner */}
           <div className="p-3 rounded-xl bg-gradient-to-r from-cyan-500/10 to-blue-500/10 border border-cyan-500/20 flex items-center justify-between">
@@ -303,7 +327,7 @@ export const AddIngredientQuickModal: React.FC<AddIngredientQuickModalProps> = (
             </div>
             <div className="text-end">
               <span className="text-sm font-black font-mono text-cyan-600 dark:text-cyan-400" dir="ltr">
-                ${liveCalculation.effectiveCost.toFixed(4)}
+                {liveCalculation.effectiveCost.toFixed(4)} {isAr ? 'ج.م' : 'EGP'}
               </span>
               <span className="text-[10px] text-slate-400 block">/{consumptionUnit}</span>
             </div>

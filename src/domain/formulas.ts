@@ -328,3 +328,42 @@ export function allocateOperationalExpense(
   const ratio = productMetric / totalSystemMetric;
   return Number((totalExpenseAmount * ratio).toFixed(4));
 }
+
+/**
+ * Calculates Overhead Burden Rate (معدل التحميل) per unit:
+ * Burden Rate = Allocated Expense Amount / Expected Units
+ */
+export function calculateOverheadBurdenRate(
+  allocatedExpenseAmount: number,
+  expectedUnits: number
+): number {
+  if (expectedUnits <= 0 || allocatedExpenseAmount <= 0) return 0;
+  return Number((allocatedExpenseAmount / expectedUnits).toFixed(4));
+}
+
+/**
+ * Calculates Over/Under-Absorbed Overhead Variance (فروق التحميل: زائد / ناقص):
+ * Charged = Actual Sold Units * Burden Rate
+ * Variance = Actual Expense - Charged Amount
+ * Positive variance -> Under-absorbed (تحميل ناقص / عجز تحميل)
+ * Negative variance -> Over-absorbed (تحميل زائد / فائض تحميل)
+ */
+export function calculateOverheadAbsorptionVariance(
+  actualExpenseAmount: number,
+  burdenRatePerUnit: number,
+  actualSoldUnits: number
+): {
+  chargedAmount: number;
+  varianceAmount: number;
+  status: 'over_absorbed' | 'under_absorbed' | 'balanced';
+} {
+  const chargedAmount = Number((burdenRatePerUnit * Math.max(0, actualSoldUnits)).toFixed(2));
+  const varianceAmount = Number((actualExpenseAmount - chargedAmount).toFixed(2));
+  const status: 'over_absorbed' | 'under_absorbed' | 'balanced' =
+    varianceAmount > 0.01
+      ? 'under_absorbed'
+      : varianceAmount < -0.01
+      ? 'over_absorbed'
+      : 'balanced';
+  return { chargedAmount, varianceAmount, status };
+}

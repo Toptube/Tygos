@@ -27,6 +27,7 @@ import { useI18n } from '../../i18n/I18nContext.tsx';
 import { useAuth } from '../../context/AuthContext.tsx';
 import { useBusiness } from '../../context/BusinessContext.tsx';
 import { semiFinishedService } from '../../services/semiFinishedService.ts';
+import { uiPreferencesRepository } from '../../repositories/repositories.ts';
 
 interface JourneyProgressBarProps {
   currentStep?: 1 | 2 | 3 | 4 | 5 | 6 | 7;
@@ -70,9 +71,7 @@ export const JourneyProgressBar: React.FC<JourneyProgressBarProps> = ({
 
   const handleStepClick = (st: typeof steps[0]) => {
     if (st.tab) {
-      try {
-        localStorage.setItem('tygos_active_dish_tab_intent', st.tab);
-      } catch {}
+      uiPreferencesRepository.setActiveDishTabIntent(st.tab);
     }
     setActiveView(st.view as any);
   };
@@ -104,9 +103,7 @@ export const JourneyProgressBar: React.FC<JourneyProgressBarProps> = ({
         if (onSelectDishMissingRecipe) {
           onSelectDishMissingRecipe(firstMissing.id);
         } else {
-          try {
-            localStorage.setItem('tygos_active_dish_tab_intent', 'recipe');
-          } catch {}
+          uiPreferencesRepository.setActiveDishTabIntent('recipe');
           setActiveView('menu');
         }
       },
@@ -156,8 +153,9 @@ export const JourneyProgressBar: React.FC<JourneyProgressBarProps> = ({
             </strong>
           </div>
 
-          <button
+          <Button
             type="button"
+            variant="unstyled"
             onClick={() => setActiveView('semi_finished')}
             className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-cyan-500/50 cursor-pointer transition-colors"
             data-testid="journey-preparations-count-btn"
@@ -167,7 +165,7 @@ export const JourneyProgressBar: React.FC<JourneyProgressBarProps> = ({
             <strong className="font-mono text-cyan-600 dark:text-cyan-400" data-testid="journey-preparations-count">
               {preparationsCount}
             </strong>
-          </button>
+          </Button>
 
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
             <span className="text-slate-500">{isAr ? 'المنتجات:' : 'Products:'}</span>
@@ -213,9 +211,10 @@ export const JourneyProgressBar: React.FC<JourneyProgressBarProps> = ({
           const isCurrent = currentStep === st.num;
 
           return (
-            <button
+            <Button
               key={st.num}
               type="button"
+              variant="unstyled"
               onClick={() => handleStepClick(st)}
               className={`p-2.5 rounded-xl text-start transition-all cursor-pointer border ${
                 isCurrent
@@ -238,7 +237,7 @@ export const JourneyProgressBar: React.FC<JourneyProgressBarProps> = ({
               <div className="text-xs font-bold truncate">
                 {st.title}
               </div>
-            </button>
+            </Button>
           );
         })}
       </div>

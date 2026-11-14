@@ -391,7 +391,7 @@ export const BulkDataImportModal: React.FC<BulkDataImportModalProps> = ({
                       {TEMPLATES_DATA.restaurant.nameAr}
                     </span>
                     <span className="text-[11px] text-slate-500 block">
-                      {isAr ? '٥ خامات أساسية + بيتزا وستيك ريب آي مع حسابات الـ BOM كاملة' : '5 ingredients + Pizza & Ribeye with full BOM'}
+                      {isAr ? '٥ خامات أساسية + بيتزا وستيك ريب آي مع حسابات الوصفة والتكلفة كاملة' : '5 ingredients + Pizza & Ribeye with full recipe costing'}
                     </span>
                   </div>
                   <Button
