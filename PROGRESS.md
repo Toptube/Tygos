@@ -3,11 +3,11 @@
 ## حالة النظام الحالية (System Status)
 - **TypeScript (`tsc --noEmit`)**: لا توجد أخطاء (0 type errors).
 - **Vite Build**: يعمل بنجاح تام (Build succeeded).
-- **مجموعة الاختبارات الآلية للحزمة 5 (`package5OverheadAllocation.test.ts`)**: نجحت بالكامل (8/8).
+- **مجموعة الاختبارات الشاملة (`npm run test:all`)**: **ناجح 20/20 ملف | فاشل 0** (جميع اختبارات الواجهة والخدمات تعمل بدون خطأ `tldts`).
 - **مجموعات الاختبارات الأساسية والحزم السابقة**:
   1. `package5OverheadAllocation.test.ts` (8/8) - الحزمة 5: تحميل التكاليف المباشرة وغير المباشرة على مرحلتين، معدل وفروق التحميل، قفل الشهر، عدم التكرار، وRBAC
   2. `package4SemiFinished.test.tsx` (12/12) - الحزمة 4: التجهيزات والتحضيرات الأساسية وتفكيك الخامات والدفعات والجرد
-  3. `package3AuditAndAvailability.test.tsx` (8/8 مكتوب — يتطلب تثبيت حزمة `tldts` التابعة لـ jsdom لإعادة التشغيل في Node)
+  3. `package3AuditAndAvailability.test.tsx` (8/8) - الحزمة 3: الجرد الفعلي والانحراف والإغلاق الرسمي وإتاحة الأصناف والملاحظات اليومية
   4. `package2WarehousesSupply.test.tsx` (5/5) - الحزمة 2: المخازن والوحدات المتعددة وكارت الصنف ودورة الطلبية
   5. `package1RecipesCategories.test.tsx` (7/7) - الحزمة 1: إصلاح الأعطال وشجرة الأقسام والمنتجات والوصفات
   6. `dishRecipeJourney.test.tsx` (6/6) - رحلة الخامة للمنتج ولغة الناس العادية
@@ -16,6 +16,22 @@
   9. `formulas.test.ts` (17/17) - معادلات التكلفة والهالك والضرائب
   10. `qrMenu.test.ts` (7/7 suites) - منيو QR ومحطات المطبخ والبار
   11. `phase8UiAndGlossary.test.tsx` (6/6) - توحيد الواجهة والمسرد والهيدر
+
+## جدول متابعة بنود الحزمة 6 (Package 6: الجودة وسد الفجوات وفاحص الواجهة والترحيلات والوثائق)
+
+| البند والملاحظة | الحالة الفعلية | الاختبار المثبت |
+| :--- | :---: | :--- |
+| **1. إصلاح بيئة الاختبار وتشغيل كل الاختبارات + `npm run test:all`** | **ثابت باختبار واجهة** | `package3AuditAndAvailability.test.tsx` (8/8) + `scripts/run-all-tests.mjs` + `npm run test:all` |
+| **2-أ. توحيد المسميات (الوصفات (رسبي)/التجهيزات/حاسبة التجربة/المنتجات) ومنع الإنجليزية والـ `$`** | **ثابت باختبار واجهة** | `phase8UiAndGlossary.test.tsx` (6/6) + `dishRecipeJourney.test.tsx` (6/6) + `localAssistantEngine.test.ts` (5/5) |
+| **2-ب. حد التنبيه الأصفر القابل للتخصيص + نافذة تفاصيل اليوم في التقرير اليومي للجرد** | **ثابت باختبار واجهة** | `package6UiInteractions.test.tsx` (UI-2/8 + UI-4 + بند 2-ب) |
+| **2-ج. اختبارات النقر التفاعلي (UI-1..UI-9) وإصلاح `enableBatchTracking` في التحديث** | **ثابت باختبار واجهة** | `package6UiInteractions.test.tsx` (8/8) |
+| **2-د. الخامات بدون رصيد مخزني (`isStockTracked: false`) مثل الماء والملح** | **ثابت باختبار واجهة** | `package6UiInteractions.test.tsx` (اختبار 9) |
+| **3. غلاف الأخطاء (`ScreenErrorBoundary`) + سجل الأخطاء + فاحص الواجهة (`ui_inspector`)** | **ثابت باختبار واجهة** | `package6InspectorAndBoundary.test.tsx` (3/3) |
+| **4. ترقيم الإصدارات والترحيلات (`migrationService`) + النسخ الاحتياطي وإصلاح البيانات** | **ثابت باختبار واجهة** | `package6MigrationsAndBackup.test.tsx` (3/3) |
+| **5. بيانات تجريبية متكاملة موحدة (`demoScenarioService`) من مكان واحد** | **ثابت باختبار واجهة** | `package6DemoScenario.test.tsx` (2/2) + `demoScenarioService` (فرعان، 7 مخازن، 30 خامة، 8 تجهيزات، 25 منتجاً بالجنيه، 12 طاولة) |
+| **6. تحديث صفحة الهبوط + 30 سؤال مصري في المساعد + ترتيب الجولة ومركز المساعدة** | **ثابت باختبار واجهة** | `package6Assistant30Questions.test.ts` (30/30 + RBAC) + `localAssistantEngine.test.ts` (5/5) + `phase8UiAndGlossary.test.tsx` (6/6) + `dishRecipeJourney.test.tsx` (6/6) |
+| **7. الوثائق الأربع الكاملة المبنية على الكود (`docs/DATA_MODEL.md`, `API_CONTRACT`, `SERVER_AUTHORIZATION`, `SYNC_AND_LOCAL_SERVER`)** | **ثابت باختبار خدمة فقط** | `package6Checklist.test.tsx` (`B8-3`: التحقق البرمجي من مطابقة الوثائق لإصدار المخطط 6 والصلاحيات وخوارزمية `OutboxService`) |
+| **8. قائمة الفحص قبل التشغيل (السيناريوهات التسعة أ–ط) والتحقق النهائي الشامل** | **ثابت باختبار واجهة** | `package6Checklist.test.tsx` (`B8-1`, `B8-2`) + `npm run test:all` (20/20 ملف) + `tsc --noEmit` + `vite build` |
 
 ---
 

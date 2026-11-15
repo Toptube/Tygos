@@ -517,7 +517,7 @@ export const MenuManagementModule: React.FC = () => {
                     className="w-full p-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-xs text-slate-900 dark:text-white focus:outline-hidden focus:border-cyan-500"
                   />
                   <span className="text-[10px] text-slate-400 mt-0.5 block">
-                    {isAr ? 'ملاحظة: هذه المكونات لا ترتبط بتكلفة المحاسبة بل تُعرض في المنيو فقط.' : 'Public display only; does not affect BOM costing.'}
+                    {isAr ? 'ملاحظة: هذه المكونات لا ترتبط بتكلفة المحاسبة بل تُعرض في المنيو فقط.' : 'Public display only; does not affect recipe costing.'}
                   </span>
                 </div>
                 <div>

@@ -27,6 +27,8 @@ import {
   Warehouse,
   ClipboardCheck,
   ChefHat,
+  DatabaseBackup,
+  Coins,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.tsx';
 import { useI18n } from '../../i18n/I18nContext.tsx';
@@ -48,7 +50,7 @@ const CHECKLIST_STEPS: ChecklistStep[] = [
     id: 'order_dine_in',
     categoryAr: 'سيناريو طلب 1',
     categoryEn: 'Order Scenario 1',
-    titleAr: 'طلب صالة عبر المنيو الإلكتروني (Dine-In QR)',
+    titleAr: 'طلب صالة عبر المنيو الإلكتروني (طاولة QR)',
     titleEn: 'Dine-In QR Menu Order & Station Routing',
     descAr: 'امسح رمز طاولة، أرسل طلباً، اعتمده من شاشة الكاشير، وتحقق من توزيعه على محطات التحضير (مطبخ/شواية/بار) حتى الجاهزية.',
     descEn: 'Scan table QR, submit order, approve in POS, verify split across prep stations until ready.',
@@ -68,7 +70,7 @@ const CHECKLIST_STEPS: ChecklistStep[] = [
     id: 'order_takeaway_offline',
     categoryAr: 'سيناريو طلب 3',
     categoryEn: 'Order Scenario 3',
-    titleAr: 'طلب استلام (Takeaway) + اختبار انقطاع الاتصال والمزامنة',
+    titleAr: 'طلب استلام من الفرع + اختبار انقطاع الاتصال والمزامنة',
     titleEn: 'Takeaway Order + Offline Outbox & Reconnect Sync',
     descAr: 'فعّل وضع عدم الاتصال من مؤشر الشبكة، سجّل طلباً جديداً، تأكد من ظهور بادئة الجهاز في الرقم التسلسلي، ثم أعد الاتصال وتأكد من مزامنة صندوق الصادر دون تكرار.',
     descEn: 'Toggle offline mode, submit order, verify device-prefixed serial, reconnect and verify Outbox flushes without duplicates.',
@@ -169,7 +171,7 @@ const CHECKLIST_STEPS: ChecklistStep[] = [
     categoryAr: 'التجهيزات والتحضيرات',
     categoryEn: 'Semi-Finished Preparations',
     titleAr: 'فحص التجهيزات كمرشّح تحويل وتفكيكها للخامات في البيع والجرد ودفعات الإنتاج',
-    titleEn: 'Verify Semi-Finished Preparations, BOM Decomposition & Batches',
+    titleEn: 'Verify Semi-Finished Preparations, Standard Decomposition & Batches',
     descAr: 'تأكد من تعريف التجهيزات بالصيغة (عجين بيتزا، صوصات، أرز مسلوق) وتفكيكها للخامات عند البيع وخصمها من مخزن القسم، مع إمكانية تفعيل تسجيل الدفعات، وديناميكية انتشار التكلفة، وجرد التجهيزات المتبقية واحتساب خاماتها المكافئة، ومنع الدوران التكراري، وحجب التجهيزات عن طلبيات الشراء.',
     descEn: 'Confirm on-formula semi-finished preparations (dough, sauces, steamed rice), dynamic decomposition to raw materials on POS sales and physical audit, optional batch tracking, cost propagation, remaining prep audit, circular dependency prevention, and omission from purchase orders.',
     icon: <ChefHat className="w-5 h-5 text-indigo-500" />,
@@ -188,11 +190,102 @@ const CHECKLIST_STEPS: ChecklistStep[] = [
     id: 'privacy_anonymize',
     categoryAr: 'الخصوصية',
     categoryEn: 'Privacy',
-    titleAr: 'اختبار عزل بيانات العملاء وإخفاء الهوية (Anonymize)',
+    titleAr: 'اختبار عزل بيانات العملاء وإخفاء الهوية',
     titleEn: 'Verify Customer PII Isolation & Anonymization',
     descAr: 'تأكد من عدم ظهور هاتف وعنوان العميل في تذاكر المطبخ والبار، وجرّب إخفاء هوية عميل مع بقاء إجمالي مبيعاته في التقارير.',
     descEn: 'Confirm customer phone/address are hidden on KDS tickets, and test anonymizing a customer while preserving sales totals.',
     icon: <EyeOff className="w-5 h-5 text-purple-600 dark:text-purple-400" />,
+  },
+  // الحزمة 6 — سيناريوهات الإطلاق التسعة الشاملة (أ – ط)
+  {
+    id: 'pkg6_scenario_a',
+    categoryAr: 'سيناريو الإطلاق أ',
+    categoryEn: 'Launch Scenario A',
+    titleAr: 'سيناريو أ: العملة ج.م والأرقام باللوحة وتحويل المشرقية ٠-٩ ونقاء العربية',
+    titleEn: 'Scenario A: EGP Currency, Keyboard Numerals & Arabic Purity',
+    descAr: 'تأكد من عرض كل الأسعار والتقارير بالجنيه المصري (ج.م) دون رمز دولار، وتقبل خانات الأرقام الإدخال بلوحة المفاتيح مع تحويل ٠-٩ تلقائياً، وخلو الواجهة من المصطلحات التقنية الإنجليزية.',
+    descEn: 'Verify EGP currency formatting across all views, smooth keyboard numeric input with Eastern Arabic digit conversion, and clean Arabic glossary labels.',
+    icon: <Coins className="w-5 h-5 text-amber-600 dark:text-amber-400" />,
+  },
+  {
+    id: 'pkg6_scenario_b',
+    categoryAr: 'سيناريو الإطلاق ب',
+    categoryEn: 'Launch Scenario B',
+    titleAr: 'سيناريو ب: شجرة الأقسام ثلاثية المستويات ومنع التكرار والتراجع 8 ثوانٍ',
+    titleEn: 'Scenario B: 3-Level Category Tree, Duplicate Guard & 8s Undo',
+    descAr: 'تأكد من عمل شجرتي المنتجات والخامات (رئيسي ← فرعي ← تصنيف)، ومنع تكرار اسم الصنف في القسم نفسه، وإتاحة التراجع 8 ثوانٍ بعد الحذف دون نوافذ متصفح.',
+    descEn: 'Verify product/material 3-level trees, same-category duplicate blocking, and 8-second undo after in-app delete confirmation.',
+    icon: <FolderTree className="w-5 h-5 text-cyan-600 dark:text-cyan-400" />,
+  },
+  {
+    id: 'pkg6_scenario_c',
+    categoryAr: 'سيناريو الإطلاق ج',
+    categoryEn: 'Launch Scenario C',
+    titleAr: 'سيناريو ج: الفروع والمخازن والوحدات ودورة الطلبية والرفض الجزئي',
+    titleEn: 'Scenario C: Warehouses, 3-Tier Units & Requisition Partial Rejection',
+    descAr: 'تأكد من تحويل الكرتونة/العلبة/الجرام لحظياً، وصرف الطلبية إلى ذمة «في الطريق»، ثم الاستلام الجزئي مع سبب رفض إلزامي وعودة المرفوض للمخزن الرئيسي.',
+    descEn: 'Verify major/sub/base unit conversion, dispatch to in-transit custody, partial receipt with mandatory rejection reason, and return to main stock.',
+    icon: <Warehouse className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />,
+  },
+  {
+    id: 'pkg6_scenario_d',
+    categoryAr: 'سيناريو الإطلاق د',
+    categoryEn: 'Launch Scenario D',
+    titleAr: 'سيناريو د: الجرد الفعلي والتجريبي والملاحظات اليومية ونافذة تفاصيل اليوم',
+    titleEn: 'Scenario D: Physical/Draft Audit, Daily Notes & Day Details Modal',
+    descAr: 'تأكد من معادلة التقديري باستبعاد «في الطريق»، ومعاينة الفروق في الجرد التجريبي قبل الإغلاق الرسمي، وفتح نافذة تفاصيل اليوم والملاحظات وطباعة عبارة المشكلات غير المحلولة.',
+    descEn: 'Verify estimated formula excluding in-transit stock, draft vs official close, day details modal in audit, and mandatory unresolved notes print warning.',
+    icon: <ClipboardCheck className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />,
+  },
+  {
+    id: 'pkg6_scenario_e',
+    categoryAr: 'سيناريو الإطلاق هـ',
+    categoryEn: 'Launch Scenario E',
+    titleAr: 'سيناريو هـ: التجهيزات على الصيغة والدفعات الاختيارية وتفكيك البيع والجرد',
+    titleEn: 'Scenario E: On-Formula Preps, Optional Batches & Depletion',
+    descAr: 'تأكد من عمل التجهيزات «على الصيغة»، ومعامل الطبخ والحصص، والخصم من مخزن القسم عند البيع، وتشغيل الدفعات ثم إرجاع المتبقي لخامات عند إيقافه، وإدراج المتبقي في الجرد.',
+    descEn: 'Verify on-formula preparations, cooking factors, portions, POS depletion from section warehouse, batch toggle rollback, and audit remaining prep count.',
+    icon: <ChefHat className="w-5 h-5 text-amber-600 dark:text-amber-400" />,
+  },
+  {
+    id: 'pkg6_scenario_f',
+    categoryAr: 'سيناريو الإطلاق و',
+    categoryEn: 'Launch Scenario F',
+    titleAr: 'سيناريو و: تحميل المصاريف على مرحلتين وقفل الشهر وحاسبة التجربة',
+    titleEn: 'Scenario F: Two-Stage Overhead Allocation, Month Lock & Cost Simulator',
+    descAr: 'تأكد من توزيع «مشترك» على مراكز التكلفة ثم المنتجات، واستيراد HR والمالية دون تكرار، وقفل الشهر تلقائياً عند الإغلاق الرسمي، وتجربة تغيير القاعدة داخل حاسبة التجربة.',
+    descEn: 'Verify two-stage overhead split, deduplicated HR/Finance import, auto month lock on close, and rule override inside the cost simulator.',
+    icon: <Coins className="w-5 h-5 text-cyan-600 dark:text-cyan-400" />,
+  },
+  {
+    id: 'pkg6_scenario_g',
+    categoryAr: 'سيناريو الإطلاق ز',
+    categoryEn: 'Launch Scenario G',
+    titleAr: 'سيناريو ز: إتاحة الأصناف وحالات الكاشير وحد الأمان المخصص وعزل QR',
+    titleEn: 'Scenario G: Item Availability, Custom Yellow Threshold & QR Isolation',
+    descAr: 'تأكد من تعديل حد التنبيه الأصفر للصنف، وتحول الزر للأصفر ثم الرمادي في الكاشير عند النفاد، وتجاهل الخامات غير المتتبعة مثل الماء، مع إخفاء تفاصيل المخزون والتكلفة عن منيو QR.',
+    descEn: 'Verify custom low-stock threshold, yellow/gray POS buttons, untracked materials like water, and complete stock/cost hiding in QR menu.',
+    icon: <ShoppingBag className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />,
+  },
+  {
+    id: 'pkg6_scenario_h',
+    categoryAr: 'سيناريو الإطلاق ح',
+    categoryEn: 'Launch Scenario H',
+    titleAr: 'سيناريو ح: الأمان وتعيين رمز PIN من 6 خانات وعزل خزينة الكاشير',
+    titleEn: 'Scenario H: Security, 6-Digit One-Time PIN & Cashier Vault Isolation',
+    descAr: 'تأكد من حصر إدارة الأدوار والرموز في القيادة، وتوليد PIN عشوائي لمرة واحدة مع إجبار تغييره عند أول دخول، وعزل الكاشير في ورديته عن رصيد الخزينة العامة والورديات المغلقة.',
+    descEn: 'Verify leadership-only role controls, one-time 6-digit PIN reset with forced change, and strict cashier isolation from general vault and closed shifts.',
+    icon: <ShieldCheck className="w-5 h-5 text-teal-600 dark:text-teal-400" />,
+  },
+  {
+    id: 'pkg6_scenario_i',
+    categoryAr: 'سيناريو الإطلاق ط',
+    categoryEn: 'Launch Scenario I',
+    titleAr: 'سيناريو ط: فاحص الواجهة وغلاف الأخطاء والنسخ الاحتياطي والبيانات التجريبية',
+    titleEn: 'Scenario I: UI Inspector, Error Boundary, Backup & Demo Scenario',
+    descAr: 'تأكد من تجربة عرض الموبايل في فاحص الواجهة (`320/360/412px`) وسجل الأخطاء، واختبار تصدير النسخة الاحتياطية واستعادتها مع التراجع عند الخطأ، وتشغيل البيانات التجريبية الموحدة.',
+    descEn: 'Verify UI Inspector mobile preview (`320/360/412px`), error log capture, checksummed JSON backup/restore rollback, and unified demo scenario seeding.',
+    icon: <DatabaseBackup className="w-5 h-5 text-rose-600 dark:text-rose-400" />,
   },
 ];
 
@@ -273,8 +366,25 @@ export const PreLaunchChecklistView: React.FC = () => {
             </p>
           </div>
 
-          <div className="flex items-center gap-2 self-start sm:self-center">
+          <div className="flex flex-wrap items-center gap-2 self-start sm:self-center">
             <Button
+              type="button"
+              onClick={() => setActiveView('ui_inspector')}
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-cyan-300 dark:border-cyan-800 text-xs font-semibold text-cyan-700 dark:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-cyan-950/30"
+            >
+              <Smartphone className="w-3.5 h-3.5" />
+              {isAr ? 'فاحص الواجهة' : 'UI Inspector'}
+            </Button>
+            <Button
+              type="button"
+              onClick={() => setActiveView('error_log')}
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-rose-300 dark:border-rose-800 text-xs font-semibold text-rose-700 dark:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/30"
+            >
+              <Lock className="w-3.5 h-3.5" />
+              {isAr ? 'سجل الأخطاء' : 'Error Log'}
+            </Button>
+            <Button
+              type="button"
               onClick={resetAll}
               className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
             >
@@ -282,6 +392,7 @@ export const PreLaunchChecklistView: React.FC = () => {
               {isAr ? 'إعادة ضبط' : 'Reset'}
             </Button>
             <Button
+              type="button"
               onClick={() => setActiveView('settings')}
               className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-slate-900 dark:bg-slate-800 text-white text-xs font-semibold hover:bg-slate-800"
             >

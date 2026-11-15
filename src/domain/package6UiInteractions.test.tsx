@@ -92,8 +92,7 @@ const EST_ID = 'est-1';
 
 async function seedMinimalBaseData() {
   categoryService.getCategories(EST_ID, 'product');
-  const whs = warehouseService.getWarehouses(EST_ID);
-  const kitchenWh = whs.find((w) => w.sectionType === 'kitchen') || whs[0];
+  const kitchenWh = warehouseService.resolveSectionWarehouseForStation(EST_ID, 'المطبخ');
   const mats = await dataService.getRawMaterials(EST_ID);
   const rice = await dataService.addRawMaterial(EST_ID, {
     nameAr: 'أرز بسمتي اختباري',
@@ -180,6 +179,7 @@ await test('UI-2 و UI-8: شاشة الوصفات (رسبي) — إضافة تج
 
   // Seed a deliberately loss-making product (sellingPrice=20, rawCost high + prepTimeMinutes=60)
   const lossDish = await dataService.addProductWithRecipe(EST_ID, {
+    code: 'DISH-LOSS-01',
     nameAr: 'طبق خاسر اختباري',
     nameEn: 'Loss Dish Test',
     category: 'أطباق رئيسية',
@@ -396,9 +396,9 @@ await test('UI-6 و UI-7: المصاريف وتوزيعها — تبويب مر�
 // =========================================================================
 await test('UI-9: حاسبة التجربة — تغيير قاعدة توزيع المرحلة 2 يحدّث نتائج التكلفة داخل الواجهة', async () => {
   await seedMinimalBaseData();
-  const { BusinessContext } = await import('../context/BusinessContext.tsx');
+  const { useBusiness } = await import('../context/BusinessContext.tsx');
   function SimHarness() {
-    const biz = React.useContext(BusinessContext)!;
+    const biz = useBusiness();
     React.useEffect(() => {
       biz.setIsSimulationModalOpen(true);
     }, []);
@@ -452,10 +452,12 @@ await test('بند 2-د و 2-ب: خامة بدون رصيد (الماء المف
   // Verify InventoryModule renders "بدون رصيد (تكلفة فقط)" instead of red "تحت الحد"
   cleanup();
   renderWithProviders(<InventoryModule />);
-  assert.ok(document.body.textContent?.includes('بدون رصيد (تكلفة فقط)'), 'InventoryModule shows Cost Only badge for water');
+  const costOnlyBadge = await screen.findByText(/بدون رصيد \(تكلفة فقط\)/);
+  assert.ok(costOnlyBadge, 'InventoryModule shows Cost Only badge for water');
 
   // Add a product using rice (2000g -> enough for 5 portions) + water (500ml) + custom yellow threshold = 6
   const soupDish = await dataService.addProductWithRecipe(EST_ID, {
+    code: 'DISH-SOUP-01',
     nameAr: 'شوربة أرز بالماء',
     nameEn: 'Rice Water Soup',
     category: 'الشوربات',
@@ -463,6 +465,11 @@ await test('بند 2-د و 2-ب: خامة بدون رصيد (الماء المف
     sellingPrice: 50,
     targetMarginPercentage: 70,
     isActive: true,
+    directLaborMinutes: 5,
+    laborHourlyRate: 15,
+    utilitiesCost: 1,
+    consumablesCost: 1,
+    wasteLossBuffer: 0,
     lowStockThresholdPortions: 6,
     recipeIngredients: [
       {

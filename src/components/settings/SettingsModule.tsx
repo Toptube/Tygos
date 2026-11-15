@@ -34,6 +34,13 @@ import { uiPreferencesRepository } from '../../repositories/repositories.ts';
 import { useBusiness } from '../../context/BusinessContext.tsx';
 import { useSync } from '../../sync/SyncContext.tsx';
 import { DeploymentMode, DeviceRole } from '../../sync/syncTypes.ts';
+import {
+  migrationService,
+  BackupPreview,
+  RepairReport,
+  CURRENT_SCHEMA_VERSION,
+} from '../../services/migrationService.ts';
+import { demoScenarioService } from '../../services/demoScenarioService.ts';
 
 export const SettingsModule: React.FC = () => {
   const { language, setLanguage, t } = useI18n();
@@ -103,6 +110,15 @@ export const SettingsModule: React.FC = () => {
 
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [backupMessage, setBackupMessage] = useState<string | null>(null);
+  const [pendingBackupJson, setPendingBackupJson] = useState<string | null>(null);
+  const [backupPreview, setBackupPreview] = useState<BackupPreview | null>(null);
+  const [repairReport, setRepairReport] = useState<RepairReport | null>(null);
+  const [confirmDemoReset, setConfirmDemoReset] = useState(false);
+  const [confirmClearDemo, setConfirmClearDemo] = useState(false);
+  const [schemaVersion, setSchemaVersion] = useState(() => migrationService.getSchemaVersion(estId));
+  const [quarantineCount, setQuarantineCount] = useState(() =>
+    migrationService.getQuarantineRecords(estId).length
+  );
 
   React.useEffect(() => {
     const loadSettings = async () => {
@@ -159,42 +175,101 @@ export const SettingsModule: React.FC = () => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.setAttribute('download', `tygos_backup_${currentEstablishment?.code || 'R.0001'}_${Date.now()}.json`);
+    link.setAttribute('download', `tygos_backup_${currentEstablishment?.code || 'R.0001'}_v${CURRENT_SCHEMA_VERSION}_${Date.now()}.json`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    setBackupMessage(isAr ? 'تم تصدير ملف النسخة الاحتياطية بنجاح!' : 'Backup exported successfully!');
-    setTimeout(() => setBackupMessage(null), 3000);
+    setBackupMessage(isAr ? 'تم تصدير النسخة الاحتياطية الكاملة بصيغة JSON بنجاح ✓' : 'Full JSON backup exported successfully ✓');
+    setTimeout(() => setBackupMessage(null), 3500);
   };
 
-  // Import JSON backup
+  // Stage 1 Import: Preview JSON backup before committing
   const handleImportBackup = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = async (evt) => {
-      const content = evt.target?.result as string;
-      const success = await dataService.restorePartitionBackupJSON(estId, content);
-      if (success) {
-        await refreshMaterialsAndProducts();
-        setBackupMessage(isAr ? 'تمت استعادة البيانات بنجاح!' : 'Data restored successfully!');
-      } else {
-        setBackupMessage(isAr ? 'فشلت الاستعادة: تأكد من صحة ملف JSON' : 'Restore failed: Invalid JSON file');
+    reader.onload = (evt) => {
+      const content = String(evt.target?.result || '');
+      const preview = migrationService.previewBackupImport(content);
+      setBackupPreview(preview);
+      setPendingBackupJson(preview.valid ? content : null);
+      if (!preview.valid) {
+        setBackupMessage(preview.error || (isAr ? 'ملف النسخة الاحتياطية غير صالح' : 'Invalid backup file'));
       }
-      setTimeout(() => setBackupMessage(null), 3500);
     };
     reader.readAsText(file);
   };
 
-  // Reset to default templates
-  const handleResetDemoData = async () => {
-    if (confirm(isAr ? 'هل أنت متأكد من إعادة تعيين البيانات واستعادة القالب النموذجي؟' : 'Are you sure you want to reset data and reload model template?')) {
-      await dataService.loadTemplate(estId, 'restaurant');
+  // Stage 2 Import: Confirm & execute atomic restore with automatic rollback on failure
+  const handleConfirmImportBackup = async () => {
+    if (!pendingBackupJson) return;
+    const res = migrationService.importEstablishmentBackup(estId, pendingBackupJson);
+    if (res.success) {
       await refreshMaterialsAndProducts();
-      setBackupMessage(isAr ? 'تمت استعادة بيانات القالب النموذجي بنجاح!' : 'Template data reloaded successfully!');
-      setTimeout(() => setBackupMessage(null), 3000);
+      setSchemaVersion(migrationService.getSchemaVersion(estId));
+      setQuarantineCount(migrationService.getQuarantineRecords(estId).length);
+      setPendingBackupJson(null);
+      setBackupPreview(null);
+      setBackupMessage(
+        isAr
+          ? `تمت الاستعادة بنجاح (${res.restoredKeys} حزمة، من إصدار v${res.migratedFromVersion} إلى v${CURRENT_SCHEMA_VERSION}) ✓`
+          : `Restored ${res.restoredKeys} keys cleanly ✓`
+      );
+    } else {
+      setBackupMessage(
+        isAr
+          ? `فشلت الاستعادة${res.rolledBack ? ' وتم التراجع التلقائي للبيانات السابقة بأمان' : ''}: ${res.error || ''}`
+          : `Restore failed (rolled back: ${res.rolledBack})`
+      );
     }
+    setTimeout(() => setBackupMessage(null), 4500);
+  };
+
+  // Data Integrity Scan & Repair
+  const handleRepairData = async () => {
+    const report = migrationService.repairEstablishmentData(estId);
+    await refreshMaterialsAndProducts();
+    setRepairReport(report);
+    setSchemaVersion(migrationService.getSchemaVersion(estId));
+    setQuarantineCount(migrationService.getQuarantineRecords(estId).length);
+    setBackupMessage(
+      isAr
+        ? `اكتمل فحص وإصلاح البيانات (${report.fixedItems.length} إجراءات، ${report.quarantinedCount} سجل معزول) ✓`
+        : 'Data repair completed ✓'
+    );
+    setTimeout(() => setBackupMessage(null), 4000);
+  };
+
+  // Reset / Load Unified Coherent Demo Establishment
+  const handleResetDemoData = async () => {
+    if (!confirmDemoReset) {
+      setConfirmDemoReset(true);
+      return;
+    }
+    const summary = await demoScenarioService.loadFullDemoEstablishment(estId);
+    await refreshMaterialsAndProducts();
+    setSchemaVersion(migrationService.getSchemaVersion(estId));
+    setConfirmDemoReset(false);
+    setBackupMessage(
+      isAr
+        ? `تم تحميل منشأة تجريبية متكاملة (${summary.branches} فرعين، ${summary.materials} خامة، ${summary.preparations} تجهيزات، ${summary.products} منتجاً، ${summary.tables} طاولة) بالجنيه ✓`
+        : 'Full demo establishment loaded ✓'
+    );
+    setTimeout(() => setBackupMessage(null), 4500);
+  };
+
+  // Clear all operational demo data cleanly (double confirmation)
+  const handleClearDemoData = async () => {
+    if (!confirmClearDemo) {
+      setConfirmClearDemo(true);
+      return;
+    }
+    demoScenarioService.clearDemoEstablishmentData(estId);
+    await refreshMaterialsAndProducts();
+    setConfirmClearDemo(false);
+    setBackupMessage(isAr ? 'تم حذف بيانات التجربة وبدء منشأة نظيفة ✓' : 'Demo data cleared ✓');
+    setTimeout(() => setBackupMessage(null), 4000);
   };
 
   return (
@@ -217,14 +292,34 @@ export const SettingsModule: React.FC = () => {
 
         <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
           {isOwnerOrManager && (
-            <Button
-              type="button"
-              onClick={() => setActiveView('prelaunch_checklist')}
-              className="px-3.5 py-2 text-xs font-bold rounded-xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer flex items-center gap-1.5"
-            >
-              <Check className="w-3.5 h-3.5 text-emerald-500" />
-              <span>{isAr ? 'قائمة الفحص قبل التشغيل' : 'Pre-Launch Checklist'}</span>
-            </Button>
+            <>
+              <Button
+                type="button"
+                onClick={() => setActiveView('prelaunch_checklist')}
+                className="px-3.5 py-2 text-xs font-bold rounded-xl border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all cursor-pointer flex items-center gap-1.5"
+              >
+                <Check className="w-3.5 h-3.5 text-emerald-500" />
+                <span>{isAr ? 'قائمة الفحص قبل التشغيل' : 'Pre-Launch Checklist'}</span>
+              </Button>
+              <Button
+                type="button"
+                onClick={() => setActiveView('ui_inspector')}
+                data-testid="settings-open-ui-inspector"
+                className="px-3 py-2 text-xs font-bold rounded-xl border border-cyan-300 dark:border-cyan-800 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-50 dark:hover:bg-cyan-950/30 transition-all cursor-pointer flex items-center gap-1.5"
+              >
+                <Smartphone className="w-3.5 h-3.5" />
+                <span>{isAr ? 'فاحص الواجهة والموبايل' : 'UI Inspector'}</span>
+              </Button>
+              <Button
+                type="button"
+                onClick={() => setActiveView('error_log')}
+                data-testid="settings-open-error-log"
+                className="px-3 py-2 text-xs font-bold rounded-xl border border-rose-300 dark:border-rose-800 text-rose-700 dark:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-all cursor-pointer flex items-center gap-1.5"
+              >
+                <AlertTriangle className="w-3.5 h-3.5" />
+                <span>{isAr ? 'سجل الأخطاء' : 'Error Log'}</span>
+              </Button>
+            </>
           )}
           <Button
             type="button"
@@ -852,46 +947,191 @@ export const SettingsModule: React.FC = () => {
         </div>
       </div>
 
-      {/* 4. Local Backup, Restore & Reset */}
+      {/* 4. Local Backup, Preview, Migrations & Data Repair */}
       <div className="p-5 rounded-2xl bg-white dark:bg-[#0b101e] border border-slate-200 dark:border-slate-800 shadow-xs space-y-4">
-        <div className="flex items-center gap-2 pb-2 border-b border-slate-100 dark:border-slate-800/80">
-          <Shield className="w-4 h-4 text-cyan-500" />
-          <h2 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
-            {isAr ? 'النسخ الاحتياطي والأمان المحلي' : 'Sovereign Backup & Partition Reset'}
-          </h2>
+        <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-slate-100 dark:border-slate-800/80">
+          <div className="flex items-center gap-2">
+            <Shield className="w-4 h-4 text-cyan-500" />
+            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">
+              {isAr ? 'النسخ الاحتياطي، الترقية وإصلاح البيانات' : 'Backup, Migrations & Data Repair'}
+            </h2>
+          </div>
+          <div className="flex items-center gap-2 text-[11px] font-bold">
+            <span className="px-2 py-0.5 rounded bg-cyan-50 dark:bg-cyan-950/60 text-cyan-700 dark:text-cyan-300" data-testid="schema-version-badge">
+              {isAr ? `إصدار البيانات: v${schemaVersion}` : `Schema: v${schemaVersion}`}
+            </span>
+            {quarantineCount > 0 && (
+              <span className="px-2 py-0.5 rounded bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300">
+                {isAr ? `سجلات تالفة معزولة: ${quarantineCount}` : `Quarantined: ${quarantineCount}`}
+              </span>
+            )}
+          </div>
         </div>
 
         <p className="text-xs text-slate-500">
           {isAr
-            ? 'بيانات منشأتك ملك لك بالكامل. يمكنك تنزيل نسخة JSON مشفرة محلياً أو استعادتها في أي وقت.'
-            : 'Your partition data is sovereign. Export or restore your local JSON backup anytime without internet.'}
+            ? 'تشمل النسخة الاحتياطية جميع الخامات والمنتجات والتجهيزات والمخازن والمصاريف وإعدادات المنشأة مع معاينة قبل الاستعادة وتراجع تلقائي عند أي خطأ.'
+            : 'Full JSON backup includes materials, products, preparations, warehouses, expenses, and settings with import preview and rollback safety.'}
         </p>
 
         <div className="flex flex-wrap gap-2.5 pt-1">
           <Button
             type="button"
             onClick={handleExportBackup}
+            data-testid="settings-export-backup-btn"
             className="px-4 py-2 text-xs font-bold rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white flex items-center gap-2 cursor-pointer transition-colors"
           >
             <Download className="w-4 h-4" />
-            <span>{isAr ? 'تصدير نسخة احتياطية (JSON)' : 'Export JSON Backup'}</span>
+            <span>{isAr ? 'تصدير نسخة كاملة (JSON)' : 'Export Full JSON Backup'}</span>
           </Button>
 
           <label className="px-4 py-2 text-xs font-bold rounded-xl bg-slate-100 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 hover:border-cyan-500 text-slate-700 dark:text-slate-300 flex items-center gap-2 cursor-pointer transition-colors">
             <Upload className="w-4 h-4 text-cyan-500" />
-            <span>{isAr ? 'استعادة من ملف (JSON)' : 'Restore from JSON File'}</span>
-            <input type="file" accept=".json" onChange={handleImportBackup} className="hidden" />
+            <span>{isAr ? 'معاينة واستعادة ملف (JSON)' : 'Preview & Restore JSON'}</span>
+            <input type="file" accept=".json" onChange={handleImportBackup} className="hidden" data-testid="settings-import-file-input" />
           </label>
 
           <Button
             type="button"
-            onClick={handleResetDemoData}
-            className="px-4 py-2 text-xs font-bold rounded-xl border border-rose-500/30 text-rose-500 hover:bg-rose-500/10 flex items-center gap-2 cursor-pointer transition-colors ms-auto"
+            onClick={handleRepairData}
+            data-testid="settings-repair-data-btn"
+            className="px-4 py-2 text-xs font-bold rounded-xl border border-amber-400/50 text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950/30 flex items-center gap-2 cursor-pointer transition-colors"
           >
-            <RotateCcw className="w-4 h-4" />
-            <span>{isAr ? 'استعادة القالب النموذجي' : 'Reload Model Template'}</span>
+            <Shield className="w-4 h-4" />
+            <span>{isAr ? 'فحص وإصلاح البيانات' : 'Repair Data'}</span>
           </Button>
+
+          {!confirmDemoReset ? (
+            <Button
+              type="button"
+              onClick={handleResetDemoData}
+              data-testid="settings-load-full-demo-btn"
+              className="px-4 py-2 text-xs font-bold rounded-xl border border-emerald-500/40 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/10 flex items-center gap-2 cursor-pointer transition-colors"
+            >
+              <RotateCcw className="w-4 h-4" />
+              <span>{isAr ? 'تحميل منشأة تجريبية كاملة (ج.م)' : 'Load Full Demo Venue'}</span>
+            </Button>
+          ) : (
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                onClick={handleResetDemoData}
+                data-testid="settings-confirm-load-demo-btn"
+                className="px-3 py-2 text-xs font-bold rounded-xl bg-emerald-600 text-white"
+              >
+                {isAr ? 'تأكيد تحميل بيانات التجربة' : 'Confirm Load Demo'}
+              </Button>
+              <Button
+                type="button"
+                onClick={() => setConfirmDemoReset(false)}
+                className="px-3 py-2 text-xs font-bold rounded-xl border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-300"
+              >
+                {isAr ? 'إلغاء' : 'Cancel'}
+              </Button>
+            </div>
+          )}
+
+          {!confirmClearDemo ? (
+            <Button
+              type="button"
+              onClick={handleClearDemoData}
+              data-testid="settings-clear-demo-btn"
+              className="px-4 py-2 text-xs font-bold rounded-xl border border-rose-500/30 text-rose-500 hover:bg-rose-500/10 flex items-center gap-2 cursor-pointer transition-colors ms-auto"
+            >
+              <RotateCcw className="w-4 h-4" />
+              <span>{isAr ? 'حذف بيانات التجربة' : 'Clear Demo Data'}</span>
+            </Button>
+          ) : (
+            <div className="flex items-center gap-2 ms-auto">
+              <Button
+                type="button"
+                onClick={handleClearDemoData}
+                data-testid="settings-confirm-clear-demo-btn"
+                className="px-3 py-2 text-xs font-bold rounded-xl bg-rose-600 text-white"
+              >
+                {isAr ? 'تأكيد حذف كل بيانات التجربة نهائياً' : 'Confirm Clear All Demo'}
+              </Button>
+              <Button
+                type="button"
+                onClick={() => setConfirmClearDemo(false)}
+                className="px-3 py-2 text-xs font-bold rounded-xl border border-slate-300 dark:border-slate-700 text-slate-600 dark:text-slate-300"
+              >
+                {isAr ? 'إلغاء' : 'Cancel'}
+              </Button>
+            </div>
+          )}
         </div>
+
+        {/* Backup Import Preview Panel */}
+        {backupPreview && (
+          <div
+            className={`p-4 rounded-xl border text-xs space-y-2 ${
+              backupPreview.valid
+                ? 'bg-cyan-50/70 dark:bg-cyan-950/20 border-cyan-300 dark:border-cyan-800'
+                : 'bg-rose-50/70 dark:bg-rose-950/20 border-rose-300 dark:border-rose-800'
+            }`}
+            data-testid="backup-preview-card"
+          >
+            <div className="font-black text-slate-900 dark:text-white">
+              {backupPreview.valid
+                ? `معاينة النسخة قبل الاستعادة (الإصدار v${backupPreview.sourceVersion})`
+                : 'تعذرت قراءة النسخة الاحتياطية'}
+            </div>
+            {backupPreview.valid ? (
+              <>
+                <p className="text-slate-600 dark:text-slate-300">
+                  تحتوي النسخة على: {backupPreview.counts.materials} خامة، {backupPreview.counts.products} منتج، {backupPreview.counts.preparations} تجهيز، {backupPreview.counts.warehouses} مخزن، {backupPreview.counts.requisitions} طلبية، {backupPreview.counts.expenses} مصروف.
+                </p>
+                {backupPreview.warnings.map((w, i) => (
+                  <p key={i} className="text-amber-700 dark:text-amber-300 font-bold">
+                    • {w}
+                  </p>
+                ))}
+                <div className="flex flex-wrap items-center gap-2 pt-1">
+                  <Button
+                    type="button"
+                    onClick={handleConfirmImportBackup}
+                    data-testid="confirm-restore-backup-btn"
+                    className="px-4 py-1.5 rounded-lg bg-emerald-600 text-white font-bold"
+                  >
+                    تأكيد الاستعادة والترقية
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={() => {
+                      setBackupPreview(null);
+                      setPendingBackupJson(null);
+                    }}
+                    className="px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 font-bold"
+                  >
+                    إلغاء
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <p className="text-rose-700 dark:text-rose-300 font-bold">{backupPreview.error}</p>
+            )}
+          </div>
+        )}
+
+        {/* Repair Report Summary */}
+        {repairReport && (
+          <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs space-y-1" data-testid="repair-report-card">
+            <div className="font-bold text-slate-900 dark:text-white">نتائج فحص وإصلاح البيانات:</div>
+            {repairReport.fixedItems.length === 0 && repairReport.warnings.length === 0 ? (
+              <p className="text-emerald-600 font-bold">البيانات سليمة ومترابطة ولا تحتاج لإصلاح.</p>
+            ) : (
+              <>
+                {repairReport.fixedItems.map((it, idx) => (
+                  <p key={idx} className="text-slate-700 dark:text-slate-300">✓ {it}</p>
+                ))}
+                {repairReport.warnings.map((w, idx) => (
+                  <p key={idx} className="text-amber-600 font-bold">⚠ {w}</p>
+                ))}
+              </>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

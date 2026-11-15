@@ -34,7 +34,7 @@ All workflows flow seamlessly from warehouse goods receipt to POS invoice issuan
     stepsEn: [
       'Register your establishment through the onboarding wizard or login with owner credentials.',
       'Confirm business typology, operational currency, and time zone.',
-      'Define suppliers and raw ingredients, then build standardized BOM recipes.',
+      'Define suppliers and raw ingredients, then build standardized recipes.',
       'Open a register shift in POS to begin processing table and takeaway orders.',
     ],
     commonMistakesAr: [
@@ -48,135 +48,161 @@ All workflows flow seamlessly from warehouse goods receipt to POS invoice issuan
     lastUpdated: '2026-11-03',
   },
   {
+    id: 'art-semi-finished-preps',
+    slug: 'semi-finished-preparations',
+    module: 'semi_finished',
+    category: 'semi_finished',
+    titleAr: 'التجهيزات والتحضيرات الأساسية (عجين، صوصات، معالجة، وحصص)',
+    titleEn: 'Semi-Finished Preparations, Cooking Factors & Named Portions',
+    summaryAr: 'بناء وصفات التجهيزات الأساسية بنمط «على الصيغة» والتفكيك التلقائي للخامات وقت البيع أو تتبع الدفعات اختيارياً.',
+    summaryEn: 'Configure base sauces, doughs, cooking yields, and portions with automatic raw material decomposition on sale.',
+    contentAr: `تربط التجهيزات بين الخامات الأولية والمنتجات النهائية:
+1. تجهيز مركب أو معالجة بعامل طبخ (مثل 50 جم أرز نيء ← 100 جم أرز مطهو).
+2. تقسيم التجهيز إلى حصص مسماة (كرة بيتزا وسط 170 جم، مغرفة صوص 80 جم).
+3. العمل افتراضياً «على الصيغة» دون رصيد مخزني، أو تفعيل تتبع الدفعات الاختياري مع ترحيل المتبقي وقت الجرد الفعلي.`,
+    contentEn: `Preparations bridge raw ingredients and final dishes using compound formulas, cooking factors (50g raw -> 100g cooked), named portions, and formula or optional batch tracking.`,
+    stepsAr: [
+      'افتح شاشة «التجهيزات» وحدد نوع التجهيز ومكوناته من الخامات.',
+      'أنشئ الحصص المسماة لتظهر جاهزة داخل وصفات المنتجات.',
+      'استخدم «إدخال التجهيزات المتبقية» في شاشة الجرد عند وجود كميات محضرة آخر اليوم.',
+    ],
+    stepsEn: [
+      'Open Preparations and define compound or cooking-factor ingredients.',
+      'Add named portions for one-click reuse in dish recipes.',
+      'Record unconsumed leftovers in Physical Audit under Remaining Preparations.',
+    ],
+    commonMistakesAr: [
+      'البحث عن تجهيز داخل فاتورة شراء — التجهيزات محجوبة عن المشتريات وتُحضّر داخلياً فقط.',
+    ],
+    commonMistakesEn: [
+      'Trying to purchase semi-finished preps directly from suppliers.',
+    ],
+    lastUpdated: '2026-11-15',
+  },
+  {
     id: 'art-recipe-costing',
     slug: 'recipe-true-costing',
     module: 'menu',
     category: 'recipes',
-    titleAr: 'دليل حساب التكلفة الحقيقية للمنتج (True Product Cost)',
+    titleAr: 'دليل حساب التكلفة الحقيقية للمنتج',
     titleEn: 'Comprehensive True Product Costing Guide',
-    summaryAr: 'كيف تحسب منظومة Tygos تكلفة الطبق من أصغر مدخل تشغيلي (المياه والطاقة) حتى صافي الربحية.',
-    summaryEn: 'How Tygos calculates plate cost from smallest operational input (water, energy) to net profit.',
-    contentAr: `تعتمد Tygos صيغة التكلفة الشاملة التي تتجاوز سعر شراء المكونات فقط:
-1. تكلفة المواد الخام الصافية مخصوماً منها نسبة الفاقد والهالك (Yield & Trim Loss).
+    summaryAr: 'كيف تحسب منظومة TYGOS تكلفة الطبق من أصغر مدخل تشغيلي (بما في ذلك الخامات بدون رصيد مثل الماء والملح) حتى صافي الربحية بالجنيه.',
+    summaryEn: 'How TYGOS calculates plate cost from smallest operational input including cost-only utilities to net profit in EGP.',
+    contentAr: `تعتمد TYGOS صيغة التكلفة الشاملة التي تتجاوز سعر شراء المكونات فقط:
+1. تكلفة المواد الخام الصافية مخصوماً منها نسبة الفاقد والهالك والتجهيزات المفككة.
 2. تكلفة مواد التعبئة والتغليف (علب، أكياس، ورق طعام).
 3. تكلفة العمالة المباشرة (دقائق التحضير الفعلي مضروبة في أجر الدقيقة).
-4. حصة العمالة غير المباشرة ومصاريف الإشراف.
-5. استهلاك المنافع والمرافق: المياه، الكهرباء، وغاز الطهي (From One Drop of Water to Profit).
-6. المواد الاستهلاكية وأدوات النظافة والتعقيم.`,
-    contentEn: `Tygos uses an all-inclusive cost formula that goes beyond raw ingredient purchasing price:
-1. Net ingredient cost adjusted for prep scrap and yield loss.
-2. Packaging components (boxes, wraps, containers).
-3. Direct kitchen/bar labor (actual prep minutes multiplied by minute wage rate).
-4. Indirect supervisory labor allocation.
-5. Utility absorption: culinary water, refrigeration power, and cooking gas.
-6. Station consumables and sanitation supplies.`,
+4. حصة المصاريف المباشرة وغير المباشرة الموزعة على مرحلتين.
+5. المواد الاستهلاكية وأدوات النظافة والتعقيم.`,
+    contentEn: `TYGOS uses an all-inclusive cost formula combining net raw/prep costs after trim waste, packaging consumables, direct prep labor, and two-stage indirect overhead allocation.`,
     stepsAr: [
-      'افتح شاشة "قائمة الطعام والوصفات" واختر الصنف المطلوب.',
+      'افتح شاشة "الوصفات (رسبي)" واختر الصنف المطلوب.',
       'راجع جدول المكونات وتأكد من تحديد نسبة الفاقد لكل مكون خام بدقة.',
       'حدد وقت التحضير المباشر بالدقائق ليقوم النظام باحتساب تكلفة العمالة تلقائياً.',
-      'اطلع على بطاقة "التكلفة الحقيقية للوجبة" لمقارنة هامش الربح بالسعر المستهدف.',
+      'اطلع على تبويب "السعر والربح" لمقارنة هامش الربح بالسعر المستهدف بالجنيه.',
     ],
     stepsEn: [
-      'Navigate to Menu & Recipes and select the target item.',
+      'Navigate to Recipes and select the target item.',
       'Review ingredient table and confirm scrap/waste trim percentages.',
       'Enter active prep minutes for automated labor cost absorption.',
-      'Inspect the True Product Cost card to compare margin against target benchmark.',
+      'Inspect the Price & Profit tab to compare margin against target benchmark in EGP.',
     ],
     commonMistakesAr: [
       'إهمال نسبة الفاقد في تنظيف اللحوم والخضار مما يؤدي لتسعير منخفض غير حقيقي.',
       'تجاهل تكلفة التغليف للطلبات الخارجية والسفري.',
-      'عدم إنشاء إصدار جديد للوصفة عند تغير أسعار عقود التوريد.',
     ],
     commonMistakesEn: [
       'Omitting butchery trim loss which results in understated menu portion cost.',
       'Ignoring packaging costs on takeaway and delivery orders.',
-      'Failing to create a new recipe version when supplier prices shift.',
     ],
-    lastUpdated: '2026-11-03',
+    lastUpdated: '2026-11-15',
+  },
+  {
+    id: 'art-warehouses-requisitions',
+    slug: 'warehouses-item-card-requisitions',
+    module: 'warehouses',
+    category: 'warehouses',
+    titleAr: 'المخازن وكارت الصنف ودورة الطلبيات والتحويلات',
+    titleEn: 'Warehouses, Item Card Ledger & Requisition Lifecycle',
+    summaryAr: 'متابعة أرصدة الفروع ومخازن الأقسام بالوحدات المركبة، ودورة الطلبيات بمرحلة «في الطريق» والرفض المسبب.',
+    summaryEn: 'Multi-branch section stores, compound multi-unit stock, item movement ledgers, and 4-stage requisitions.',
+    contentAr: `تدير شاشة «المخازن» فروع المنشأة والمخزن الرئيسي والمطبخ المركزي ومخازن الأقسام (مطبخ، بار، مخبز).
+تتم التغذية الداخلية بدورة محكمة: طلب الشيف ← صرف أمين المخزن لذمة «في الطريق» ← استلام الشيف أو الرفض المسبب وعودة المرفوض للرئيسي تلقائياً.`,
+    contentEn: `Warehouses segregates Main, Central Kitchen, and Section Stores using a 4-stage audited requisition cycle with In-Transit accountability and automatic rejection return.`,
+    stepsAr: [
+      'أنشئ طلبية من مخزن القسم أو المطبخ المركزي وحدد الكميات المطلوبة.',
+      'يصرف أمين المخزن الكمية المعتمدة فتتحول لحالة «في الطريق».',
+      'يراجع الشيف المستلم ويسجل سبب أي بند مرفوض ثم يطبع الإذن بالتوقيعات الثلاثية.',
+    ],
+    stepsEn: [
+      'Create requisition from section store or central kitchen.',
+      'Storekeeper dispatches approved quantity into In-Transit status.',
+      'Chef confirms receipt or enters mandatory rejection reason before 3-signature voucher print.',
+    ],
+    commonMistakesAr: [
+      'عدم تسجيل سبب الرفض عند نقص الوزن أو تلف البضاعة المستلمة.',
+    ],
+    commonMistakesEn: [
+      'Accepting damaged dispatch without recording line-item rejection reasons.',
+    ],
+    lastUpdated: '2026-11-15',
   },
   {
     id: 'art-variance-cost-control',
     slug: 'variance-analysis-cost-control',
-    module: 'cost_control',
-    category: 'cost_control',
-    titleAr: 'تحليل الانحراف المعياري مقابل الفعلي (Theoretical vs Actual Variance)',
-    titleEn: 'Theoretical vs Actual Consumption & Variance Analysis',
-    summaryAr: 'تحديد مسببات الفارق بين الاستهلاك النظري للوصفات والجرد الفعلي للمستودعات.',
-    summaryEn: 'Dissecting variance root causes between recipe theoretical consumption and physical stock count.',
-    contentAr: `الانحراف في التكلفة هو الفارق بين ما كان ينبغي استهلاكه طبقاً للمبيعات والوصفات المعيارية، وما تم استهلاكه بالفعل في الواقع العملي.
-أسباب الانحراف الشائعة:
-• هالك غير مسجل أثناء التحضير الصباحي.
-• اختلاف في أحجام الحصص (Over-portioning).
-• تقلبات أسعار شراء المواد الخام (Purchase Price Variance).
-• تالف تخزين أو عجز جرد فعلي.`,
-    contentEn: `Cost variance represents the difference between theoretical consumption driven by sales recipes and physical stock depletion.
-Primary root causes include:
-• Unrecorded morning prep waste and trimming.
-• Over-portioning at cookline stations.
-• Purchase price variances from supplier shifts.
-• Spoilage or inventory discrepancy.`,
+    module: 'inventory_audit',
+    category: 'inventory_audit',
+    titleAr: 'الجرد الفعلي والملاحظات اليومية وكشف الانحراف',
+    titleEn: 'Physical Stocktake, Daily Notes & Variance Analysis',
+    summaryAr: 'إجراء الجرد الاختباري والإغلاق الفعلي مع استبعاد «في الطريق»، وتفصيل حركات اليوم، وفتح كارت الصنف من الملاحظات اليومية.',
+    summaryEn: 'Draft and final audits excluding In-Transit stock, daily movement drilldown, deficit costing in EGP, and linked field notes.',
+    contentAr: `تحسب شاشة «الجرد الفعلي» الرصيد التقديري بدقة وتستبعد بضاعة «في الطريق» مع إتاحة ترتيب الرفوف وإدخال التجهيزات المتبقية.
+وكل ملاحظة في «الملاحظات اليومية» ترتبط بالفرع والمخزن والخامة مع فتح فوري لكارت الصنف وتنويه الطباعة الإلزامي للمشكلات غير المحلولة.`,
+    contentEn: `Physical Audit reconciles theoretical vs physical counts excluding In-Transit stock, supports shelf reordering and leftover preps, and connects directly with Daily Notes.`,
     stepsAr: [
-      'افتح شاشة "مراقبة التكاليف والانحراف".',
-      'اختر مركز التكلفة أو القسم المطلوب (مطبخ، بار، مخبز).',
-      'راجع عمود "الانحراف المالي" لمعرفة المكونات الأعلى تأثيراً على الربحية.',
-      'انقر على أي مكون لعرض بطاقة تحليل الأسباب المحتملة والإجراء التصحيحي المقترح.',
+      'افتح شاشة «الجرد الفعلي» واختر الفرع والمخزن وابدأ بجرد اختباري للمعاينة.',
+      'اضغط على أي خامة لاستعراض نافذة «تفاصيل اليوم» ومراجعة الانحراف بالجنيه.',
+      'عند التأكد، نفّذ «إغلاق فعلي للفترة» لتوليد تسويات الجرد وقفل مصاريف الشهر.',
     ],
     stepsEn: [
-      'Open Cost Control & Variance module.',
-      'Filter by department cost center (Kitchen, Bar, Bakehouse).',
-      'Sort by Variance Cost Value to identify high-impact ingredients.',
-      'Click on any item to view root cause diagnosis and recommended action.',
+      'Select branch & warehouse inside Physical Audit and run a Draft preview.',
+      'Click any material to inspect its Daily Breakdown modal.',
+      'Run Official Period Close to post adjustments and lock monthly overhead.',
     ],
     commonMistakesAr: [
-      'افتراض أن كل انحراف هو سرقة دون فحص موازين التحضير ونسب الهالك.',
-      'تأخير تسجيل الجرد الفعلي للمستودع مما يشوه المقارنة الزمنية.',
+      'إجراء إغلاق فعلي قبل التأكد من استلام أو رفض الطلبيات التي «في الطريق».',
     ],
     commonMistakesEn: [
-      'Assuming variance is shrinkage without checking portion scale calibration.',
-      'Delaying stocktake entry which distorts operational alignment.',
+      'Closing an audit period without reviewing open In-Transit requisitions.',
     ],
-    lastUpdated: '2026-11-03',
+    lastUpdated: '2026-11-15',
   },
   {
     id: 'art-inventory-management',
     slug: 'warehouse-inventory-stocktakes',
     module: 'inventory',
     category: 'inventory',
-    titleAr: 'إدارة المستودعات وحركات المخزون والجرد (Inventory & Warehousing)',
-    titleEn: 'Multi-Warehouse Inventory, Stock Movements & Audits',
-    summaryAr: 'تتبع المواد الخام من لحظة استلام التوريد، الصرف الداخلي للمطبخ، وحتى إعادة الطلب الآلي.',
-    summaryEn: 'Tracking stock from dock receipt, internal station requisitions, to automated par-level alerts.',
-    contentAr: `يدعم Tygos تعدد المستودعات (المستودع الرئيسي، مستودع المطبخ الساخن، مستودع البار والمشروبات، مستودع التعبئة).
-تسجل حركات المخزون آلياً:
-1. إذن إضافة استلام بضاعة مع ربط سعر الفاتورة بالمورد.
-2. إذن صرف داخلي بناء على احتياج الأقسام.
-3. استهلاك آلي بنقطة البيع بناء على مكونات الوصفة المصروفة.
-4. تسوية جرد دورية مع تسجيل فروق الجرد بحسابات التكلفة.`,
-    contentEn: `Tygos provides enterprise multi-warehouse segregation (Central Storage, Kitchen Dry/Cold, Bar Station, Packaging).
-Stock movements are fully audited:
-1. Goods Receipt against purchase orders with weighted average cost updates.
-2. Departmental requisitions between central store and production stations.
-3. Automated depletion on POS order closure based on recipe explosion.
-4. Cycle counts and reconciliation with automated cost adjustments.`,
+    titleAr: 'إدارة الخامات والوحدات المتعددة وتنبيه تعديل الأسعار',
+    titleEn: 'Raw Materials, Multi-Units & Price Change Impact',
+    summaryAr: 'تسجيل الخامات بالوحدات المركبة أو كخامة بلا رصيد مخزني مثل الماء والملح، ومعاينة أثر تغير الأسعار على الأطباق.',
+    summaryEn: 'Manage raw materials, 3-tier unit conversions, non-stock cost-only utilities, and pre-save recipe impact checks.',
+    contentAr: `تتيح شاشة «الخامات والمخزون» إضافة خامات في دقيقة مع سلاسل التعبئة ثلاثية المستويات ومعاينة تأثير تعديل أي سعر شراء على كافة التجهيزات والأطباق المرتبطة قبل الحفظ.`,
+    contentEn: `Raw Materials manages packaging tiers, weighted average costing, untracked cost-only utilities, and real-time recipe cost propagation alerts.`,
     stepsAr: [
-      'افتح شاشة المستودعات والمخزون للاطلاع على مستويات الرصيد.',
-      'راقب تنبيهات الحد الأدنى (Reorder Point) لإصدار أوامر الشراء قبل نفاد الصنف.',
-      'استخدم زر "تسجيل تسوية جرد" لمطابقة الكميات الفعلية مع النظام.',
+      'أضف الخامة وحدد سلسلة التعبئة والهالك أو فعّل «خامة بلا رصيد مخزني» للماء والملح.',
+      'عند تعديل سعر الشراء، اضغط على «شوف الأثر» لمراجعة الأطباق المتأثرة.',
     ],
     stepsEn: [
-      'Navigate to Inventory Warehouses to monitor real-time stock balances.',
-      'Review par-level alerts to trigger timely procurement before stockouts.',
-      'Use the Stock Adjustment tool to record periodic cycle counts.',
+      'Add raw material packaging tiers and waste % or mark cost-only untracked.',
+      'Click Impact Preview whenever updating purchase price.',
     ],
     commonMistakesAr: [
-      'تجاهل تسجيل التحويل الداخلي بين المستودع المركزي ومستودع التشغيل.',
-      'تسجيل تسويات جرد دون ذكر السبب المعياري للتسوية.',
+      'تجاهل نسبة الهالك أو نسيان تفعيل «خامة بلا رصيد مخزني» للمياه والملح السائب.',
     ],
     commonMistakesEn: [
-      'Failing to record store-to-kitchen transfers before production.',
-      'Adjusting balances without documented business reason codes.',
+      'Tracking tap water as physical weight causing spurious stockout warnings.',
     ],
-    lastUpdated: '2026-11-03',
+    lastUpdated: '2026-11-15',
   },
   {
     id: 'art-pos-operations',

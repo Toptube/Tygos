@@ -44,6 +44,7 @@ import { localAssistantEngine } from '../services/localAssistantEngine.ts';
 import { buildAppContextSnapshot } from '../services/appContextSnapshot.ts';
 import { dataService, RawMaterialItem, MenuItemProduct } from '../services/dataService.ts';
 import { categoryService, CategoryNode } from '../services/categoryService.ts';
+import { migrationService } from '../services/migrationService.ts';
 import { useAuth } from './AuthContext.tsx';
 import { useI18n } from '../i18n/I18nContext.tsx';
 
@@ -443,6 +444,7 @@ export const BusinessProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   useEffect(() => {
+    migrationService.migrateEstablishmentData(estId);
     refreshMaterialsAndProducts();
     refreshCategories();
   }, [estId]);

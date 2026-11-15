@@ -234,6 +234,20 @@ export const SCREEN_GLOSSARY: Record<string, GlossaryEntry> = {
     titleEn: 'Venues Admin',
     subtitleEn: 'Manage all registered venues and branches',
   },
+  ui_inspector: {
+    id: 'ui_inspector',
+    titleAr: 'فاحص الواجهة والموبايل',
+    subtitleAr: 'فحص فيض الشاشات ومقاسات اللمس وتنسيق اللغة والأخطاء محلياً',
+    titleEn: 'Interface & Mobile Inspector',
+    subtitleEn: 'Inspect rendered screens for overflow, touch target sizes, language purity, and runtime errors',
+  },
+  error_log: {
+    id: 'error_log',
+    titleAr: 'سجل الأخطاء',
+    subtitleAr: 'عرض ونسخ ومسح أعطال الشاشات المسجلة محلياً للمالك والمدير',
+    titleEn: 'Error Log',
+    subtitleEn: 'View, copy, and clear locally captured screen runtime errors',
+  },
 };
 
 export interface JourneyStepGlossary {

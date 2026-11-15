@@ -218,8 +218,8 @@ export const QuickOnboardingModal: React.FC<QuickOnboardingModalProps> = ({
                       </div>
                       <div className="text-[11px] text-slate-500 font-normal">
                         {isAr
-                          ? 'يحتوي على خامات حقيقية، وصفات نموذجية، وأسعار تجريبية للاستكشاف السريع.'
-                          : 'Includes raw ingredients, sample BOM recipes, and test numbers for rapid explore.'}
+                          ? 'يحتوي على خامات حقيقية، تجهيزات ووصفات نموذجية، وأسعار تجريبية بالجنيه للاستكشاف السريع.'
+                          : 'Includes raw ingredients, sample recipes, and test numbers in EGP for rapid exploration.'}
                       </div>
                     </div>
                   </div>

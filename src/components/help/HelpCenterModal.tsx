@@ -55,14 +55,15 @@ export const HelpCenterModal: React.FC = () => {
 
   const categories = [
     { id: 'all', label: isAr ? 'جميع الأدلة' : 'All SOP Manuals' },
-    { id: 'qr_menu', label: isAr ? 'المنيو الإلكتروني وQR' : 'QR Menu & Tables' },
-    { id: 'kds', label: isAr ? 'محطات التحضير (KDS)' : 'Kitchen Stations' },
+    { id: 'inventory', label: isAr ? 'الخامات والوحدات' : 'Materials & Units' },
+    { id: 'semi_finished', label: isAr ? 'التجهيزات' : 'Preparations' },
     { id: 'menu', label: isAr ? 'الوصفات (رسبي)' : 'Recipes' },
-    { id: 'cost_control', label: isAr ? 'التكاليف والانحراف' : 'Cost & Variance' },
-    { id: 'inventory', label: isAr ? 'المستودعات' : 'Warehouses' },
-    { id: 'pos', label: isAr ? 'نقطة البيع' : 'Point of Sale' },
+    { id: 'warehouses', label: isAr ? 'المخازن والطلبيات' : 'Warehouses' },
+    { id: 'pos', label: isAr ? 'البيع وQR والمطبخ' : 'POS & QR & KDS' },
+    { id: 'inventory_audit', label: isAr ? 'الجرد والملاحظات' : 'Audit & Notes' },
+    { id: 'cost_control', label: isAr ? 'التكلفة الكاملة' : 'Full Costing' },
     { id: 'finance', label: isAr ? 'المالية والضرائب' : 'Finance & Tax' },
-    { id: 'security', label: isAr ? 'الأمان والتصاريح' : 'Security' },
+    { id: 'security', label: isAr ? 'الأمان والفحص' : 'Security & UI Check' },
   ];
 
   return (

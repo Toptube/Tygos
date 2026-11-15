@@ -25,6 +25,7 @@ import { AddIngredientQuickModal } from './components/inventory/AddIngredientQui
 import { AddProductWizardModal } from './components/menu/AddProductWizardModal.tsx';
 import { BulkDataImportModal } from './components/common/BulkDataImportModal.tsx';
 import { QuickOnboardingModal } from './components/common/QuickOnboardingModal.tsx';
+import { ScreenErrorBoundary } from './components/common/ScreenErrorBoundary.tsx';
 import { PublicMenuPage } from './components/menu/PublicMenuPage.tsx';
 import { parseAppRoute } from './utils/urlRouter.ts';
 
@@ -117,6 +118,16 @@ const PreLaunchChecklistView = React.lazy(() =>
 const UserRolesManagementModule = React.lazy(() =>
   import('./components/users/UserRolesManagementModule.tsx').then((m) => ({
     default: m.UserRolesManagementModule,
+  }))
+);
+const UiInspectorModule = React.lazy(() =>
+  import('./components/system/UiInspectorModule.tsx').then((m) => ({
+    default: m.UiInspectorModule,
+  }))
+);
+const ErrorLogModule = React.lazy(() =>
+  import('./components/system/ErrorLogModule.tsx').then((m) => ({
+    default: m.ErrorLogModule,
   }))
 );
 
@@ -270,6 +281,10 @@ const AppContent: React.FC = () => {
         return <UserRolesManagementModule />;
       case 'prelaunch_checklist':
         return <PreLaunchChecklistView />;
+      case 'ui_inspector':
+        return <UiInspectorModule onNavigateView={setActiveView} />;
+      case 'error_log':
+        return <ErrorLogModule />;
       case 'dashboard':
       default:
         return <TenantDashboard />;
@@ -317,15 +332,22 @@ const AppContent: React.FC = () => {
         onCompleted={() => refreshMaterialsAndProducts()}
       />
 
-      <Suspense
-        fallback={
-          <div className="p-8 text-center text-xs text-slate-500 dark:text-slate-400">
-            جاري تحميل الوحدة...
-          </div>
-        }
+      <ScreenErrorBoundary
+        key={activeView}
+        viewId={activeView}
+        establishmentId={estId}
+        onGoHome={() => setActiveView('dashboard')}
       >
-        {renderActiveView()}
-      </Suspense>
+        <Suspense
+          fallback={
+            <div className="p-8 text-center text-xs text-slate-500 dark:text-slate-400">
+              جاري تحميل الوحدة...
+            </div>
+          }
+        >
+          {renderActiveView()}
+        </Suspense>
+      </ScreenErrorBoundary>
     </AppLayout>
   );
 };

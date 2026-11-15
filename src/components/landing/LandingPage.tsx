@@ -47,6 +47,7 @@ import { ThemeSwitcher } from '../common/ThemeSwitcher.tsx';
 import { TygosLogo, TYGOS_LOGO_SRC, TYGOS_COVER_SRC, PermanentAppBrandBadge } from '../brand/TygosLogo.tsx';
 import { UserRole } from '../../types/index.ts';
 import { getMergedWhatsNew, qrMenuMarketingSection } from '../../data/landingContent.ts';
+import { demoScenarioService } from '../../services/demoScenarioService.ts';
 
 interface LandingPageProps {
   onOpenRegister: () => void;
@@ -123,66 +124,66 @@ export const LandingPage: React.FC<LandingPageProps> = ({
     {
       id: 'pos',
       icon: UtensilsCrossed,
-      titleAr: 'نقاط البيع والصالة',
-      titleEn: 'Point of Sale & Dine-In',
-      actionAr: 'بيع بسرعة وطلّع فاتورتك الضريبية بضغطة واحدة، حتى لو النت فصل في عز زحمة الوردية.',
-      actionEn: 'Issue compliant tax receipts in seconds with full offline resilience during peak rush hours.',
+      titleAr: 'نقاط البيع وشاشات المطبخ',
+      titleEn: 'POS, Stations (KDS) & Stock Alerts',
+      actionAr: 'بيع سريع حتى لو النت فصل، مع تنبيهات أصفر/رمادي قبل نفاد الصنف وتوزيع فوري على شاشات المطبخ والبار.',
+      actionEn: 'Offline-resilient checkout, yellow/gray stock availability signals, and instant station routing to Kitchen & Bar KDS.',
+    },
+    {
+      id: 'warehouses_supply',
+      icon: Package,
+      titleAr: 'المخازن وكارت الصنف والطلبيات',
+      titleEn: 'Warehouses, Item Card & Requisitions',
+      actionAr: 'مخزن رئيسي ومطبخ مركزي ومخازن أقسام، تحويل وحدات مركبة، وطلبيات بدورة «في الطريق» والرفض المسبب.',
+      actionEn: 'Multi-branch warehouses, multi-unit conversion packs, and in-transit internal requisitions with reasoned returns.',
+    },
+    {
+      id: 'semi_finished',
+      icon: Sparkles,
+      titleAr: 'التجهيزات والتحضيرات الأساسية',
+      titleEn: 'Semi-Finished Preparations & Yields',
+      actionAr: 'عجين وصوصات وتتبيلات وأرز بعامل الطبخ وحصص مسماة، تتفكك تلقائياً لخامات وتُخصم من مخزن القسم عند البيع.',
+      actionEn: 'Doughs, sauces, cooking-yield conversions, and named portions auto-decomposed to section-store raw stock on sale.',
     },
     {
       id: 'cost_engine',
       icon: ChefHat,
-      titleAr: 'محرك التكلفة الحقيقية',
-      titleEn: 'True Cost Engineering',
-      actionAr: 'اعرف تكلفة طبقك للقرش: من أول اللحم والخضار لهالك التشفية، وقت الشيف، والغاز والكهربا.',
-      actionEn: 'Discover your exact portion cost down to raw yield scraps, direct prep labor, and allocated gas/power.',
+      titleAr: 'الوصفات (رسبي) والتكلفة الكاملة',
+      titleEn: 'Recipes & Full Plate Costing',
+      actionAr: 'اعرف تكلفة طبقك بالجنيه: خامات وهالك + تجهيزات + عمالة مباشرة + مصاريف غير مباشرة + مستهلكات، وكشف أي صنف خاسر.',
+      actionEn: 'Exact full cost in EGP: raw + waste + preparations + direct labor + indirect overhead + consumables, spotting losing dishes.',
     },
     {
-      id: 'variance',
+      id: 'audit_variance',
       icon: Scale,
-      titleAr: 'كشف الهدر والانحرافات',
-      titleEn: 'Waste & Variance Detection',
-      actionAr: 'قارن اللي المفروض يخرج من المخزن باللي خرج فعلاً، وامسك أي تسريب أو زيادة في التوزيع قبل ما يخسرك.',
-      actionEn: 'Compare theoretical consumption against physical inventory to catch waste and portion creep early.',
+      titleAr: 'الجرد الفعلي والانحراف واليوميات',
+      titleEn: 'Physical Audit, Variance & Daily Notes',
+      actionAr: 'جرد اختباري وإغلاق فعلي للرفوف وتفصيل حركات اليوم، مع استبعاد بضاعة «في الطريق» وكشف العجز بالجنيه والملاحظات اليومية.',
+      actionEn: 'Draft and final audits with in-transit exclusion, daily movement breakdown, deficit costing in EGP, and field notes.',
     },
     {
-      id: 'inventory',
-      icon: Package,
-      titleAr: 'المخازن والمستودعات',
-      titleEn: 'Warehouse & Inventory',
-      actionAr: 'تابع رصيد خاماتك بالجرام والمل، واستقبل تنبيهات فورية قبل ما أي صنف يخلص عشان تطلبه في وقته.',
-      actionEn: 'Track ingredient stock by grams and ml, with automated low-stock reorder point notifications.',
-    },
-    {
-      id: 'finance_tax',
+      id: 'overhead_allocation',
       icon: DollarSign,
-      titleAr: 'المالية والضرائب',
-      titleEn: 'Finance & Compliant Taxes',
-      actionAr: 'قيود يومية وميزانيات بتتولد آلياً مع كل حركة بيع وشراء، وإقرارك الضريبي جاهز بضغطة زر.',
-      actionEn: 'Automated journal entries with every shift and purchase, with instant compliant tax return summaries.',
+      titleAr: 'المصاريف وتوزيعها والمالية',
+      titleEn: 'Two-Stage Overhead & General Ledger',
+      actionAr: 'وزّع الإيجار والكهرباء والرواتب على مرحلتين، واحسب معدل التحميل وفروق التحميل مع قفل الشهر والقيود الآلية.',
+      actionEn: 'Two-stage shared & operating cost allocation, burden rates, absorption variances, month locks, and auto ledger journals.',
     },
     {
-      id: 'hr_payroll',
-      icon: Users,
-      titleAr: 'الموارد البشرية والورديات',
-      titleEn: 'HR, Staff & Shifts',
-      actionAr: 'وزّع شفتات فريقك، احسب رواتبهم وساعات إضافيهم، واربط أجر وقت الطبخ بتكلفة الصنف المباشرة.',
-      actionEn: 'Schedule crew shifts, manage wages, and factor cook preparation time directly into menu portioning.',
-    },
-    {
-      id: 'maintenance',
-      icon: Wrench,
-      titleAr: 'صيانة الأصول والمعدات',
-      titleEn: 'Asset & Equipment Maintenance',
-      actionAr: 'حافظ على أفرانك، ماكينات الإسبريسو، وغرف التبريد بمواعيد صيانة دورية تفاديك الأعطال المفاجئة.',
-      actionEn: 'Safeguard espresso machines, ovens, and chillers with recurring preventive maintenance schedules.',
+      id: 'qr_menu',
+      icon: Smartphone,
+      titleAr: 'منيو QR الإلكتروني والعملاء',
+      titleEn: 'Offline QR Table Menu & CRM Loyalty',
+      actionAr: 'ملصقات طاولات تعمل بلا إنترنت لطلبات الصالة والتيك أواي والدليفري، مع حماية كاملة لتكاليفك ونظام نقاط الولاء.',
+      actionEn: 'Zero-internet QR stickers for dine-in, takeaway & delivery with full recipe cost privacy and customer loyalty.',
     },
     {
       id: 'ai_assistant',
       icon: Bot,
-      titleAr: 'مساعد TYGOS الذكي',
-      titleEn: 'TYGOS Smart Assistant',
-      actionAr: 'اسأله عن أي رقم، أو قوله "وديني للكاشير" أو "أضف خامة"، وهيتحرك وينفذ معاك في نفس اللحظة.',
-      actionEn: 'Ask questions about costs or give instant navigation commands hands-free with intelligent local guidance.',
+      titleAr: 'المساعد المحلي وفاحص الواجهة',
+      titleEn: 'Local Assistant, Backup & UI Inspector',
+      actionAr: 'إجابات فورية بالعامية المصرية وتنقل صوتي، مع فاحص تداخل الموبايل، ترحيل البيانات، والنسخ الاحتياطي الكامل مع المعاينة.',
+      actionEn: 'Instant Egyptian-dialect answers & voice nav, plus mobile layout inspector, schema migrations, and rollback-safe JSON backup.',
     },
   ];
 
@@ -843,6 +844,27 @@ export const LandingPage: React.FC<LandingPageProps> = ({
               <p className="text-[11px] text-slate-400">
                 {isAr ? 'ابدأ معالج تسجيل منشأتك ببياناتك الخاصة.' : 'Launch wizard with your own brand details.'}
               </p>
+            </Button>
+
+            {/* Unified Cohesive Full Demo Load Button */}
+            <Button
+              type="button"
+              data-testid="landing-load-full-demo-btn"
+              onClick={async () => {
+                await demoScenarioService.loadFullDemoEstablishment('est-1');
+                if (onExploreDemo) onExploreDemo('tenant_admin');
+              }}
+              className="sm:col-span-2 lg:col-span-3 p-4 rounded-xl bg-gradient-to-r from-emerald-950/80 to-cyan-950/80 border border-emerald-500/40 hover:border-emerald-400 text-start transition-all cursor-pointer flex flex-col sm:flex-row sm:items-center justify-between gap-2"
+            >
+              <div>
+                <div className="text-sm font-black text-emerald-300">
+                  {isAr ? 'تحميل منشأة تجريبية كاملة (فرعان، ٣٠ خامة، ٨ تجهيزات، ٢٥ منتجاً بالجنيه)' : 'Load Complete Demo Establishment (2 Branches, 30 Materials, 8 Preps, 25 Dishes)'}
+                </div>
+                <p className="text-xs text-slate-300 mt-0.5">
+                  {isAr ? 'ادخل فوراً ببيانات موحدة ومترابطة لاختبار الوصفات، المخازن، الجرد، والتكلفة الكاملة.' : 'Jump right in with linked EGP multi-branch demo data.'}
+                </p>
+              </div>
+              <ArrowIcon className="w-4 h-4 text-emerald-400 shrink-0" />
             </Button>
           </div>
         </div>

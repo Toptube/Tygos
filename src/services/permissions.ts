@@ -47,7 +47,9 @@ export type PermissionAction =
   | 'users:view'
   | 'users:manage'
   | 'users:reset_password'
-  | 'users:delete';
+  | 'users:delete'
+  | 'system:inspect_ui'
+  | 'system:error_log';
 
 const ADMIN_ROLES: UserRole[] = ['super_admin', 'tenant_admin', 'general_manager'];
 

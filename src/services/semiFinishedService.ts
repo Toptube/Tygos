@@ -417,7 +417,7 @@ class SemiFinishedService {
     }
     try {
       const list = JSON.parse(raw);
-      if (Array.isArray(list) && list.length > 0) return list;
+      if (Array.isArray(list)) return list;
       const seeded = this.generateSeedExamples(establishmentId);
       this.savePreparations(establishmentId, seeded);
       return seeded;

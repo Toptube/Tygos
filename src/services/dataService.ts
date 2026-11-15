@@ -30,6 +30,7 @@ import {
   MenuItemOverride,
   formatOrderSerialNumber,
 } from '../domain/qrMenuTypes.ts';
+import { migrationService } from './migrationService.ts';
 
 // ---------------------------------------------------------------------------
 // TYPES & INTERFACES
@@ -653,36 +654,22 @@ class DataService {
   // --- LOCAL JSON BACKUP & RESTORE ---
 
   async exportPartitionBackupJSON(estId: string): Promise<string> {
-    const materials = await this.getRawMaterials(estId);
-    const products = await this.getProducts(estId);
-    const audit = await this.getAuditLogs(estId);
-
-    const payload = {
-      version: '1.0',
-      establishmentId: estId,
-      exportedAt: new Date().toISOString(),
-      materials,
-      products,
-      audit,
-    };
-
-    return JSON.stringify(payload, null, 2);
+    // Ensure seed arrays exist if empty before snapshot
+    await this.getRawMaterials(estId);
+    await this.getProducts(estId);
+    return migrationService.exportEstablishmentBackup(estId);
   }
 
   async restorePartitionBackupJSON(estId: string, jsonString: string): Promise<boolean> {
-    try {
-      const parsed = JSON.parse(jsonString);
-      if (Array.isArray(parsed.materials)) {
-        await this.saveRawMaterials(estId, parsed.materials);
-      }
-      if (Array.isArray(parsed.products)) {
-        await this.saveProducts(estId, parsed.products);
-      }
-      await this.logAudit(estId, 'استعادة نسخة احتياطية', 'تمت استعادة بيانات المنشأة من ملف JSON محلي بنجاح', 'system');
-      return true;
-    } catch {
-      return false;
-    }
+    const result = migrationService.importEstablishmentBackup(estId, jsonString);
+    if (!result.success) return false;
+    await this.logAudit(
+      estId,
+      'استعادة نسخة احتياطية',
+      `تمت استعادة بيانات المنشأة (${result.restoredKeys} حزمة بيانات من الإصدار ${result.migratedFromVersion}) محلياً مع ترقية تلقائية`,
+      'system'
+    );
+    return true;
   }
 
   // --- SEED GENERATORS ---
