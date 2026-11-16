@@ -7,7 +7,7 @@
  * Displays runtime & boundary crashes logged locally by errorLogService.
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   AlertOctagon,
   ArrowRight,
@@ -36,6 +36,11 @@ export const ErrorLogModule: React.FC = () => {
   const [errors, setErrors] = useState<ClientErrorRecord[]>(() => errorLogService.getErrors(estId));
   const [confirmClear, setConfirmClear] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  useEffect(() => {
+    setErrors(errorLogService.getErrors(estId));
+    setConfirmClear(false);
+  }, [estId]);
 
   if (!isAuthorized) {
     return (
